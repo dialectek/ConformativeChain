@@ -1,0 +1,152 @@
+ERROR	2022-07-09 16:40:13,404	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[main]	org.hyperledger.fabric_ca.sdk.exception.InvalidArgumentException: Unable to add CA certificate, can't open certificate file /home/tom/Documents/research/blockchain/Hyperledger/Fabric/asset-transfer-basic/application-java/../../test-network/organizations/peerOrganizations/org1.example.com/ca/ca.org1.example.com-cert.pem
+ERROR	2022-07-09 20:17:56,743	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[main]	org.hyperledger.fabric_ca.sdk.exception.InvalidArgumentException: Unable to add CA certificate, can't open certificate file /home/tom/Documents/research/blockchain/Hyperledger/Fabric/asset-transfer-basic/application-java/../../network/organizations/peerOrganizations/org1.example.com/ca/ca.org1.example.com-cert.pem
+ERROR	2022-07-09 20:21:58,928	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[main]	org.hyperledger.fabric_ca.sdk.exception.InvalidArgumentException: Unable to add CA certificate, can't open certificate file /home/tom/Documents/research/blockchain/Hyperledger/Fabric/asset-transfer-basic/application-java/../../network/organizations/peerOrganizations/org1.example.com/ca/ca.org1.example.com-cert.pem
+ERROR	2022-07-09 20:26:07,617	0	org.hyperledger.fabric.gateway.impl.TransactionImpl	[main]	No valid proposal responses received. 2 peer error responses: Asset asset70 does not exist; Asset asset70 does not exist
+ERROR	2022-07-10 15:55:04,603	0	org.hyperledger.fabric.sdk.Channel	[main]	Channel Channel{id: 1, name: mychannel} Sending proposal with transaction: 05c940edb0d30dfa013047a4f5257dbe9126db228c018ca2eb0e0fc0c4da2bfd to Peer{ id: 2, name: peer0.org1.example.com, channelName: mychannel, url: grpcs://localhost:7051, mspid: Org1MSP} failed because of: gRPC failure=Status{code=UNKNOWN, description=error validating proposal: access denied: channel [mychannel] creator org unknown, creator is malformed, cause=null}
+java.lang.Exception: io.grpc.StatusRuntimeException: UNKNOWN: error validating proposal: access denied: channel [mychannel] creator org unknown, creator is malformed
+	at org.hyperledger.fabric.sdk.Channel.sendProposalToPeers(Channel.java:4965)
+	at org.hyperledger.fabric.sdk.Channel.sendProposalToPeers(Channel.java:4868)
+	at org.hyperledger.fabric.sdk.Channel.getConfigBlock(Channel.java:941)
+	at org.hyperledger.fabric.sdk.Channel.getConfigBlock(Channel.java:907)
+	at org.hyperledger.fabric.sdk.Channel.parseConfigBlock(Channel.java:1994)
+	at org.hyperledger.fabric.sdk.Channel.loadCACertificates(Channel.java:1831)
+	at org.hyperledger.fabric.sdk.Channel.initialize(Channel.java:1222)
+	at org.hyperledger.fabric.gateway.impl.NetworkImpl.initializeChannel(NetworkImpl.java:59)
+	at org.hyperledger.fabric.gateway.impl.NetworkImpl.<init>(NetworkImpl.java:50)
+	at org.hyperledger.fabric.gateway.impl.GatewayImpl.getNetwork(GatewayImpl.java:252)
+	at application.java.App.main(App.java:53)
+Caused by: io.grpc.StatusRuntimeException: UNKNOWN: error validating proposal: access denied: channel [mychannel] creator org unknown, creator is malformed
+	at io.grpc.Status.asRuntimeException(Status.java:533)
+	at io.grpc.stub.ClientCalls$UnaryStreamToFuture.onClose(ClientCalls.java:490)
+	at io.grpc.PartialForwardingClientCallListener.onClose(PartialForwardingClientCallListener.java:39)
+	at io.grpc.ForwardingClientCallListener.onClose(ForwardingClientCallListener.java:23)
+	at io.grpc.ForwardingClientCallListener$SimpleForwardingClientCallListener.onClose(ForwardingClientCallListener.java:40)
+	at io.grpc.internal.CensusStatsModule$StatsClientInterceptor$1$1.onClose(CensusStatsModule.java:700)
+	at io.grpc.PartialForwardingClientCallListener.onClose(PartialForwardingClientCallListener.java:39)
+	at io.grpc.ForwardingClientCallListener.onClose(ForwardingClientCallListener.java:23)
+	at io.grpc.ForwardingClientCallListener$SimpleForwardingClientCallListener.onClose(ForwardingClientCallListener.java:40)
+	at io.grpc.internal.CensusTracingModule$TracingClientInterceptor$1$1.onClose(CensusTracingModule.java:399)
+	at io.grpc.internal.ClientCallImpl.closeObserver(ClientCallImpl.java:510)
+	at io.grpc.internal.ClientCallImpl.access$300(ClientCallImpl.java:66)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl.close(ClientCallImpl.java:630)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl.access$700(ClientCallImpl.java:518)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl$1StreamClosed.runInternal(ClientCallImpl.java:692)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl$1StreamClosed.runInContext(ClientCallImpl.java:681)
+	at io.grpc.internal.ContextRunnable.run(ContextRunnable.java:37)
+	at io.grpc.internal.SerializingExecutor.run(SerializingExecutor.java:123)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+ERROR	2022-07-10 15:55:04,609	6	org.hyperledger.fabric.sdk.Channel	[main]	getConfigBlock for channel mychannel failed with peer peer0.org1.example.com.  Status FAILURE, details: Channel Channel{id: 1, name: mychannel} Sending proposal with transaction: 05c940edb0d30dfa013047a4f5257dbe9126db228c018ca2eb0e0fc0c4da2bfd to Peer{ id: 2, name: peer0.org1.example.com, channelName: mychannel, url: grpcs://localhost:7051, mspid: Org1MSP} failed because of: gRPC failure=Status{code=UNKNOWN, description=error validating proposal: access denied: channel [mychannel] creator org unknown, creator is malformed, cause=null}
+org.hyperledger.fabric.sdk.exception.ProposalException: getConfigBlock for channel mychannel failed with peer peer0.org1.example.com.  Status FAILURE, details: Channel Channel{id: 1, name: mychannel} Sending proposal with transaction: 05c940edb0d30dfa013047a4f5257dbe9126db228c018ca2eb0e0fc0c4da2bfd to Peer{ id: 2, name: peer0.org1.example.com, channelName: mychannel, url: grpcs://localhost:7051, mspid: Org1MSP} failed because of: gRPC failure=Status{code=UNKNOWN, description=error validating proposal: access denied: channel [mychannel] creator org unknown, creator is malformed, cause=null}
+	at org.hyperledger.fabric.sdk.Channel.getConfigBlock(Channel.java:952)
+	at org.hyperledger.fabric.sdk.Channel.getConfigBlock(Channel.java:907)
+	at org.hyperledger.fabric.sdk.Channel.parseConfigBlock(Channel.java:1994)
+	at org.hyperledger.fabric.sdk.Channel.loadCACertificates(Channel.java:1831)
+	at org.hyperledger.fabric.sdk.Channel.initialize(Channel.java:1222)
+	at org.hyperledger.fabric.gateway.impl.NetworkImpl.initializeChannel(NetworkImpl.java:59)
+	at org.hyperledger.fabric.gateway.impl.NetworkImpl.<init>(NetworkImpl.java:50)
+	at org.hyperledger.fabric.gateway.impl.GatewayImpl.getNetwork(GatewayImpl.java:252)
+	at application.java.App.main(App.java:53)
+ERROR	2022-07-10 15:55:05,216	613	org.hyperledger.fabric.sdk.ServiceDiscovery	[main]	Error access denied
+ERROR	2022-07-10 15:59:03,767	0	org.hyperledger.fabric.sdk.Channel	[main]	Channel Channel{id: 1, name: mychannel} Sending proposal with transaction: 35736c8590a5f6ebeaf9091df6919f43f0d90eac003eea08e0fccb38b67285cb to Peer{ id: 2, name: peer0.org1.example.com, channelName: mychannel, url: grpcs://localhost:7051, mspid: Org1MSP} failed because of: gRPC failure=Status{code=UNKNOWN, description=error validating proposal: access denied: channel [mychannel] creator org unknown, creator is malformed, cause=null}
+java.lang.Exception: io.grpc.StatusRuntimeException: UNKNOWN: error validating proposal: access denied: channel [mychannel] creator org unknown, creator is malformed
+	at org.hyperledger.fabric.sdk.Channel.sendProposalToPeers(Channel.java:4965)
+	at org.hyperledger.fabric.sdk.Channel.sendProposalToPeers(Channel.java:4868)
+	at org.hyperledger.fabric.sdk.Channel.getConfigBlock(Channel.java:941)
+	at org.hyperledger.fabric.sdk.Channel.getConfigBlock(Channel.java:907)
+	at org.hyperledger.fabric.sdk.Channel.parseConfigBlock(Channel.java:1994)
+	at org.hyperledger.fabric.sdk.Channel.loadCACertificates(Channel.java:1831)
+	at org.hyperledger.fabric.sdk.Channel.initialize(Channel.java:1222)
+	at org.hyperledger.fabric.gateway.impl.NetworkImpl.initializeChannel(NetworkImpl.java:59)
+	at org.hyperledger.fabric.gateway.impl.NetworkImpl.<init>(NetworkImpl.java:50)
+	at org.hyperledger.fabric.gateway.impl.GatewayImpl.getNetwork(GatewayImpl.java:252)
+	at application.java.App.main(App.java:53)
+Caused by: io.grpc.StatusRuntimeException: UNKNOWN: error validating proposal: access denied: channel [mychannel] creator org unknown, creator is malformed
+	at io.grpc.Status.asRuntimeException(Status.java:533)
+	at io.grpc.stub.ClientCalls$UnaryStreamToFuture.onClose(ClientCalls.java:490)
+	at io.grpc.PartialForwardingClientCallListener.onClose(PartialForwardingClientCallListener.java:39)
+	at io.grpc.ForwardingClientCallListener.onClose(ForwardingClientCallListener.java:23)
+	at io.grpc.ForwardingClientCallListener$SimpleForwardingClientCallListener.onClose(ForwardingClientCallListener.java:40)
+	at io.grpc.internal.CensusStatsModule$StatsClientInterceptor$1$1.onClose(CensusStatsModule.java:700)
+	at io.grpc.PartialForwardingClientCallListener.onClose(PartialForwardingClientCallListener.java:39)
+	at io.grpc.ForwardingClientCallListener.onClose(ForwardingClientCallListener.java:23)
+	at io.grpc.ForwardingClientCallListener$SimpleForwardingClientCallListener.onClose(ForwardingClientCallListener.java:40)
+	at io.grpc.internal.CensusTracingModule$TracingClientInterceptor$1$1.onClose(CensusTracingModule.java:399)
+	at io.grpc.internal.ClientCallImpl.closeObserver(ClientCallImpl.java:510)
+	at io.grpc.internal.ClientCallImpl.access$300(ClientCallImpl.java:66)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl.close(ClientCallImpl.java:630)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl.access$700(ClientCallImpl.java:518)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl$1StreamClosed.runInternal(ClientCallImpl.java:692)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl$1StreamClosed.runInContext(ClientCallImpl.java:681)
+	at io.grpc.internal.ContextRunnable.run(ContextRunnable.java:37)
+	at io.grpc.internal.SerializingExecutor.run(SerializingExecutor.java:123)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+ERROR	2022-07-10 15:59:03,770	3	org.hyperledger.fabric.sdk.Channel	[main]	getConfigBlock for channel mychannel failed with peer peer0.org1.example.com.  Status FAILURE, details: Channel Channel{id: 1, name: mychannel} Sending proposal with transaction: 35736c8590a5f6ebeaf9091df6919f43f0d90eac003eea08e0fccb38b67285cb to Peer{ id: 2, name: peer0.org1.example.com, channelName: mychannel, url: grpcs://localhost:7051, mspid: Org1MSP} failed because of: gRPC failure=Status{code=UNKNOWN, description=error validating proposal: access denied: channel [mychannel] creator org unknown, creator is malformed, cause=null}
+org.hyperledger.fabric.sdk.exception.ProposalException: getConfigBlock for channel mychannel failed with peer peer0.org1.example.com.  Status FAILURE, details: Channel Channel{id: 1, name: mychannel} Sending proposal with transaction: 35736c8590a5f6ebeaf9091df6919f43f0d90eac003eea08e0fccb38b67285cb to Peer{ id: 2, name: peer0.org1.example.com, channelName: mychannel, url: grpcs://localhost:7051, mspid: Org1MSP} failed because of: gRPC failure=Status{code=UNKNOWN, description=error validating proposal: access denied: channel [mychannel] creator org unknown, creator is malformed, cause=null}
+	at org.hyperledger.fabric.sdk.Channel.getConfigBlock(Channel.java:952)
+	at org.hyperledger.fabric.sdk.Channel.getConfigBlock(Channel.java:907)
+	at org.hyperledger.fabric.sdk.Channel.parseConfigBlock(Channel.java:1994)
+	at org.hyperledger.fabric.sdk.Channel.loadCACertificates(Channel.java:1831)
+	at org.hyperledger.fabric.sdk.Channel.initialize(Channel.java:1222)
+	at org.hyperledger.fabric.gateway.impl.NetworkImpl.initializeChannel(NetworkImpl.java:59)
+	at org.hyperledger.fabric.gateway.impl.NetworkImpl.<init>(NetworkImpl.java:50)
+	at org.hyperledger.fabric.gateway.impl.GatewayImpl.getNetwork(GatewayImpl.java:252)
+	at application.java.App.main(App.java:53)
+ERROR	2022-07-10 15:59:04,030	263	org.hyperledger.fabric.sdk.ServiceDiscovery	[main]	Error access denied
+ERROR	2022-07-10 16:02:10,783	1	org.hyperledger.fabric.sdk.ServiceDiscovery	[main]	Error failed constructing descriptor for chaincodes:<name:"basic" > 
+ERROR	2022-07-10 16:02:10,829	47	org.hyperledger.fabric.sdk.ServiceDiscovery	[main]	Error failed constructing descriptor for chaincodes:<name:"basic" > 
+ERROR	2022-07-10 16:04:13,589	0	org.hyperledger.fabric.gateway.impl.TransactionImpl	[main]	No valid proposal responses received. 2 peer error responses: Asset asset70 does not exist; Asset asset70 does not exist
+ERROR	2022-07-10 17:47:10,291	1	org.hyperledger.fabric.sdk.Channel	[main]	Channel Channel{id: 1, name: mychannel} Sending proposal with transaction: 82a4c398453fb9e604e3d82cd6442bff470900e6f714bd10ad7d88c016d20b65 to Peer{ id: 2, name: peer0.org1.example.com, channelName: mychannel, url: grpcs://localhost:7051, mspid: Org1MSP} failed because of: gRPC failure=Status{code=UNKNOWN, description=error validating proposal: access denied: channel [mychannel] creator org unknown, creator is malformed, cause=null}
+java.lang.Exception: io.grpc.StatusRuntimeException: UNKNOWN: error validating proposal: access denied: channel [mychannel] creator org unknown, creator is malformed
+	at org.hyperledger.fabric.sdk.Channel.sendProposalToPeers(Channel.java:4965)
+	at org.hyperledger.fabric.sdk.Channel.sendProposalToPeers(Channel.java:4868)
+	at org.hyperledger.fabric.sdk.Channel.getConfigBlock(Channel.java:941)
+	at org.hyperledger.fabric.sdk.Channel.getConfigBlock(Channel.java:907)
+	at org.hyperledger.fabric.sdk.Channel.parseConfigBlock(Channel.java:1994)
+	at org.hyperledger.fabric.sdk.Channel.loadCACertificates(Channel.java:1831)
+	at org.hyperledger.fabric.sdk.Channel.initialize(Channel.java:1222)
+	at org.hyperledger.fabric.gateway.impl.NetworkImpl.initializeChannel(NetworkImpl.java:59)
+	at org.hyperledger.fabric.gateway.impl.NetworkImpl.<init>(NetworkImpl.java:50)
+	at org.hyperledger.fabric.gateway.impl.GatewayImpl.getNetwork(GatewayImpl.java:252)
+	at com.dialectek.conformative.hyperledger.client.Conformative.main(Conformative.java:53)
+Caused by: io.grpc.StatusRuntimeException: UNKNOWN: error validating proposal: access denied: channel [mychannel] creator org unknown, creator is malformed
+	at io.grpc.Status.asRuntimeException(Status.java:533)
+	at io.grpc.stub.ClientCalls$UnaryStreamToFuture.onClose(ClientCalls.java:490)
+	at io.grpc.PartialForwardingClientCallListener.onClose(PartialForwardingClientCallListener.java:39)
+	at io.grpc.ForwardingClientCallListener.onClose(ForwardingClientCallListener.java:23)
+	at io.grpc.ForwardingClientCallListener$SimpleForwardingClientCallListener.onClose(ForwardingClientCallListener.java:40)
+	at io.grpc.internal.CensusStatsModule$StatsClientInterceptor$1$1.onClose(CensusStatsModule.java:700)
+	at io.grpc.PartialForwardingClientCallListener.onClose(PartialForwardingClientCallListener.java:39)
+	at io.grpc.ForwardingClientCallListener.onClose(ForwardingClientCallListener.java:23)
+	at io.grpc.ForwardingClientCallListener$SimpleForwardingClientCallListener.onClose(ForwardingClientCallListener.java:40)
+	at io.grpc.internal.CensusTracingModule$TracingClientInterceptor$1$1.onClose(CensusTracingModule.java:399)
+	at io.grpc.internal.ClientCallImpl.closeObserver(ClientCallImpl.java:510)
+	at io.grpc.internal.ClientCallImpl.access$300(ClientCallImpl.java:66)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl.close(ClientCallImpl.java:630)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl.access$700(ClientCallImpl.java:518)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl$1StreamClosed.runInternal(ClientCallImpl.java:692)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl$1StreamClosed.runInContext(ClientCallImpl.java:681)
+	at io.grpc.internal.ContextRunnable.run(ContextRunnable.java:37)
+	at io.grpc.internal.SerializingExecutor.run(SerializingExecutor.java:123)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+ERROR	2022-07-10 17:47:10,395	105	org.hyperledger.fabric.sdk.Channel	[main]	getConfigBlock for channel mychannel failed with peer peer0.org1.example.com.  Status FAILURE, details: Channel Channel{id: 1, name: mychannel} Sending proposal with transaction: 82a4c398453fb9e604e3d82cd6442bff470900e6f714bd10ad7d88c016d20b65 to Peer{ id: 2, name: peer0.org1.example.com, channelName: mychannel, url: grpcs://localhost:7051, mspid: Org1MSP} failed because of: gRPC failure=Status{code=UNKNOWN, description=error validating proposal: access denied: channel [mychannel] creator org unknown, creator is malformed, cause=null}
+org.hyperledger.fabric.sdk.exception.ProposalException: getConfigBlock for channel mychannel failed with peer peer0.org1.example.com.  Status FAILURE, details: Channel Channel{id: 1, name: mychannel} Sending proposal with transaction: 82a4c398453fb9e604e3d82cd6442bff470900e6f714bd10ad7d88c016d20b65 to Peer{ id: 2, name: peer0.org1.example.com, channelName: mychannel, url: grpcs://localhost:7051, mspid: Org1MSP} failed because of: gRPC failure=Status{code=UNKNOWN, description=error validating proposal: access denied: channel [mychannel] creator org unknown, creator is malformed, cause=null}
+	at org.hyperledger.fabric.sdk.Channel.getConfigBlock(Channel.java:952)
+	at org.hyperledger.fabric.sdk.Channel.getConfigBlock(Channel.java:907)
+	at org.hyperledger.fabric.sdk.Channel.parseConfigBlock(Channel.java:1994)
+	at org.hyperledger.fabric.sdk.Channel.loadCACertificates(Channel.java:1831)
+	at org.hyperledger.fabric.sdk.Channel.initialize(Channel.java:1222)
+	at org.hyperledger.fabric.gateway.impl.NetworkImpl.initializeChannel(NetworkImpl.java:59)
+	at org.hyperledger.fabric.gateway.impl.NetworkImpl.<init>(NetworkImpl.java:50)
+	at org.hyperledger.fabric.gateway.impl.GatewayImpl.getNetwork(GatewayImpl.java:252)
+	at com.dialectek.conformative.hyperledger.client.Conformative.main(Conformative.java:53)
+ERROR	2022-07-10 17:47:11,188	898	org.hyperledger.fabric.sdk.ServiceDiscovery	[main]	Error access denied
+ERROR	2022-07-10 17:49:19,168	0	org.hyperledger.fabric.sdk.ServiceDiscovery	[main]	Error failed constructing descriptor for chaincodes:<name:"chaincode-java" > 
+ERROR	2022-07-10 17:49:19,195	27	org.hyperledger.fabric.sdk.ServiceDiscovery	[main]	Error failed constructing descriptor for chaincodes:<name:"chaincode-java" > 
+ERROR	2022-07-10 17:51:54,038	0	org.hyperledger.fabric.gateway.impl.TransactionImpl	[main]	No valid proposal responses received. 2 peer error responses: Asset asset70 does not exist; Asset asset70 does not exist
+ERROR	2022-07-10 17:58:47,419	0	org.hyperledger.fabric.gateway.impl.TransactionImpl	[main]	No valid proposal responses received. 2 peer error responses: Asset asset1 already exists; Asset asset1 already exists

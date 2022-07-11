@@ -1,0 +1,2 @@
+serviceClass: com.citrix.conformative.client.GameService
+path: 6485ED586D71E9E9AA2314D2ABA00061.gwt.rpc
