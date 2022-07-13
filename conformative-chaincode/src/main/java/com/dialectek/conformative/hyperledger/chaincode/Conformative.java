@@ -35,7 +35,7 @@ import com.owlike.genson.Genson;
                 contact = @Contact(
                         email = "portegys@gmail.com",
                         name = "Tom Portegys",
-                        url = "http://tom.portegys.com")))
+                        url = "http://tom.portegys.com/research.html#conformative")))
 @Default
 public final class Conformative implements ContractInterface {
 
