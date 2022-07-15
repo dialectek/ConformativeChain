@@ -14,14 +14,24 @@ public class Shared
    public static final String REMOVE_PLAYER        = "remove_player";
    public static final String GET_PLAYER_RESOURCES = "get_player_resources";
    public static final String SET_PLAYER_RESOURCES = "set_player_resources";
+   public static final String HOST_PUT_CHAT        = "host_put_chat";
+   public static final String HOST_GET_CHAT        = "host_get_chat";
+   public static final String HOST_CLEAR_CHAT      = "host_clear_chat";   
+   public static final String PLAYER_PUT_CHAT      = "player_put_chat";   
+   public static final String PLAYER_GET_CHAT      = "player_get_chat"; 
+   public static final String PLAYER_CLEAR_CHAT    = "player_clear_chat";   
    public static final String START_CLAIM          = "start_claim";
    public static final String START_AUDIT          = "start_audit";
    public static final String SET_CLAIM            = "set_claim";
    public static final String SET_GRANT            = "set_grant";
    public static final String SET_PENALTY          = "set_penalty";
    public static final String SET_DONATION         = "set_donation";
-   public static final String AUDITOR_CHAT         = "auditor_chat";
-   public static final String CLAIMANT_CHAT        = "claimant_chat";
+   public static final String AUDITOR_PUT_CHAT     = "auditor_put_chat";
+   public static final String AUDITOR_GET_CHAT     = "auditor_get_chat";
+   public static final String AUDITOR_CLEAR_CHAT   = "auditor_clear_chat"; 
+   public static final String CLAIMANT_PUT_CHAT    = "claimant_put_chat";   
+   public static final String CLAIMANT_GET_CHAT    = "claimant_get_chat";  
+   public static final String CLAIMANT_CLEAR_CHAT  = "claimant_clear_chat";  
    public static final String FINISH_TRANSACTION   = "finish_transaction";
    public static final String ABORT_TRANSACTION    = "abort_transaction";
 

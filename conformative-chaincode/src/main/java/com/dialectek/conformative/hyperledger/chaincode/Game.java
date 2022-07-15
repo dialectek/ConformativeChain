@@ -28,6 +28,9 @@ public class Game
    @Property()
    private int state;
    
+   @Property()
+   private ArrayList<String> hostChat;
+   
    public Game(@JsonProperty("code") final String code, 
            @JsonProperty("initialCommonResources") final double initialCommonResources) 
    {
@@ -35,6 +38,7 @@ public class Game
       this.initialCommonResources = initialCommonResources;
       commonResources             = initialCommonResources;
       playerNames = new ArrayList<String>();
+      hostChat = new ArrayList<String>();
       state = Shared.PENDING;
    }
 
@@ -74,7 +78,17 @@ public class Game
    
    public boolean addPlayerName(String name)
    {
-	  if (name.contains(DelimitedString.DELIMITER)) return false;
+	  if (Shared.isVoid(name) ||
+			  name.contains(DelimitedString.DELIMITER) ||
+			  name.equals(Shared.ALL_PLAYERS))
+	  {
+		  return false;
+	  }
+	  try 
+	  {
+		    Integer.parseInt(name);
+		    return false;
+	  } catch (NumberFormatException e) {}
 	  for (String s : playerNames)
 	  {
 		  if (s.equals(name)) return false;
@@ -107,4 +121,20 @@ public class Game
    {
       this.state = state;
    }
+   
+   
+   public void addHostChat(String message)
+   {
+      hostChat.add(message);
+   }
+
+   public ArrayList<String> getHostChat()
+   {
+      return hostChat;
+   }
+   
+   public void clearHostChat()
+   {
+      hostChat.clear();
+   }           
 }

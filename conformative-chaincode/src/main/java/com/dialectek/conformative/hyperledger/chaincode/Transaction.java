@@ -17,7 +17,7 @@ public class Transaction
    private final String gameCode;
 
    @Property()
-   private String claimant;
+   private String claimantName;
 
    @Property()
    private double mean;
@@ -32,7 +32,7 @@ public class Transaction
    private double claim;
 
    @Property()
-   private ArrayList<String> auditors;
+   private ArrayList<String> auditorNames;
 
    @Property()
    private ArrayList<Double> auditorGrants;
@@ -57,11 +57,11 @@ public class Transaction
    {
       this.number      = number;
       this.gameCode    = gameCode;      
-      claimant         = null;
+      claimantName         = null;
       mean             = sigma = 0.0;
       entitlement      = 0.0;
       claim            = 0.0;
-      auditors         = new ArrayList<String>();
+      auditorNames        = new ArrayList<String>();
       auditorGrants    = new ArrayList<Double>();
       claimantGrant    = 0.0;
       auditorPenalties = new ArrayList<Double>();
@@ -83,15 +83,15 @@ public class Transaction
    }
 
 
-   public String getClaimant()
+   public String getClaimantName()
    {
-      return(claimant);
+      return(claimantName);
    }
 
 
-   public void setClaimant(String claimant)
+   public void setClaimantName(String claimantName)
    {
-      this.claimant = claimant;
+      this.claimantName = claimantName;
    }
 
 
@@ -143,15 +143,15 @@ public class Transaction
    }
 
 
-   public ArrayList<String> getAuditors()
+   public ArrayList<String> getAuditorNames()
    {
-      return(auditors);
+      return(auditorNames);
    }
 
 
-   public void addAuditor(String auditor)
+   public void addAuditorName(String auditorName)
    {
-      auditors.add(auditor);
+      auditorNames.add(auditorName);
       auditorGrants.add(new Double(0.0));
       auditorPenalties.add(new Double(0.0));
    }
@@ -163,11 +163,11 @@ public class Transaction
    }
 
 
-   public void addAuditorGrant(String auditor, double grant)
+   public void addAuditorGrant(String auditorName, double grant)
    {
-      for (int i = 0; i < auditors.size(); i++)
+      for (int i = 0; i < auditorNames.size(); i++)
       {
-         if (auditor.equals(auditors.get(i)))
+         if (auditorName.equals(auditorNames.get(i)))
          {
             auditorGrants.set(i, new Double(grant));
             break;
@@ -194,11 +194,11 @@ public class Transaction
    }
 
 
-   public void addAuditorPenalty(String auditor, double penalty)
+   public void addAuditorPenalty(String auditorName, double penalty)
    {
-      for (int i = 0; i < auditors.size(); i++)
+      for (int i = 0; i < auditorNames.size(); i++)
       {
-         if (auditor.equals(auditors.get(i)))
+         if (auditorName.equals(auditorNames.get(i)))
          {
             auditorPenalties.set(i, new Double(penalty));
             break;

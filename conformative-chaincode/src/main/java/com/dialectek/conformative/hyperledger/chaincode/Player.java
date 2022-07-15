@@ -2,6 +2,8 @@
 
 package com.dialectek.conformative.hyperledger.chaincode;
 
+import java.util.ArrayList;
+
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 import com.owlike.genson.annotation.JsonProperty;
@@ -20,7 +22,16 @@ public class Player
 
    @Property()
    private double entitledResources;
-
+   
+   @Property()   
+   ArrayList<String> playerChat;
+   
+   @Property()
+   ArrayList<String> claimantChat;
+   
+   @Property()
+   ArrayList<String> auditorChat;
+   
    public Player(@JsonProperty("name") final String name,
            @JsonProperty("gameCode") final String gameCode) 
    {
@@ -28,6 +39,9 @@ public class Player
       this.gameCode     = gameCode;
       personalResources = 0.0;
       entitledResources = 0.0;
+      playerChat = new ArrayList<String>();
+      claimantChat = new ArrayList<String>();
+      auditorChat = new ArrayList<String>();
    }
 
    public String getName()
@@ -64,4 +78,50 @@ public class Player
    {
       this.entitledResources = entitledResources;
    }
+   
+   public void addPlayerChat(String message)
+   {
+      playerChat.add(message);
+   }
+
+   public ArrayList<String> getPlayerChat()
+   {
+      return playerChat;
+   }
+   
+   public void clearPlayerChat()
+   {
+      playerChat.clear();
+   } 
+   
+   public void addClaimantChat(String message)
+   {
+      claimantChat.add(message);
+   }
+
+   public ArrayList<String> getClaimantChat()
+   {
+      return claimantChat;
+   }
+   
+   public void clearClaimantChat()
+   {
+      claimantChat.clear();
+   } 
+   
+   
+   public void addAuditorChat(String message)
+   {
+      auditorChat.add(message);
+   }
+
+   public ArrayList<String> getAuditorChat()
+   {
+      return auditorChat;
+   }
+   
+   public void clearAuditorChat()
+   {
+      auditorChat.clear();
+   }        
 }
