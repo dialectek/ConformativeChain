@@ -1,4 +1,4 @@
-# Conformative game smart contract on Hyperledger blockchain.
+# Conformative game on Hyperledger blockchain.
 
 Abstract:
 This research proposes a novel method for ensuring fair governance of a common resource using

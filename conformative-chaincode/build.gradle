@@ -3,13 +3,11 @@
  */
 
 plugins {
-    id 'com.github.johnrengelman.shadow' version '5.1.0'
     id 'application'
     id 'checkstyle'
-    id 'jacoco'
 }
 
-group 'org.hyperledger.fabric.samples'
+group 'com.dialectek.conformative.hyperledger.chaincode'
 version '1.0-SNAPSHOT'
 
 dependencies {
@@ -17,10 +15,6 @@ dependencies {
     implementation 'org.hyperledger.fabric-chaincode-java:fabric-chaincode-shim:2.4.1'
     implementation 'org.json:json:+'
     implementation 'com.owlike:genson:1.5'
-    testImplementation 'org.hyperledger.fabric-chaincode-java:fabric-chaincode-shim:2.4.1'
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.4.2'
-    testImplementation 'org.assertj:assertj-core:3.11.1'
-    testImplementation 'org.mockito:mockito-core:2.+'
 }
 
 repositories {
@@ -43,44 +37,6 @@ checkstyleMain {
     source ='src/main/java'
 }
 
-checkstyleTest {
-    source ='src/test/java'
-}
-
-jacocoTestReport {
-    dependsOn test
-}
-
-jacocoTestCoverageVerification {
-    violationRules {
-        rule {
-            limit {
-                minimum = 0.9
-            }
-        }
-    }
-
-    finalizedBy jacocoTestReport
-}
-
-test {
-    useJUnitPlatform()
-    testLogging {
-        events "passed", "skipped", "failed"
-    }
-}
-
 mainClassName = 'org.hyperledger.fabric.contract.ContractRouter'
 
-shadowJar {
-    baseName = 'chaincode'
-    version = null
-    classifier = null
-
-    manifest {
-        attributes 'Main-Class': 'org.hyperledger.fabric.contract.ContractRouter'
-    }
-}
-
-check.dependsOn jacocoTestCoverageVerification
 installDist.dependsOn check

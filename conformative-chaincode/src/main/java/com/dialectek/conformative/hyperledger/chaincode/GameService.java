@@ -3,24 +3,16 @@
 package com.dialectek.conformative.hyperledger.chaincode;
 
 import java.util.ArrayList;
-import java.util.List;
-
 import org.hyperledger.fabric.contract.Context;
 import org.hyperledger.fabric.contract.ContractInterface;
 import org.hyperledger.fabric.contract.annotation.Contact;
 import org.hyperledger.fabric.contract.annotation.Contract;
-import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Default;
 import org.hyperledger.fabric.contract.annotation.Info;
 import org.hyperledger.fabric.contract.annotation.License;
-import org.hyperledger.fabric.contract.annotation.Property;
 import org.hyperledger.fabric.contract.annotation.Transaction;
-import org.hyperledger.fabric.shim.ChaincodeException;
 import org.hyperledger.fabric.shim.ChaincodeStub;
-
 import com.owlike.genson.Genson;
-import com.owlike.genson.annotation.JsonProperty;
-import java.util.Collections;
 
 @Contract(
 name = "conformative-chaincode",
@@ -42,15 +34,15 @@ public final class GameService implements ContractInterface
    private final Genson genson = new Genson();
    
    @Transaction(intent = Transaction.TYPE.SUBMIT)
-   public void InitLedger(final Context ctx) {
-       ChaincodeStub stub = ctx.getStub();
+   public void InitLedger(final Context ctx) 
+   {
    }
    
    @Transaction(intent = Transaction.TYPE.SUBMIT)
-   public String requestService(final Context ctx, final String input) 
+   public String requestService(final Context ctx, final String in) 
    {
       ChaincodeStub stub = ctx.getStub();
-      input = stub.getStringState(input);	
+      String input = stub.getStringState(in);	
       if (Shared.isVoid(input))
       {
 	      return Shared.error("empty input");  
@@ -93,9 +85,9 @@ public final class GameService implements ContractInterface
 
          if ((request.equals(Shared.JOIN_GAME) ||
               request.equals(Shared.QUIT_GAME) ||
-              request.equals(Shared.PLAYER_GET_CHAT) ||
-              request.equals(Shared.PLAYER_PUT_CHAT) ||             
-              request.equals(Shared.PLAYER_CLEAR_CHAT)) &&        		 
+              request.equals(Shared.PLAYER_GET_MESSAGES) ||
+              request.equals(Shared.PLAYER_PUT_MESSAGE) ||             
+              request.equals(Shared.PLAYER_CLEAR_MESSAGES)) &&        		 
              (args.length >= 3))
          {
             if (game == null)
@@ -149,6 +141,7 @@ public final class GameService implements ContractInterface
                      game.removePlayerName(playerName);
                      String gameJson = genson.serialize(game);
                      stub.putStringState(gameCode, gameJson);
+                     stub.delState(gameCode + DelimitedString.DELIMITER + playerName);
                      return(Shared.OK);
                   }
                   else
@@ -158,14 +151,14 @@ public final class GameService implements ContractInterface
                }
                return(Shared.OK);
             }
-            else if (request.equals(Shared.PLAYER_GET_CHAT) && (args.length == 3))
+            else if (request.equals(Shared.PLAYER_GET_MESSAGES) && (args.length == 3))
             {
-               // Get player chat.
+               // Get player messages.
                if (player != null)
                {
             	 DelimitedString response = new DelimitedString(Shared.OK);
-            	 ArrayList<String> chat = player.getPlayerChat();
-            	 for (String message : chat)
+            	 ArrayList<String> messages = player.getPlayerMessages();
+            	 for (String message : messages)
             	 {
             		 response.add(message);
             	 }           	 
@@ -174,13 +167,14 @@ public final class GameService implements ContractInterface
                    return(Shared.error("player not found: " + playerName));            	   
                }
             }
-            else if (request.equals(Shared.PLAYER_PUT_CHAT) && (args.length == 4))
+            else if (request.equals(Shared.PLAYER_PUT_MESSAGE) && (args.length == 4))
             {
-               // Relay chat from player to host.
+               // Relay message from player to host.
                if (player != null)
                {
-            	  String message = args[3];
-            	  game.addHostChat(message);
+            	  DelimitedString message = new DelimitedString(Shared.CHAT_MESSAGE);
+            	  message.add(args[3]);
+            	  game.addHostMessage(message.toString());
                   String gameJson = genson.serialize(game);
                   stub.putStringState(gameCode, gameJson);
                   return(Shared.OK);
@@ -188,12 +182,12 @@ public final class GameService implements ContractInterface
                    return(Shared.error("player not found: " + playerName));              	   
                }
             }
-            else if (request.equals(Shared.PLAYER_CLEAR_CHAT) && (args.length == 3))
+            else if (request.equals(Shared.PLAYER_CLEAR_MESSAGES) && (args.length == 3))
             {
-               // Get player chat.
+               // Clear player messages.
                if (player != null)
                {
-            	 player.clearPlayerChat();
+            	 player.clearPlayerMessages();
                  String playerJson = genson.serialize(player);
                  stub.putStringState(gameCode + DelimitedString.DELIMITER + playerName, playerJson);            	 
                  return(Shared.OK); 
@@ -214,7 +208,7 @@ public final class GameService implements ContractInterface
                      resources = Double.parseDouble(args[2]);
                   }
                   catch (NumberFormatException e) {
-                     return(Shared.error("resources must be a non-negative number: " + args[2]));
+                     return(Shared.error("invalid resources: " + args[2]));
                   }
                   if (resources < 0.0)
                   {
@@ -354,19 +348,24 @@ public final class GameService implements ContractInterface
                   return(Shared.error("game code not found: " + gameCode));
                }
             }
-            else if (request.equals(Shared.HOST_GET_CHAT) && (args.length == 2))
+            else if (request.equals(Shared.HOST_GET_MESSAGES) && (args.length == 2))
             { 
             	if (game != null)
             	{
-            		
+                  	 DelimitedString response = new DelimitedString(Shared.OK);
+                	 ArrayList<String> messages = game.getHostMessages();
+                	 for (String message : messages)
+                	 {
+                		 response.add(message);
+                	 }           	 
             	} else {
              	   return(Shared.error("game code not found: " + gameCode));            		
             	}
             }
-            else if (request.equals(Shared.HOST_PUT_CHAT) &&
+            else if (request.equals(Shared.HOST_PUT_MESSAGE) &&
                      ((args.length == 3) || (args.length == 4)))
             {
-               // Relay chat from host to player.
+               // Relay message from host to player(s).
                if (game != null)
                {
                   String playerName = null;
@@ -376,12 +375,14 @@ public final class GameService implements ContractInterface
                      playerName = args[2];
                      message = args[3];
                   }
+                  DelimitedString playerMessage = new DelimitedString(Shared.CHAT_MESSAGE);
+                  playerMessage.add(message);
                   for (int i = 0; i < players.size(); i++)
                   {
                      Player player = players.get(i);
                      if ((playerName == null) || player.getName().equals(playerName))
                      {
-                    	player.addPlayerChat(message);
+                    	player.addPlayerMessage(playerMessage.toString());
                         String playerJson = genson.serialize(player);
                         stub.putStringState(gameCode + DelimitedString.DELIMITER + player.getName(), playerJson);  
                      }
@@ -391,11 +392,11 @@ public final class GameService implements ContractInterface
             	   return(Shared.error("game code not found: " + gameCode));
                }
             }
-            else if (request.equals(Shared.HOST_CLEAR_CHAT) && (args.length == 2))
+            else if (request.equals(Shared.HOST_CLEAR_MESSAGES) && (args.length == 2))
             { 
             	if (game != null)
             	{
-            		game.clearHostChat();
+            		game.clearHostMessages();
                     String gameJson = genson.serialize(game);
                     stub.putStringState(gameCode, gameJson);  
                     return(Shared.OK);
@@ -403,9 +404,9 @@ public final class GameService implements ContractInterface
              	   return(Shared.error("game code not found: " + gameCode));            		
             	}               
             }
-            else if (request.equals(Shared.CLAIMANT_GET_CHAT) && (args.length == 3))
+            else if (request.equals(Shared.CLAIMANT_GET_MESSAGES) && (args.length == 3))
             {
-               // Get claimant chat.
+               // Get claimant messages.
                if (game != null)
                {            	
 	               String      playerName = args[2];
@@ -419,8 +420,8 @@ public final class GameService implements ContractInterface
 	               if (player != null)
 	               {
 	            	 DelimitedString response = new DelimitedString(Shared.OK);
-	            	 ArrayList<String> chat = player.getClaimantChat();
-	            	 for (String message : chat)
+	            	 ArrayList<String> messages = player.getClaimantMessages();
+	            	 for (String message : messages)
 	            	 {
 	            		 response.add(message);
 	            	 }           	 
@@ -432,9 +433,9 @@ public final class GameService implements ContractInterface
              	   return(Shared.error("game code not found: " + gameCode));
                }	               
             }
-            else if (request.equals(Shared.CLAIMANT_PUT_CHAT) && (args.length == 4))
+            else if (request.equals(Shared.CLAIMANT_PUT_MESSAGE) && (args.length == 4))
             {
-               // Relay chat from claimant to auditors.
+               // Relay message from claimant to auditors.
                if (game != null)
                {
                   int number;
@@ -444,7 +445,6 @@ public final class GameService implements ContractInterface
         		  } catch (NumberFormatException e) {
                       return(Shared.error("invalid transaction number: " + args[2])); 
         		  }                  
-                  String message = args[3];
         	      String transactionJSON = stub.getStringState(gameCode + DelimitedString.DELIMITER + number);
         	      if (Shared.isVoid(transactionJSON)) 
         	      {
@@ -452,14 +452,17 @@ public final class GameService implements ContractInterface
         	      } 
         	      com.dialectek.conformative.hyperledger.chaincode.Transaction transaction = 
         	    		  genson.deserialize(transactionJSON, com.dialectek.conformative.hyperledger.chaincode.Transaction.class);
-                  ArrayList<String> auditorNames = transaction.getAuditorNames();
+                  String message = args[3];
+                  DelimitedString auditorMessage = new DelimitedString(Shared.CHAT_MESSAGE);
+                  auditorMessage.add(message); 
+        	      ArrayList<String> auditorNames = transaction.getAuditorNames();
                   for (String auditorName : auditorNames)
                   {
                 	  for (Player player : players)
                 	  {
                 		  if (auditorName.equals(player.getName()))
                 		  {
-                			  player.addAuditorChat(message);
+                			  player.addAuditorMessage(auditorMessage.toString());
                               String playerJson = genson.serialize(player);
                               stub.putStringState(gameCode + DelimitedString.DELIMITER + player.getName(), playerJson);                  			  
                 			  break;
@@ -471,27 +474,27 @@ public final class GameService implements ContractInterface
             	   return(Shared.error("game code not found: " + gameCode));
                }
             }
-            else if (request.equals(Shared.CLAIMANT_CLEAR_CHAT) && (args.length == 3))
+            else if (request.equals(Shared.CLAIMANT_CLEAR_MESSAGES) && (args.length == 3))
             {
-               // Clear claimant chat.
+               // Clear claimant messages.
                if (game != null)
                {            	
- 	               String      playerName = args[2];
- 	               Player player = null;
+ 	               String      claimantName = args[2];
+ 	               Player claimant = null;
  	               for (int i = 0; i < players.size(); i++)
  	               {
- 	                   player = players.get(i);
- 	                   if (player.getName().equals(playerName)) { break; }
- 	                   player = null;
+ 	                  claimant = players.get(i);
+ 	                  if (claimant.getName().equals(claimantName)) { break; }
+ 	                  claimant = null;
  	               }            	
- 	               if (player != null)
+ 	               if (claimant != null)
  	               {
- 	             	 player.clearClaimantChat();
- 	                 String playerJson = genson.serialize(player);
- 	                 stub.putStringState(gameCode + DelimitedString.DELIMITER + playerName, playerJson);            	 
+ 	            	 claimant.clearClaimantMessages();
+ 	                 String claimantJson = genson.serialize(claimant);
+ 	                 stub.putStringState(gameCode + DelimitedString.DELIMITER + claimantName, claimantJson);            	 
  	                 return(Shared.OK);
  	               } else {
- 	                   return(Shared.error("player not found: " + playerName));            	   
+ 	                   return(Shared.error("player not found: " + claimantName));            	   
  	               }
                } else {
               	   return(Shared.error("game code not found: " + gameCode));
@@ -509,31 +512,61 @@ public final class GameService implements ContractInterface
          		  } catch (NumberFormatException e) {
                        return(Shared.error("invalid transaction number: " + args[2])); 
          		  } 
+         	      String transactionJSON = stub.getStringState(gameCode + DelimitedString.DELIMITER + number);
+         	      if (!Shared.isVoid(transactionJSON)) 
+         	      {
+         		      return Shared.error("duplicate transaction number: " + number); 
+         	      } 
         	      com.dialectek.conformative.hyperledger.chaincode.Transaction transaction = 
         	    		  new com.dialectek.conformative.hyperledger.chaincode.Transaction(number, gameCode);
                   String      claimantName    = args[3];
+                  Player claimant = null;
+	              for (int i = 0; i < players.size(); i++)
+	              {
+	                   claimant = players.get(i);
+	                   if (claimant.getName().equals(claimantName)) { break; }
+	                   claimant = null;
+	              }            	
+	              if (claimant == null)
+	              {
+	                   return(Shared.error("claimant not found: " + claimantName));            	   
+	              }                  
                   transaction.setClaimantName(claimantName);
                   double mean, sigma, entitlement;
                   try
                   {
 	                  mean = Double.parseDouble(args[4]);
-	                  transaction.setMean(mean);
+        		  } catch (NumberFormatException e) {
+                      return(Shared.error("invalid claim mean: " + args[4])); 
+        		  }              
+	              transaction.setMean(mean);
+                  try
+                  {
 	                  sigma = Double.parseDouble(args[5]);
-	                  transaction.setSigma(sigma);
+        		  } catch (NumberFormatException e) {
+                      return(Shared.error("invalid claim sigma: " + args[5])); 
+        		  }              
+	              transaction.setSigma(sigma);
+	              try
+	              {
 	                  entitlement = Double.parseDouble(args[6]);
-	                  transaction.setEntitlement(entitlement);
+
          		  } catch (NumberFormatException e) {
-                      return(Shared.error("invalid claim quantity: mean=" + args[4] + ", sigma=" + args[5] + ", entitlement=" + args[6])); 
+                      return(Shared.error("invalid claim entitlement: " + args[6])); 
         		  } 
+                  transaction.setEntitlement(entitlement);	              
                   String transactionJson = genson.serialize(transaction);
                   stub.putStringState(gameCode + DelimitedString.DELIMITER + number, transactionJson);                  			  
-                  DelimitedString claimRequest = new DelimitedString(Shared.START_CLAIM);
-                  claimRequest.add(number);
-                  claimRequest.add(mean);
-                  claimRequest.add(sigma);
-                  claimRequest.add(entitlement);
-                  claimRequest.add(players.size());
-                  return(claimRequest.toString());
+                  DelimitedString claimantMessage = new DelimitedString(Shared.START_CLAIM);
+                  claimantMessage.add(number);
+                  claimantMessage.add(mean);
+                  claimantMessage.add(sigma);
+                  claimantMessage.add(entitlement);
+                  claimantMessage.add(players.size());
+                  claimant.addClaimantMessage(claimantMessage.toString());
+                  String claimantJson = genson.serialize(claimant);
+                  stub.putStringState(gameCode + DelimitedString.DELIMITER + claimantName, claimantJson);                     
+                  return(Shared.OK);
                }
                else
                {
@@ -555,7 +588,7 @@ public final class GameService implements ContractInterface
          	      String transactionJSON = stub.getStringState(gameCode + DelimitedString.DELIMITER + number);
          	      if (Shared.isVoid(transactionJSON)) 
          	      {
-         		      return Shared.error("cannot find transaction: " + number); 
+         		      return Shared.error("transaction number not found: " + number); 
          	      } 
          	      com.dialectek.conformative.hyperledger.chaincode.Transaction transaction = 
          	    		  genson.deserialize(transactionJSON, com.dialectek.conformative.hyperledger.chaincode.Transaction.class);
@@ -563,16 +596,31 @@ public final class GameService implements ContractInterface
                   try
                   {
 	                  claim = Double.parseDouble(args[3]);
-	                  transaction.setClaim(claim);
          		  } catch (NumberFormatException e) {
-                      return(Shared.error("invalid claim quantity: " + args[3])); 
+                      return(Shared.error("invalid claim=" + args[3])); 
         		  }
+                  transaction.setClaim(claim);
                   String transactionJson = genson.serialize(transaction);
                   stub.putStringState(gameCode + DelimitedString.DELIMITER + number, transactionJson);                  			                    
-                  DelimitedString claimRequest = new DelimitedString(Shared.SET_CLAIM);
-                  claimRequest.add(number);
-                  claimRequest.add(claim);
-                  return(claimRequest.toString());
+                  String claimantName = transaction.getClaimantName();
+                  Player claimant = null;
+	              for (int i = 0; i < players.size(); i++)
+	              {
+	                   claimant = players.get(i);
+	                   if (claimant.getName().equals(claimantName)) { break; }
+	                   claimant = null;
+	              }            	
+	              if (claimant == null)
+	              {
+	                   return(Shared.error("claimant not found: " + claimantName));            	   
+	              }                                  
+                  DelimitedString claimantMessage = new DelimitedString(Shared.SET_CLAIM);
+                  claimantMessage.add(number);
+                  claimantMessage.add(claim);
+                  claimant.addClaimantMessage(claimantMessage.toString());
+                  String claimantJson = genson.serialize(claimant);
+                  stub.putStringState(gameCode + DelimitedString.DELIMITER + claimantName, claimantJson);                     
+                  return Shared.OK;
                }
                else
                {
@@ -599,39 +647,62 @@ public final class GameService implements ContractInterface
           	      com.dialectek.conformative.hyperledger.chaincode.Transaction transaction = 
           	    		  genson.deserialize(transactionJSON, com.dialectek.conformative.hyperledger.chaincode.Transaction.class);
                   double claim = transaction.getClaim();
+                  String claimantName = transaction.getClaimantName();
+                  Player claimant = null;
+   	              for (int i = 0; i < players.size(); i++)
+   	              {
+   	                   claimant = players.get(i);
+   	                   if (claimant.getName().equals(claimantName)) { break; }
+   	                   claimant = null;
+   	              }            	
+   	              if (claimant == null)
+   	              {
+   	                   return(Shared.error("claimant not found: " + claimantName));            	   
+   	              }                         
                   if (args.length == 3)
                   {
                      transaction.setClaimantGrant(claim);
                      String transactionJson = genson.serialize(transaction);
-                     stub.putStringState(gameCode + DelimitedString.DELIMITER + number, transactionJson);                  			  
-                     DelimitedString grantRequest = new DelimitedString(Shared.SET_GRANT);
-                     grantRequest.add(number);
-                     grantRequest.add(claim);
-                     return grantRequest.toString();
+                     stub.putStringState(gameCode + DelimitedString.DELIMITER + number, transactionJson);                            
+                     DelimitedString claimantMessage = new DelimitedString(Shared.SET_GRANT);                     
+                     claimantMessage.add(number);
+                     claimantMessage.add(claim);
+                     claimant.addClaimantMessage(claimantMessage.toString());
+                     String claimantJson = genson.serialize(claimant);
+                     stub.putStringState(gameCode + DelimitedString.DELIMITER + claimantName, claimantJson);                                
                   }
                   else
                   {
-                     String claimantName = transaction.getClaimantName();
                      double mean     = transaction.getMean();
                      double sigma    = transaction.getSigma();
                      for (int i = 3; i < args.length; i++)
                      {
-                        DelimitedString clientId = new DelimitedString();
-                        clientId.add(gameCode);
-                        String auditor = args[i];
-                        transaction.addAuditor(auditor);
-                        clientId.add(auditor);
-                        DelimitedString auditRequest = new DelimitedString(Shared.START_AUDIT);
-                        auditRequest.add(number);
-                        auditRequest.add(claimant);
-                        auditRequest.add(mean);
-                        auditRequest.add(sigma);
-                        auditRequest.add(claim);
-                        auditRequest.add(players.size());
-                        channelService.sendMessage(
-                           new ChannelMessage(clientId.toString(), auditRequest.toString()));
+                        String auditorName = args[i];
+                        Player auditor = null;
+	      	            for (int j = 0; j < players.size(); j++)
+	      	            {
+      	                   auditor = players.get(j);
+      	                   if (auditor.getName().equals(auditorName)) { break; }
+      	                   auditor = null;
+	      	            }            	
+	      	            if (auditor == null)
+	      	            {
+	      	                return(Shared.error("auditor not found: " + auditorName));            	   
+	      	            }                                     
+                        transaction.addAuditorName(auditorName);
+                        DelimitedString auditorMessage = new DelimitedString(Shared.START_AUDIT);
+                        auditorMessage.add(number);
+                        auditorMessage.add(claimantName);
+                        auditorMessage.add(mean);
+                        auditorMessage.add(sigma);
+                        auditorMessage.add(claim);
+                        auditorMessage.add(players.size());
+                        auditor.addAuditorMessage(auditorMessage.toString());
+                        String auditorJson = genson.serialize(auditor);
+                        stub.putStringState(gameCode + DelimitedString.DELIMITER + auditorName, auditorJson); 
                      }
-                     pm.makePersistent(transaction);
+                     String transactionJson = genson.serialize(transaction);
+                     stub.putStringState(gameCode + DelimitedString.DELIMITER + number, transactionJson); 
                   }
                   return(Shared.OK);
                }
@@ -645,39 +716,54 @@ public final class GameService implements ContractInterface
                // Set grant.
                if (game != null)
                {
-                  int number = Integer.parseInt(args[2]);
-                  @SuppressWarnings("unchecked")
-                  List<Transaction> transactions = (List<Transaction> )transactionQuery.execute(gameCode, number);
-                  Transaction transaction        = null;
-                  if (transactions.size() == 0)
-                  {
-                     return(Shared.error("transaction not found"));
-                  }
-                  else if (transactions.size() == 1)
-                  {
-                     transaction = transactions.get(0);
-                  }
-                  else
-                  {
-                     return(Shared.error("duplicate transactions"));
-                  }
-                  double grant       = Double.parseDouble(args[3]);
+                  int number;
+           		  try 
+           		  {
+           			  number = Integer.parseInt(args[2]);
+           		  } catch (NumberFormatException e) {
+                         return(Shared.error("invalid transaction number: " + args[2])); 
+           		  }                  
+           	      String transactionJSON = stub.getStringState(gameCode + DelimitedString.DELIMITER + number);
+           	      if (Shared.isVoid(transactionJSON)) 
+           	      {
+           		      return Shared.error("cannot find transaction: " + number); 
+           	      } 
+           	      com.dialectek.conformative.hyperledger.chaincode.Transaction transaction = 
+           	    		  genson.deserialize(transactionJSON, com.dialectek.conformative.hyperledger.chaincode.Transaction.class);
+                  double grant       = 0.0;
+	              try
+	              {
+	                  grant = Double.parseDouble(args[3]);
+         		  } catch (NumberFormatException e) {
+                      return(Shared.error("invalid grant: " + args[3])); 
+        		  }                   
                   String auditorName = args[4];
+                  Player auditor = null;
+	              for (int i = 0; i < players.size(); i++)
+	              {
+	                   auditor = players.get(i);
+	                   if (auditor.getName().equals(auditorName)) { break; }
+	                   auditor = null;
+	              }            	
+	              if (auditor == null)
+	              {
+	                return(Shared.error("auditor not found: " + auditorName));            	   
+	              }                          
                   transaction.addAuditorGrant(auditorName, grant);
-                  pm.makePersistent(transaction);
-                  DelimitedString clientId = new DelimitedString();
-                  clientId.add(gameCode);
-                  DelimitedString grantRequest = new DelimitedString(Shared.SET_GRANT);
-                  grantRequest.add(number);
-                  grantRequest.add(grant);
-                  grantRequest.add(auditorName);
-                  channelService.sendMessage(
-                     new ChannelMessage(clientId.toString(), grantRequest.toString()));
+                  String transactionJson = genson.serialize(transaction);
+                  stub.putStringState(gameCode + DelimitedString.DELIMITER + number, transactionJson); 
+                  DelimitedString grantMessage = new DelimitedString(Shared.SET_GRANT);
+                  grantMessage.add(number);
+                  grantMessage.add(grant);
+                  grantMessage.add(auditorName);
+                  auditor.addAuditorMessage(grantMessage.toString());
+                  String auditorJson = genson.serialize(auditor);
+                  stub.putStringState(gameCode + DelimitedString.DELIMITER + auditorName, auditorJson); 
                   return(Shared.OK);
                }
                else
                {
-                  return(Shared.error("game not found"));
+                  return(Shared.error("game code not found: " + gameCode));
                }
             }
             else if (request.equals(Shared.SET_GRANT) && (args.length == 4))
@@ -685,51 +771,75 @@ public final class GameService implements ContractInterface
                // Set consensus grant.
                if (game != null)
                {
-                  int number = Integer.parseInt(args[2]);
-                  @SuppressWarnings("unchecked")
-                  List<Transaction> transactions = (List<Transaction> )transactionQuery.execute(gameCode, number);
-                  Transaction transaction        = null;
-                  if (transactions.size() == 0)
-                  {
-                     return(Shared.error("transaction not found"));
-                  }
-                  else if (transactions.size() == 1)
-                  {
-                     transaction = transactions.get(0);
-                  }
-                  else
-                  {
-                     return(Shared.error("duplicate transactions"));
-                  }
-                  double grant = Double.parseDouble(args[3]);
+                  int number;
+           		  try 
+           		  {
+           			  number = Integer.parseInt(args[2]);
+           		  } catch (NumberFormatException e) {
+                         return(Shared.error("invalid transaction number: " + args[2])); 
+           		  }                  
+           	      String transactionJSON = stub.getStringState(gameCode + DelimitedString.DELIMITER + number);
+           	      if (Shared.isVoid(transactionJSON)) 
+           	      {
+           		      return Shared.error("cannot find transaction: " + number); 
+           	      } 
+           	      com.dialectek.conformative.hyperledger.chaincode.Transaction transaction = 
+           	    		  genson.deserialize(transactionJSON, com.dialectek.conformative.hyperledger.chaincode.Transaction.class);
+                  double grant       = 0.0;
+	              try
+	              {
+	                  grant = Double.parseDouble(args[3]);
+         		  } catch (NumberFormatException e) {
+                      return(Shared.error("invalid grant: " + args[3])); 
+        		  }      
                   transaction.setClaimantGrant(grant);
-                  String            claimant = transaction.getClaimant();
-                  ArrayList<String> auditors = transaction.getAuditors();
-                  pm.makePersistent(transaction);
-                  DelimitedString clientId = new DelimitedString();
-                  clientId.add(gameCode);
-                  clientId.add(claimant);
-                  DelimitedString grantRequest = new DelimitedString(Shared.SET_GRANT);
-                  grantRequest.add(number);
-                  grantRequest.add(grant);
-                  channelService.sendMessage(
-                     new ChannelMessage(clientId.toString(), grantRequest.toString()));
-                  for (int i = 0; i < auditors.size(); i++)
+                  String transactionJson = genson.serialize(transaction);
+                  stub.putStringState(gameCode + DelimitedString.DELIMITER + number, transactionJson);                  
+                  String            claimantName = transaction.getClaimantName();
+                  Player claimant = null;
+   	              for (int i = 0; i < players.size(); i++)
+   	              {
+   	                   claimant = players.get(i);
+   	                   if (claimant.getName().equals(claimantName)) { break; }
+   	                   claimant = null;
+   	              }            	
+   	              if (claimant == null)
+   	              {
+   	                   return(Shared.error("claimant not found: " + claimantName));            	   
+   	              }                 
+                  DelimitedString grantMessage = new DelimitedString(Shared.SET_GRANT);
+                  grantMessage.add(number);
+                  grantMessage.add(grant);
+                  claimant.addClaimantMessage(grantMessage.toString());
+                  String claimantJson = genson.serialize(claimant);
+                  stub.putStringState(gameCode + DelimitedString.DELIMITER + claimantName, claimantJson);                                
+                  ArrayList<String> auditorNames = transaction.getAuditorNames();                  
+                  for (int i = 0; i < auditorNames.size(); i++)
                   {
-                     clientId = new DelimitedString();
-                     clientId.add(gameCode);
-                     clientId.add(auditors.get(i));
-                     grantRequest = new DelimitedString(Shared.SET_GRANT);
-                     grantRequest.add(number);
-                     grantRequest.add(grant);
-                     channelService.sendMessage(
-                        new ChannelMessage(clientId.toString(), grantRequest.toString()));
+                	  String auditorName = auditorNames.get(i);
+                      Player auditor = null;
+    	              for (int j = 0; j < players.size(); j++)
+    	              {
+    	                   auditor = players.get(j);
+    	                   if (auditor.getName().equals(auditorName)) { break; }
+    	                   auditor = null;
+    	              }            	
+    	              if (auditor == null)
+    	              {
+    	                return(Shared.error("auditor not found: " + auditorName));            	   
+    	              }                                         	  
+                     grantMessage = new DelimitedString(Shared.SET_GRANT);
+                     grantMessage.add(number);
+                     grantMessage.add(grant);
+                     auditor.addAuditorMessage(grantMessage.toString());
+                     String auditorJson = genson.serialize(auditor);
+                     stub.putStringState(gameCode + DelimitedString.DELIMITER + auditorName, auditorJson); 
                   }
                   return(Shared.OK);
                }
                else
                {
-                  return(Shared.error("game not found"));
+                  return(Shared.error("game code not found: " + gameCode));
                }
             }
             else if (request.equals(Shared.SET_PENALTY) && (args.length == 5))
@@ -737,63 +847,93 @@ public final class GameService implements ContractInterface
                // Set penalties.
                if (game != null)
                {
-                  int number = Integer.parseInt(args[2]);
-                  @SuppressWarnings("unchecked")
-                  List<Transaction> transactions = (List<Transaction> )transactionQuery.execute(gameCode, number);
-                  Transaction transaction        = null;
-                  if (transactions.size() == 0)
-                  {
-                     return(Shared.error("transaction not found"));
-                  }
-                  else if (transactions.size() == 1)
-                  {
-                     transaction = transactions.get(0);
-                  }
-                  else
-                  {
-                     return(Shared.error("duplicate transactions"));
-                  }
-                  double auditorPenaltyParameter  = Double.parseDouble(args[3]);
-                  double claimantPenaltyParameter = Double.parseDouble(args[4]);
-                  String claimant = transaction.getClaimant();
+                  int number;
+        		  try 
+        		  {
+        			  number = Integer.parseInt(args[2]);
+        		  } catch (NumberFormatException e) {
+                      return(Shared.error("invalid transaction number: " + args[2])); 
+        		  }                  
+        	      String transactionJSON = stub.getStringState(gameCode + DelimitedString.DELIMITER + number);
+        	      if (Shared.isVoid(transactionJSON)) 
+        	      {
+        		      return Shared.error("cannot find transaction: " + number); 
+        	      } 
+        	      com.dialectek.conformative.hyperledger.chaincode.Transaction transaction = 
+        	    		  genson.deserialize(transactionJSON, com.dialectek.conformative.hyperledger.chaincode.Transaction.class);
+                  double auditorPenaltyParameter       = 0.0;
+	              try
+	              {
+	            	  auditorPenaltyParameter = Double.parseDouble(args[3]);
+         		  } catch (NumberFormatException e) {
+                      return(Shared.error("invalid auditor penalty parameter: " + args[3])); 
+        		  }             	      
+                  double claimantPenaltyParameter       = 0.0;
+	              try
+	              {
+	            	  claimantPenaltyParameter = Double.parseDouble(args[4]);
+         		  } catch (NumberFormatException e) {
+                      return(Shared.error("invalid claimant penalty parameter: " + args[4])); 
+        		  }                       
+                  String claimantName = transaction.getClaimantName();
                   double claim    = transaction.getClaim();
                   double grant    = transaction.getClaimantGrant();
                   double penalty  = (claim - grant) * claimantPenaltyParameter;
                   transaction.setClaimantPenalty(penalty);
-                  ArrayList<String> auditors         = transaction.getAuditors();
+                  ArrayList<String> auditorNames         = transaction.getAuditorNames();
                   ArrayList<Double> auditorGrants    = transaction.getAuditorGrants();
                   ArrayList<Double> auditorPenalties = new ArrayList<Double>();
-                  for (int i = 0; i < auditors.size(); i++)
+                  for (int i = 0; i < auditorNames.size(); i++)
                   {
                      Double auditorPenalty = new Double(Math.abs(grant - auditorGrants.get(i).doubleValue()) * auditorPenaltyParameter);
                      auditorPenalties.add(auditorPenalty);
-                     transaction.addAuditorPenalty(auditors.get(i), auditorPenalty.doubleValue());
+                     transaction.addAuditorPenalty(auditorNames.get(i), auditorPenalty.doubleValue());
                   }
-                  pm.makePersistent(transaction);
-                  DelimitedString clientId = new DelimitedString();
-                  clientId.add(gameCode);
-                  clientId.add(claimant);
-                  DelimitedString penaltyRequest = new DelimitedString(Shared.SET_PENALTY);
-                  penaltyRequest.add(number);
-                  penaltyRequest.add(penalty);
-                  channelService.sendMessage(
-                     new ChannelMessage(clientId.toString(), penaltyRequest.toString()));
-                  for (int i = 0; i < auditors.size(); i++)
+                  String transactionJson = genson.serialize(transaction);
+                  stub.putStringState(gameCode + DelimitedString.DELIMITER + number, transactionJson);                  
+                  DelimitedString penaltyMessage = new DelimitedString(Shared.SET_PENALTY);
+                  penaltyMessage.add(number);
+                  penaltyMessage.add(penalty);
+                  Player claimant = null;
+   	              for (int i = 0; i < players.size(); i++)
+   	              {
+   	                   claimant = players.get(i);
+   	                   if (claimant.getName().equals(claimantName)) { break; }
+   	                   claimant = null;
+   	              }            	
+   	              if (claimant == null)
+   	              {
+   	                   return(Shared.error("claimant not found: " + claimantName));            	   
+   	              } 
+   	              claimant.addClaimantMessage(penaltyMessage.toString());
+                  String claimantJson = genson.serialize(claimant);
+                  stub.putStringState(gameCode + DelimitedString.DELIMITER + claimantName, claimantJson);
+                  for (int i = 0; i < auditorNames.size(); i++)
                   {
-                     clientId = new DelimitedString();
-                     clientId.add(gameCode);
-                     clientId.add(auditors.get(i));
-                     penaltyRequest = new DelimitedString(Shared.SET_PENALTY);
-                     penaltyRequest.add(number);
-                     penaltyRequest.add(auditorPenalties.get(i).doubleValue());
-                     channelService.sendMessage(
-                        new ChannelMessage(clientId.toString(), penaltyRequest.toString()));
+                	  String auditorName = auditorNames.get(i);
+                      Player auditor = null;
+    	              for (int j = 0; j < players.size(); j++)
+    	              {
+    	                   auditor = players.get(j);
+    	                   if (auditor.getName().equals(auditorName)) { break; }
+    	                   auditor = null;
+    	              }            	
+    	              if (auditor == null)
+    	              {
+    	                return(Shared.error("auditor not found: " + auditorName));            	   
+    	              }                                	  
+                     penaltyMessage = new DelimitedString(Shared.SET_PENALTY);
+                     penaltyMessage.add(number);
+                     penaltyMessage.add(auditorPenalties.get(i).doubleValue());
+                     auditor.addAuditorMessage(penaltyMessage.toString());
+                     String auditorJson = genson.serialize(auditor);
+                     stub.putStringState(gameCode + DelimitedString.DELIMITER + auditorName, auditorJson); 
                   }
                   return(Shared.OK);
                }
                else
                {
-                  return(Shared.error("game not found"));
+                  return(Shared.error("game code not found: " + gameCode));
                }
             }
             else if (request.equals(Shared.SET_DONATION) && (args.length == 5))
@@ -801,40 +941,45 @@ public final class GameService implements ContractInterface
                // Donate.
                if (game != null)
                {
-                  int    number      = Integer.parseInt(args[2]);
-                  double donation    = Double.parseDouble(args[3]);
-                  String beneficiary = args[4];
+                  int number;
+        		  try 
+        		  {
+        			  number = Integer.parseInt(args[2]);
+        		  } catch (NumberFormatException e) {
+                      return(Shared.error("invalid transaction number: " + args[2])); 
+        		  }                  
+        	      String transactionJSON = stub.getStringState(gameCode + DelimitedString.DELIMITER + number);
+        	      if (Shared.isVoid(transactionJSON)) 
+        	      {
+        		      return Shared.error("cannot find transaction: " + number); 
+        	      } 
+        	      com.dialectek.conformative.hyperledger.chaincode.Transaction transaction = 
+        	    		  genson.deserialize(transactionJSON, com.dialectek.conformative.hyperledger.chaincode.Transaction.class);
+                  double donation       = 0.0;
+ 	              try
+ 	              {
+ 	            	  donation = Double.parseDouble(args[3]);
+          		  } catch (NumberFormatException e) {
+                       return(Shared.error("invalid donation: " + args[3])); 
+         		  }                      
+                  String beneficiaryName = args[4];
                   int    i           = 0;
                   for ( ; i < players.size(); i++)
                   {
-                     if (beneficiary.equals(players.get(i).getName())) { break; }
+                     if (beneficiaryName.equals(players.get(i).getName())) { break; }
                   }
                   if (i == players.size())
                   {
-                     return(Shared.error("player not found"));
+                     return(Shared.error("beneficiary not found: " + beneficiaryName));
                   }
-                  @SuppressWarnings("unchecked")
-                  List<Transaction> transactions = (List<Transaction> )transactionQuery.execute(gameCode, number);
-                  Transaction transaction        = null;
-                  if (transactions.size() == 0)
-                  {
-                     return(Shared.error("transaction not found"));
-                  }
-                  else if (transactions.size() == 1)
-                  {
-                     transaction = transactions.get(0);
-                  }
-                  else
-                  {
-                     return(Shared.error("duplicate transactions"));
-                  }
-                  transaction.addDonation(beneficiary, donation);
-                  pm.makePersistent(transaction);
+                  transaction.addDonation(beneficiaryName, donation);
+                  String transactionJson = genson.serialize(transaction);
+                  stub.putStringState(gameCode + DelimitedString.DELIMITER + number, transactionJson);                  
                   return(Shared.OK);
                }
                else
                {
-                  return(Shared.error("game not found"));
+                  return(Shared.error("game code not found: " + gameCode));
                }
             }
             else if (request.equals(Shared.FINISH_TRANSACTION) && (args.length == 4))
@@ -842,35 +987,36 @@ public final class GameService implements ContractInterface
                // Player transaction finish.
                if (game != null)
                {
-                  int number = Integer.parseInt(args[2]);
-                  @SuppressWarnings("unchecked")
-                  List<Transaction> transactions = (List<Transaction> )transactionQuery.execute(gameCode, number);
-                  Transaction transaction        = null;
-                  if (transactions.size() == 0)
-                  {
-                     return(Shared.error("transaction not found"));
-                  }
-                  else if (transactions.size() == 1)
-                  {
-                     transaction = transactions.get(0);
-                  }
-                  else
-                  {
-                     return(Shared.error("duplicate transactions"));
-                  }
+                  int number;
+         		  try 
+         		  {
+         			  number = Integer.parseInt(args[2]);
+         		  } catch (NumberFormatException e) {
+                       return(Shared.error("invalid transaction number: " + args[2])); 
+         		  }                  
                   String          playerName = args[3];
-                  DelimitedString clientId   = new DelimitedString();
-                  clientId.add(gameCode);
-                  DelimitedString finishRequest = new DelimitedString(Shared.FINISH_TRANSACTION);
-                  finishRequest.add(number);
-                  finishRequest.add(playerName);
-                  channelService.sendMessage(
-                     new ChannelMessage(clientId.toString(), finishRequest.toString()));
+                  Player player = null;
+	              for (int i = 0; i < players.size(); i++)
+	              {
+	                   player = players.get(i);
+	                   if (player.getName().equals(playerName)) { break; }
+	                   player = null;
+	              }            	
+	              if (player == null)
+	              {
+	                return(Shared.error("player not found: " + playerName));            	   
+	              }                                   
+                  DelimitedString finishMessage = new DelimitedString(Shared.FINISH_TRANSACTION);
+                  finishMessage.add(number);
+                  finishMessage.add(playerName);
+                  player.addPlayerMessage(finishMessage.toString());
+                  String playerJson = genson.serialize(player);
+                  stub.putStringState(gameCode + DelimitedString.DELIMITER + playerName, playerJson); 
                   return(Shared.OK);
                }
                else
                {
-                  return(Shared.error("game not found"));
+                  return(Shared.error("game code not found: " + gameCode));
                }
             }
             else if (request.equals(Shared.FINISH_TRANSACTION) && (args.length == 3))
@@ -878,26 +1024,24 @@ public final class GameService implements ContractInterface
                // Host transaction finish.
                if (game != null)
                {
-                  int number = Integer.parseInt(args[2]);
-                  @SuppressWarnings("unchecked")
-                  List<Transaction> transactions = (List<Transaction> )transactionQuery.execute(gameCode, number);
-                  Transaction transaction        = null;
-                  if (transactions.size() == 0)
-                  {
-                     return(Shared.error("transaction not found"));
-                  }
-                  else if (transactions.size() == 1)
-                  {
-                     transaction = transactions.get(0);
-                  }
-                  else
-                  {
-                     return(Shared.error("duplicate transactions"));
-                  }
+                  int number;
+          		  try 
+          		  {
+          			  number = Integer.parseInt(args[2]);
+          		  } catch (NumberFormatException e) {
+                        return(Shared.error("invalid transaction number: " + args[2])); 
+          		  }                  
+          	      String transactionJSON = stub.getStringState(gameCode + DelimitedString.DELIMITER + number);
+          	      if (Shared.isVoid(transactionJSON)) 
+          	      {
+          		      return Shared.error("cannot find transaction: " + number); 
+          	      } 
+          	      com.dialectek.conformative.hyperledger.chaincode.Transaction transaction = 
+          	    		  genson.deserialize(transactionJSON, com.dialectek.conformative.hyperledger.chaincode.Transaction.class);
 
                   // Apply transaction to players.
-                  String      claimantName = transaction.getClaimant();
-                  PlayerProxy claimant     = null;
+                  String      claimantName = transaction.getClaimantName();
+                  Player claimant = null;
                   int         i            = 0;
                   for ( ; i < players.size(); i++)
                   {
@@ -906,32 +1050,19 @@ public final class GameService implements ContractInterface
                   }
                   if (i == players.size())
                   {
-                     return(Shared.error("claimant not found"));
+                     return(Shared.error("claimant not found: " + claimantName));
                   }
-                  @SuppressWarnings("unchecked")
-                  List<Player> claimants = (List<Player> )playerQuery.execute(gameCode, claimantName);
-                  if (claimants.size() == 0)
-                  {
-                     return(Shared.error("claimant not found"));
-                  }
-                  else if (claimants.size() > 1)
-                  {
-                     return(Shared.error("duplicate claimants"));
-                  }
-                  Player persistentClaimant = claimants.get(0);
                   double entitlement        = claimant.getEntitledResources() + transaction.getEntitlement();
                   claimant.setEntitledResources(entitlement);
-                  persistentClaimant.setEntitledResources(entitlement);
                   double amount = claimant.getPersonalResources() - transaction.getEntitlement() +
                                   transaction.getClaimantGrant() - transaction.getClaimantPenalty();
-                  claimant.setPersonalResources(amount);
-                  persistentClaimant.setPersonalResources(amount);
-                  ArrayList<String> auditorNames     = transaction.getAuditors();
+                  claimant.setPersonalResources(amount); 
+                  ArrayList<String> auditorNames     = transaction.getAuditorNames();
                   ArrayList<Double> auditorPenalties = transaction.getAuditorPenalties();
                   for (i = 0; i < auditorNames.size(); i++)
                   {
                      String      auditorName = auditorNames.get(i);
-                     PlayerProxy auditor     = null;
+                     Player auditor = null;
                      int         j           = 0;
                      for ( ; j < players.size(); j++)
                      {
@@ -940,23 +1071,12 @@ public final class GameService implements ContractInterface
                      }
                      if (j == players.size())
                      {
-                        return(Shared.error("auditor not found"));
+                        return(Shared.error("auditor not found: " + auditorName));
                      }
-                     @SuppressWarnings("unchecked")
-                     List<Player> auditors = (List<Player> )playerQuery.execute(gameCode, auditorName);
-                     if (auditors.size() == 0)
-                     {
-                        return(Shared.error("auditor not found"));
-                     }
-                     else if (auditors.size() > 1)
-                     {
-                        return(Shared.error("duplicate auditors"));
-                     }
-                     Player persistentAuditor = auditors.get(0);
                      amount = auditor.getPersonalResources() - auditorPenalties.get(i).doubleValue();
                      auditor.setPersonalResources(amount);
-                     persistentAuditor.setPersonalResources(amount);
-                     pm.makePersistent(persistentAuditor);
+                     String auditorJson = genson.serialize(auditor);
+                     stub.putStringState(gameCode + DelimitedString.DELIMITER + auditorName, auditorJson); 
                   }
                   ArrayList<String> beneficiaryNames = transaction.getBeneficiaries();
                   ArrayList<Double> donations        = transaction.getDonations();
@@ -964,7 +1084,7 @@ public final class GameService implements ContractInterface
                   for (i = 0; i < beneficiaryNames.size(); i++)
                   {
                      String      beneficiaryName = beneficiaryNames.get(i);
-                     PlayerProxy beneficiary     = null;
+                     Player beneficiary = null;
                      int         j = 0;
                      for ( ; j < players.size(); j++)
                      {
@@ -973,76 +1093,37 @@ public final class GameService implements ContractInterface
                      }
                      if (j == players.size())
                      {
-                        return(Shared.error("beneficiary not found"));
+                        return(Shared.error("beneficiary not found: " + beneficiaryName));
                      }
-                     @SuppressWarnings("unchecked")
-                     List<Player> beneficiaries = (List<Player> )playerQuery.execute(gameCode, beneficiaryName);
-                     if (beneficiaries.size() == 0)
-                     {
-                        return(Shared.error("beneficiary not found"));
-                     }
-                     else if (beneficiaries.size() > 1)
-                     {
-                        return(Shared.error("duplicate beneficiaries"));
-                     }
-                     Player persistentBeneficiary = beneficiaries.get(0);
                      amount         = beneficiary.getPersonalResources() + donations.get(i).doubleValue();
                      donationTotal += donations.get(i).doubleValue();
                      beneficiary.setPersonalResources(amount);
-                     persistentBeneficiary.setPersonalResources(amount);
-                     pm.makePersistent(persistentBeneficiary);
+                     String beneficiaryJson = genson.serialize(beneficiary);
+                     stub.putStringState(gameCode + DelimitedString.DELIMITER + beneficiaryName, beneficiaryJson);
                   }
                   amount = claimant.getPersonalResources() - donationTotal;
                   claimant.setPersonalResources(amount);
-                  persistentClaimant.setPersonalResources(amount);
-                  pm.makePersistent(persistentClaimant);
-                  cache.put(playerListKey, players);
-
+ 
                   // Apply transaction to game.
                   amount = game.getCommonResources() - transaction.getClaimantGrant();
                   game.setCommonResources(amount);
-                  if (persistentGame != null)
-                  {
-                     persistentGame.setCommonResources(amount);
-                  }
-                  else
-                  {
-                     @SuppressWarnings("unchecked")
-                     List<Game> games = (List<Game> )gameQuery.execute(gameCode);
-                     if (games.size() == 0)
-                     {
-                        return(Shared.error("game not found"));
-                     }
-                     else if (games.size() == 1)
-                     {
-                        persistentGame = games.get(0);
-                        persistentGame.setCommonResources(amount);
-                     }
-                     else
-                     {
-                        cache.remove(gameKey);
-                        return(Shared.error("duplicate game code"));
-                     }
-                  }
-                  pm.makePersistent(persistentGame);
-                  cache.put(gameKey, game);
+                  String gameJson = genson.serialize(game);
+                  stub.putStringState(gameCode, gameJson);                  
 
                   // Send notifications to participants.
                   double          commonResources = game.getCommonResources() / (double)(players.size());
-                  DelimitedString clientId        = new DelimitedString();
-                  clientId.add(gameCode);
-                  clientId.add(claimantName);
-                  DelimitedString finishRequest = new DelimitedString(Shared.FINISH_TRANSACTION);
-                  finishRequest.add(number);
-                  finishRequest.add(claimant.getPersonalResources());
-                  finishRequest.add(commonResources);
-                  finishRequest.add(claimant.getEntitledResources());
-                  channelService.sendMessage(
-                     new ChannelMessage(clientId.toString(), finishRequest.toString()));
+                  DelimitedString finishMessage = new DelimitedString(Shared.FINISH_TRANSACTION);
+                  finishMessage.add(number);
+                  finishMessage.add(claimant.getPersonalResources());
+                  finishMessage.add(commonResources);
+                  finishMessage.add(claimant.getEntitledResources());
+                  claimant.addClaimantMessage(finishMessage.toString());
+                  String claimantJson = genson.serialize(claimant);
+                  stub.putStringState(gameCode + DelimitedString.DELIMITER + claimantName, claimantJson);
                   for (i = 0; i < auditorNames.size(); i++)
                   {
                      String      auditorName = auditorNames.get(i);
-                     PlayerProxy auditor     = null;
+                     Player auditor = null;
                      int         j           = 0;
                      for ( ; j < players.size(); j++)
                      {
@@ -1051,24 +1132,22 @@ public final class GameService implements ContractInterface
                      }
                      if (j == players.size())
                      {
-                        return(Shared.error("auditor not found"));
+                        return(Shared.error("auditor not found: " + auditorName));
                      }
-                     clientId = new DelimitedString();
-                     clientId.add(gameCode);
-                     clientId.add(auditorName);
-                     finishRequest = new DelimitedString(Shared.FINISH_TRANSACTION);
-                     finishRequest.add(number);
-                     finishRequest.add(auditor.getPersonalResources());
-                     finishRequest.add(commonResources);
-                     finishRequest.add(auditor.getEntitledResources());
-                     channelService.sendMessage(
-                        new ChannelMessage(clientId.toString(), finishRequest.toString()));
+                     finishMessage = new DelimitedString(Shared.FINISH_TRANSACTION);
+                     finishMessage.add(number);
+                     finishMessage.add(auditor.getPersonalResources());
+                     finishMessage.add(commonResources);
+                     finishMessage.add(auditor.getEntitledResources());
+                     auditor.addAuditorMessage(finishMessage.toString());
+                     String auditorJson = genson.serialize(auditor);
+                     stub.putStringState(gameCode + DelimitedString.DELIMITER + auditorName, auditorJson);
                   }
                   return(Shared.OK);
                }
                else
                {
-                  return(Shared.error("game not found"));
+                  return(Shared.error("game code not found: " + gameCode));
                }
             }
             else if (request.equals(Shared.ABORT_TRANSACTION) && (args.length >= 4))
@@ -1076,35 +1155,47 @@ public final class GameService implements ContractInterface
                // Abort transaction.
                if (game != null)
                {
-                  int number = Integer.parseInt(args[2]);
-                  transactionQuery.deletePersistentAll(gameCode, number);
+                  int number;
+           		  try 
+           		  {
+           			  number = Integer.parseInt(args[2]);
+           		  } catch (NumberFormatException e) {
+                         return(Shared.error("invalid transaction number: " + args[2])); 
+           		  }
+           		  stub.delState(gameCode + DelimitedString.DELIMITER + number);
                   for (int i = 3; i < args.length; i++)
                   {
-                     DelimitedString clientId = new DelimitedString();
-                     clientId.add(gameCode);
-                     clientId.add(args[i]);
-                     DelimitedString abortRequest = new DelimitedString(Shared.ABORT_TRANSACTION);
-                     abortRequest.add(number);
-                     channelService.sendMessage(
-                        new ChannelMessage(clientId.toString(), abortRequest.toString()));
+                     String playerName = args[i];
+                     Player player = null;
+                     int         j           = 0;
+                     for ( ; j < players.size(); j++)
+                     {
+                        player = players.get(j);
+                        if (playerName.equals(player.getName())) { break; }
+                     }
+                     if (j == players.size())
+                     {
+                        return(Shared.error("auditor not found: " + playerName));
+                     }                     
+                     DelimitedString abortMessage = new DelimitedString(Shared.ABORT_TRANSACTION);
+                     abortMessage.add(number);
+                     player.addPlayerMessage(abortMessage.toString());
+                     String playerJson = genson.serialize(player);
+                     stub.putStringState(gameCode + DelimitedString.DELIMITER + playerName, playerJson);
                   }
                   return(Shared.OK);
                }
                else
                {
-                  return(Shared.error("game not found"));
+                  return(Shared.error("game code not found: " + gameCode));
                }
             }
          }
       }
       catch (Exception e)
       {
-          String errorMessage = String.format("exception: %s", e.getMessage());
-          System.out.println(errorMessage);
-          throw new ChaincodeException(errorMessage);
+          return Shared.error("exception: " + e.getMessage());
       }
-      String errorMessage = String.format("unknown input: %s", input);
-      System.out.println(errorMessage);
-      throw new ChaincodeException(errorMessage);       
+      return Shared.error("unknown input: " + input);      
    }
 }

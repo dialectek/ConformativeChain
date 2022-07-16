@@ -24,13 +24,13 @@ public class Player
    private double entitledResources;
    
    @Property()   
-   ArrayList<String> playerChat;
+   ArrayList<String> playerMessages;
    
    @Property()
-   ArrayList<String> claimantChat;
+   ArrayList<String> claimantMessages;
    
    @Property()
-   ArrayList<String> auditorChat;
+   ArrayList<String> auditorMessages;
    
    public Player(@JsonProperty("name") final String name,
            @JsonProperty("gameCode") final String gameCode) 
@@ -39,9 +39,9 @@ public class Player
       this.gameCode     = gameCode;
       personalResources = 0.0;
       entitledResources = 0.0;
-      playerChat = new ArrayList<String>();
-      claimantChat = new ArrayList<String>();
-      auditorChat = new ArrayList<String>();
+      playerMessages = new ArrayList<String>();
+      claimantMessages = new ArrayList<String>();
+      auditorMessages = new ArrayList<String>();
    }
 
    public String getName()
@@ -79,49 +79,48 @@ public class Player
       this.entitledResources = entitledResources;
    }
    
-   public void addPlayerChat(String message)
+   public void addPlayerMessage(String message)
    {
-      playerChat.add(message);
+      playerMessages.add(message);
    }
 
-   public ArrayList<String> getPlayerChat()
+   public ArrayList<String> getPlayerMessages()
    {
-      return playerChat;
+      return playerMessages;
    }
    
-   public void clearPlayerChat()
+   public void clearPlayerMessages()
    {
-      playerChat.clear();
+      playerMessages.clear();
    } 
    
-   public void addClaimantChat(String message)
+   public void addClaimantMessage(String message)
    {
-      claimantChat.add(message);
+      claimantMessages.add(message);
    }
 
-   public ArrayList<String> getClaimantChat()
+   public ArrayList<String> getClaimantMessages()
    {
-      return claimantChat;
+      return claimantMessages;
    }
    
-   public void clearClaimantChat()
+   public void clearClaimantMessages()
    {
-      claimantChat.clear();
+      claimantMessages.clear();
    } 
-   
-   
-   public void addAuditorChat(String message)
+      
+   public void addAuditorMessage(String message)
    {
-      auditorChat.add(message);
+      auditorMessages.add(message);
    }
 
-   public ArrayList<String> getAuditorChat()
+   public ArrayList<String> getAuditorMessages()
    {
-      return auditorChat;
+      return auditorMessages;
    }
    
-   public void clearAuditorChat()
+   public void clearAuditorMessages()
    {
-      auditorChat.clear();
+      auditorMessages.clear();
    }        
 }

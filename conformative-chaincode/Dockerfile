@@ -6,7 +6,7 @@ COPY src/ src/
 COPY build.gradle ./ 
 
 # Build and package our code
-RUN gradle --no-daemon build shadowJar -x checkstyleMain -x checkstyleTest
+RUN gradle --no-daemon build -x checkstyleMain
 
 
 # the second stage of our build just needs the compiled files

@@ -2,10 +2,8 @@
 
 package com.dialectek.conformative.hyperledger.chaincode;
 
-import java.awt.List;
 import java.util.ArrayList;
 import java.util.Collections;
-
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 import com.owlike.genson.annotation.JsonProperty;
@@ -29,7 +27,7 @@ public class Game
    private int state;
    
    @Property()
-   private ArrayList<String> hostChat;
+   private ArrayList<String> hostMessages;
    
    public Game(@JsonProperty("code") final String code, 
            @JsonProperty("initialCommonResources") final double initialCommonResources) 
@@ -38,7 +36,7 @@ public class Game
       this.initialCommonResources = initialCommonResources;
       commonResources             = initialCommonResources;
       playerNames = new ArrayList<String>();
-      hostChat = new ArrayList<String>();
+      hostMessages = new ArrayList<String>();
       state = Shared.PENDING;
    }
 
@@ -123,18 +121,18 @@ public class Game
    }
    
    
-   public void addHostChat(String message)
+   public void addHostMessage(String message)
    {
-      hostChat.add(message);
+      hostMessages.add(message);
    }
 
-   public ArrayList<String> getHostChat()
+   public ArrayList<String> getHostMessages()
    {
-      return hostChat;
+      return hostMessages;
    }
    
-   public void clearHostChat()
+   public void clearHostMessages()
    {
-      hostChat.clear();
+      hostMessages.clear();
    }           
 }

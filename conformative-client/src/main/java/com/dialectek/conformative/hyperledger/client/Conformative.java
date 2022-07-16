@@ -20,12 +20,14 @@ import org.hyperledger.fabric.gateway.Wallets;
 
 public class Conformative {
 
-	static {
+	static 
+	{
 		System.setProperty("org.hyperledger.fabric.sdk.service_discovery.as_localhost", "true");
 	}
 
 	// helper function for getting connected to the gateway
-	public static Gateway connect() throws Exception{
+	public static Gateway connect() throws Exception
+	{
 		// Load a file system based wallet for managing identities.
 		Path walletPath = Paths.get("wallet");
 		Wallet wallet = Wallets.newFileSystemWallet(walletPath);
@@ -47,8 +49,8 @@ public class Conformative {
 		}
 
 		// connect to the network and invoke the smart contract
-		try (Gateway gateway = connect()) {
-
+		try (Gateway gateway = connect()) 
+		{
 			// get the network and contract
 			Network network = gateway.getNetwork("mychannel");
 			Contract contract = network.getContract("conformative-chaincode");
