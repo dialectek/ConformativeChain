@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
+
+import com.dialectek.conformative.hyperledger.shared.DelimitedString;
+import com.dialectek.conformative.hyperledger.shared.Shared;
 import com.owlike.genson.annotation.JsonProperty;
 
 @DataType()

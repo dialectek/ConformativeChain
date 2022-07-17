@@ -1,6 +1,6 @@
 // Shared server and client.
 
-package com.dialectek.conformative.hyperledger.client;
+package com.dialectek.conformative.hyperledger.shared;
 
 public class Shared
 {

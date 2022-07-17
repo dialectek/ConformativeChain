@@ -12,6 +12,9 @@ import org.hyperledger.fabric.contract.annotation.Info;
 import org.hyperledger.fabric.contract.annotation.License;
 import org.hyperledger.fabric.contract.annotation.Transaction;
 import org.hyperledger.fabric.shim.ChaincodeStub;
+
+import com.dialectek.conformative.hyperledger.shared.DelimitedString;
+import com.dialectek.conformative.hyperledger.shared.Shared;
 import com.owlike.genson.Genson;
 
 @Contract(

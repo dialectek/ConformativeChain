@@ -1,6 +1,6 @@
 // Delimited string.
 
-package com.dialectek.conformative.hyperledger.chaincode;
+package com.dialectek.conformative.hyperledger.shared;
 
 public class DelimitedString
 {

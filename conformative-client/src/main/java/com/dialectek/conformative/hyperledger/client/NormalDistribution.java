@@ -4,6 +4,9 @@ package com.dialectek.conformative.hyperledger.client;
 
 import java.awt.Canvas;
 import java.awt.Color;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
+import java.text.DecimalFormat;
 import java.util.Random;
 
 public class NormalDistribution
@@ -11,6 +14,7 @@ public class NormalDistribution
    public static final int      CANVAS_WIDTH       = 300;
    public static final int      CANVAS_HEIGHT      = 200;
    public static final int      CANVAS_BORDER      = 30;
+   public static final Color    GRAPH_LINE_COLOR  = Color.BLUE;   
    public static final Color    GRAPH_POINT_COLOR  = Color.RED;
    public static final int      GRAPH_POINT_WIDTH  = 4;
    public static final int      NUM_PLOT_INTERVALS = 20;
@@ -23,7 +27,8 @@ public class NormalDistribution
    private double               mean;
    private double               sigma;
    private Random               random;
-
+   private Graphics2D graphics;
+   
    // Constructors.
    public NormalDistribution(Canvas canvas, double mean, double sigma)
    {
@@ -31,6 +36,7 @@ public class NormalDistribution
       this.mean   = mean;
       this.sigma  = sigma;
       random      = new Random();
+      graphics      = (Graphics2D)canvas.getGraphics();     
    }
 
 
@@ -40,6 +46,7 @@ public class NormalDistribution
       mean        = DEFAULT_MEAN;
       sigma       = DEFAULT_SIGMA;
       random      = new Random();
+      graphics      = (Graphics2D)canvas.getGraphics();       
    }
 
 
@@ -113,6 +120,10 @@ public class NormalDistribution
       double[] graphXcoords = new double[NUM_PLOT_INTERVALS + 1];
       int[] graphXpoints    = new int[NUM_PLOT_INTERVALS + 1];
       int[] graphYpoints    = new int[NUM_PLOT_INTERVALS + 1];
+      
+      FontMetrics fontMetrics = graphics.getFontMetrics();
+      int charWidth = fontMetrics.charWidth('0');
+      
       for (int i = 0; i <= NUM_PLOT_INTERVALS; i++)
       {
          double x = xLow + ((double)i * xInterval);
@@ -125,36 +136,25 @@ public class NormalDistribution
       }
 
       // Draw x and y axes.
-      context.setStrokeStyle(CssColor.make("rgba(0, 0, 0, 255)"));
-      context.beginPath();
-      context.moveTo(CANVAS_BORDER, CANVAS_HEIGHT - CANVAS_BORDER);
-      context.lineTo(CANVAS_BORDER, CANVAS_BORDER);
-      context.closePath();
-      context.stroke();
-      context.beginPath();
-      context.moveTo(CANVAS_BORDER, CANVAS_HEIGHT - CANVAS_BORDER);
-      context.lineTo(CANVAS_WIDTH - CANVAS_BORDER, CANVAS_HEIGHT - CANVAS_BORDER);
-      context.closePath();
-      context.stroke();
-
+      graphics.setColor(GRAPH_LINE_COLOR);
+      graphics.drawLine(CANVAS_BORDER, CANVAS_HEIGHT - CANVAS_BORDER, CANVAS_BORDER, CANVAS_BORDER);
+      graphics.drawLine(CANVAS_BORDER, CANVAS_HEIGHT - CANVAS_BORDER, CANVAS_WIDTH - CANVAS_BORDER, CANVAS_HEIGHT - CANVAS_BORDER);
+      
       // Draw intervals for y axis.
-      NumberFormat decimalFormat = NumberFormat.getFormat(".##");
+      DecimalFormat decimalFormat = new DecimalFormat(".##");
       int          borderGap34   = (3 * CANVAS_BORDER) / 4;
       x0 = CANVAS_BORDER;
       x1 = GRAPH_POINT_WIDTH + CANVAS_BORDER;
-      int offset = (int)(context.measureText("O").getWidth() / 2.0);
+      
+      int offset = (int)((float)charWidth / 2.0f);
       for (int i = 0; i <= NUM_PLOT_INTERVALS; i++)
       {
          y0 = CANVAS_HEIGHT - ((i * (CANVAS_HEIGHT - CANVAS_BORDER * 2)) / NUM_PLOT_INTERVALS + CANVAS_BORDER);
          y1 = y0;
-         context.beginPath();
-         context.moveTo(x0, y0);
-         context.lineTo(x1, y1);
-         context.closePath();
-         context.stroke();
+         graphics.drawLine(x0, y0, x1, y1);
          if ((i % Y_NUM_FREQUENCY) == 0)
          {
-            context.fillText(decimalFormat.format((double)i * yInterval), x0 - borderGap34, y0 + offset);
+            graphics.drawString(decimalFormat.format((double)i * yInterval), x0 - borderGap34, y0 + offset);
          }
       }
 
@@ -166,43 +166,32 @@ public class NormalDistribution
       {
          x0 = i * (CANVAS_WIDTH - CANVAS_BORDER * 2) / NUM_PLOT_INTERVALS + CANVAS_BORDER;
          x1 = x0;
-         context.beginPath();
-         context.moveTo(x0, y0);
-         context.lineTo(x1, y1);
-         context.closePath();
-         context.stroke();
+         graphics.drawLine(x0, y0, x1, y1);
          if ((i % X_NUM_FREQUENCY) == 0)
          {
             String      n       = decimalFormat.format(graphXcoords[i]);
-            TextMetrics metrics = context.measureText(n);
-            context.fillText(n, x0 - (int)(metrics.getWidth() / 2.0), y0 + borderGap2);
+            int width = fontMetrics.stringWidth(n);
+            graphics.drawString(n, x0 - (int)((float)width / 2.0f), y0 + borderGap2);
          }
       }
 
       // Draw lines.
       for (int i = 0; i < NUM_PLOT_INTERVALS; i++)
       {
-         context.beginPath();
          x1 = graphXpoints[i];
          y1 = graphYpoints[i];
-         context.moveTo(x1, y1);
          x2 = graphXpoints[i + 1];
          y2 = graphYpoints[i + 1];
-         context.lineTo(x2, y2);
-         context.closePath();
-         context.stroke();
+         graphics.drawLine(x1, y1, x2, y2);
       }
 
       // Draw points.
-      context.setFillStyle(GRAPH_POINT_COLOR);
+      graphics.setColor(GRAPH_POINT_COLOR);
       for (int i = 0; i <= NUM_PLOT_INTERVALS; i++)
       {
          int x = graphXpoints[i];
          int y = graphYpoints[i];
-         context.beginPath();
-         context.arc(x, y, Math.abs((double)GRAPH_POINT_WIDTH / 2.0), 0.0, Math.PI * 2.0);
-         context.closePath();
-         context.fill();
+         graphics.drawLine(x, y, x, y);
       }
    }
 }
