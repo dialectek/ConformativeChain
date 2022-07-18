@@ -35,8 +35,7 @@ public class NormalDistribution
       this.canvas = canvas;
       this.mean   = mean;
       this.sigma  = sigma;
-      random      = new Random();
-      graphics      = (Graphics2D)canvas.getGraphics();     
+      random      = new Random();   
    }
 
 
@@ -45,8 +44,7 @@ public class NormalDistribution
       this.canvas = canvas;
       mean        = DEFAULT_MEAN;
       sigma       = DEFAULT_SIGMA;
-      random      = new Random();
-      graphics      = (Graphics2D)canvas.getGraphics();       
+      random      = new Random();      
    }
 
 
@@ -121,6 +119,10 @@ public class NormalDistribution
       int[] graphXpoints    = new int[NUM_PLOT_INTERVALS + 1];
       int[] graphYpoints    = new int[NUM_PLOT_INTERVALS + 1];
       
+      if (graphics == null)
+      {
+    	  if ((graphics = (Graphics2D)canvas.getGraphics()) == null) return;   	  
+      }
       FontMetrics fontMetrics = graphics.getFontMetrics();
       int charWidth = fontMetrics.charWidth('0');
       
@@ -187,11 +189,13 @@ public class NormalDistribution
 
       // Draw points.
       graphics.setColor(GRAPH_POINT_COLOR);
+      int dim = 5;
+      int dim2 = dim / 2;
       for (int i = 0; i <= NUM_PLOT_INTERVALS; i++)
       {
          int x = graphXpoints[i];
          int y = graphYpoints[i];
-         graphics.drawLine(x, y, x, y);
+         graphics.fillOval(x - dim2, y - dim2, dim, dim);
       }
    }
 }

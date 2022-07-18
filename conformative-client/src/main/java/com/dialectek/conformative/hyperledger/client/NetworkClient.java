@@ -33,21 +33,12 @@ public class NetworkClient
 	{
 		System.setProperty("org.hyperledger.fabric.sdk.service_discovery.as_localhost", "true");
 	}
+	
+	// Network and contract.
+	static public Network network;
+	static public Contract contract;
 
-	// helper function for getting connected to the gateway
-	public static Gateway connect() throws Exception
-	{
-		// Load a file system based wallet for managing identities.
-		Path walletPath = Paths.get("wallet");
-		Wallet wallet = Wallets.newFileSystemWallet(walletPath);
-		// load a CCP
-		Path networkConfigPath = Paths.get("..", "..", "..", "organizations", "peerOrganizations", "org1.example.com", "connection-org1.yaml");
-
-		Gateway.Builder builder = Gateway.createBuilder();
-		builder.identity(wallet, "appUser").networkConfig(networkConfigPath).discovery(true);
-		return builder.connect();
-	}
-
+	// Initialize.
 	public static void init() throws Exception 
 	{
 		// enrolls the admin
@@ -57,13 +48,37 @@ public class NetworkClient
 			System.err.println(e);
 		}
 
-		// connect to the network and invoke the smart contract
+		// connect to the network and access the smart contract
 		try (Gateway gateway = connect()) 
 		{
 			// get the network and contract
-			Network network = gateway.getNetwork("mychannel");
-			Contract contract = network.getContract("conformative-chaincode");
-			
+			network = gateway.getNetwork("mychannel");
+			contract = network.getContract("conformative-chaincode");
+		}
+		catch(Exception e){
+			System.err.println(e);
+		}
+	}
+	
+	// helper function for getting connected to the gateway
+	public static Gateway connect() throws Exception
+	{
+		// Load a file system based wallet for managing identities.
+		Path walletPath = Paths.get("wallet");
+		Wallet wallet = Wallets.newFileSystemWallet(walletPath);
+		
+		// load a CCP
+		Path networkConfigPath = Paths.get("..", "..", "..", "organizations", "peerOrganizations", "org1.example.com", "connection-org1.yaml");
+		Gateway.Builder builder = Gateway.createBuilder();
+		builder.identity(wallet, "appUser").networkConfig(networkConfigPath).discovery(true);
+		return builder.connect();
+	}
+
+	// Initialize ledger.
+	public static void initLedger() throws Exception 
+	{
+		try
+		{
 			// initialize the ledger
 			System.out.println("Submit Transaction: InitLedger creates the initial set of assets on the ledger.");
 			contract.submitTransaction("InitLedger");
@@ -72,7 +87,7 @@ public class NetworkClient
 			System.err.println(e);
 		}
 	}
-
+	
 	// Enroll admin.
 	public static void enrollAdmin() throws Exception 
 	{

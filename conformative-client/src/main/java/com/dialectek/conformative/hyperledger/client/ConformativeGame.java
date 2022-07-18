@@ -4,6 +4,9 @@ package com.dialectek.conformative.hyperledger.client;
 
 import java.awt.BorderLayout;
 import java.awt.Button;
+import java.awt.Canvas;
+import java.awt.CardLayout;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JFrame;
@@ -25,18 +28,19 @@ public class ConformativeGame extends JFrame implements ActionListener
 
       // Create GUI.
       rootPanel             = new JPanel();
-      rootPanel.setLayout(new BorderLayout());
+      rootPanel.setLayout(new FlowLayout());
       add(rootPanel);
       playerButton = new Button("Player");
       playerButton.addActionListener(this);
-      rootPanel.add(playerButton, BorderLayout.WEST);
+      rootPanel.add(playerButton);
       hostButton = new Button("Host");
       hostButton.addActionListener(this);
-      rootPanel.add(hostButton, BorderLayout.EAST);
+      rootPanel.add(hostButton); 
       
-      // Show.
-      pack();
-      setVisible(true);      
+      // Show.      
+      pack(); 
+      setSize(300, 80); 
+      setVisible(true);
    }
 
    // Button listener.
