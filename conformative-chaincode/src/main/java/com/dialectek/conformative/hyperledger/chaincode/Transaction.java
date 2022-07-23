@@ -57,11 +57,11 @@ public class Transaction
    {
       this.number      = number;
       this.gameCode    = gameCode;      
-      claimantName         = null;
+      claimantName     = null;
       mean             = sigma = 0.0;
       entitlement      = 0.0;
       claim            = 0.0;
-      auditorNames        = new ArrayList<String>();
+      auditorNames     = new ArrayList<String>();
       auditorGrants    = new ArrayList<Double>();
       claimantGrant    = 0.0;
       auditorPenalties = new ArrayList<Double>();
