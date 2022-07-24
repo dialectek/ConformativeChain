@@ -80,7 +80,6 @@ public class NetworkClient
 		try
 		{
 			// initialize the ledger
-			System.out.println("Submit Transaction: InitLedger creates the initial set of assets on the ledger.");
 			contract.submitTransaction("InitLedger");
 		}
 		catch(Exception e){
@@ -116,7 +115,6 @@ public class NetworkClient
 		Enrollment enrollment = caClient.enroll("admin", "adminpw", enrollmentRequestTLS);
 		Identity user = Identities.newX509Identity("Org1MSP", enrollment);
 		wallet.put("admin", user);
-		System.out.println("Successfully enrolled user \"admin\" and imported it into the wallet");
 	}
 
 	public static void registerUser(String userName) throws Exception 
@@ -197,7 +195,6 @@ public class NetworkClient
 		Enrollment enrollment = caClient.enroll(userName, enrollmentSecret);
 		Identity user = Identities.newX509Identity("Org1MSP", enrollment);
 		wallet.put(userName, user);
-		System.out.println("Successfully enrolled user " + userName + " and imported it into the wallet");
 	}
 	
 	public static void main(String[] args) throws Exception 
