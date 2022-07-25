@@ -30,6 +30,9 @@ public class Game
    private int state;
    
    @Property()
+   private int transactionCount;
+   
+   @Property()
    private ArrayList<String> hostMessages;
    
    public Game(@JsonProperty("code") final String code, 
@@ -41,6 +44,7 @@ public class Game
       playerNames = new ArrayList<String>();
       hostMessages = new ArrayList<String>();
       state = Shared.PENDING;
+      transactionCount = 0;
    }
 
 
@@ -117,12 +121,26 @@ public class Game
       return(state);
    }
 
-
    public void setState(int state)
    {
       this.state = state;
    }
    
+   public int getTransactionCount()
+   {
+      return(transactionCount);
+   }
+
+   public void setTransactionCount(int count)
+   {
+      transactionCount = count;
+   }
+
+   public int newTransactionNumber()
+   {
+      transactionCount++;
+      return transactionCount - 1;
+   }
    
    public void addHostMessage(String message)
    {

@@ -64,7 +64,7 @@ public class Shared
    {
       if (!isVoid(str))
       {
-         if (str.equals(OK)) { return(true); }
+         if (str.startsWith(OK)) { return(true); }
       }
       return(false);
    }

@@ -227,7 +227,7 @@ public final class GameService implements ContractInterface
                // Quit game.
                if (player != null)
                {
-                  if (game.getState() != Shared.RUNNING)
+                  if (game.getState() == Shared.JOINING)
                   {
                      game.removePlayerName(playerName);
                      String gameJson = genson.serialize(game);
@@ -237,7 +237,7 @@ public final class GameService implements ContractInterface
                   }
                   else
                   {
-                     return(Shared.error("cannot quit running game: " + gameCode));
+                     return(Shared.error("can only quit while players are joining game: " + gameCode));
                   }
                }
                return(Shared.OK);
@@ -297,13 +297,15 @@ public final class GameService implements ContractInterface
                 {
                     DelimitedString response = new DelimitedString(Shared.OK);
                     response.add(game.getInitialCommonResources());
-                    response.add(game.getCommonResources());
+                    response.add(game.getCommonResources());                    
                     ArrayList<String> playerNames = game.getPlayerNames();
                     response.add(playerNames.size());
                     for (String name : playerNames)
                     {
                     	response.add(name);
                     }
+                    response.add(game.getState());
+                    response.add(game.getTransactionCount());                     
                     ArrayList<String> messages = game.getHostMessages();
                     response.add(messages.size());
                     for (String message : messages)
@@ -403,6 +405,10 @@ public final class GameService implements ContractInterface
                // Delete game.
                if (game != null)
                {
+                  for (int i = 0, j = game.getTransactionCount(); i < j; i++)
+                  {
+                	 stub.delState(gameCode + DelimitedString.DELIMITER + i); 
+                  }            	   
                	  ArrayList<String> playerNames = game.getPlayerNames();
                   for (String name : playerNames)
                   {
@@ -441,7 +447,7 @@ public final class GameService implements ContractInterface
                // Remove player.
                if (game != null)
                {
-                  if (game.getState() != Shared.RUNNING)
+                  if (game.getState() == Shared.JOINING)
                   {
                      String                 playerName  = args[2];
                      ArrayList<String> playerNames = new ArrayList<String>();               
@@ -469,7 +475,7 @@ public final class GameService implements ContractInterface
                   }
                   else
                   {
-                     return(Shared.error("cannot remove player from running game: " + gameCode));
+                     return(Shared.error("can only remove player while players are joining game: " + gameCode));
                   }
                }
                else
@@ -674,26 +680,15 @@ public final class GameService implements ContractInterface
               	   return(Shared.error("game code not found: " + gameCode));
                }	                   	       
             }
-            else if (request.equals(Shared.START_CLAIM) && (args.length == 7))
+            else if (request.equals(Shared.START_CLAIM) && (args.length == 6))
             {
                // Start a claim.
                if (game != null)
                {
-                  int number;
-         		  try 
-         		  {
-         			  number = Integer.parseInt(args[2]);
-         		  } catch (NumberFormatException e) {
-                       return(Shared.error("invalid transaction number: " + args[2])); 
-         		  } 
-         	      String transactionJSON = stub.getStringState(gameCode + DelimitedString.DELIMITER + number);
-         	      if (!Shared.isVoid(transactionJSON)) 
-         	      {
-         		      return Shared.error("duplicate transaction number: " + number); 
-         	      } 
+         	      int number = game.newTransactionNumber();
         	      com.dialectek.conformative.hyperledger.chaincode.Transaction transaction = 
         	    		  new com.dialectek.conformative.hyperledger.chaincode.Transaction(number, gameCode);
-                  String      claimantName    = args[3];
+                  String      claimantName    = args[2];
                   Player claimant = null;
 	              for (int i = 0; i < players.size(); i++)
 	              {
@@ -709,24 +704,24 @@ public final class GameService implements ContractInterface
                   double mean, sigma, entitlement;
                   try
                   {
-	                  mean = Double.parseDouble(args[4]);
+	                  mean = Double.parseDouble(args[3]);
         		  } catch (NumberFormatException e) {
-                      return(Shared.error("invalid claim mean: " + args[4])); 
+                      return(Shared.error("invalid claim mean: " + args[3])); 
         		  }              
 	              transaction.setMean(mean);
                   try
                   {
-	                  sigma = Double.parseDouble(args[5]);
+	                  sigma = Double.parseDouble(args[4]);
         		  } catch (NumberFormatException e) {
-                      return(Shared.error("invalid claim sigma: " + args[5])); 
+                      return(Shared.error("invalid claim sigma: " + args[4])); 
         		  }              
 	              transaction.setSigma(sigma);
 	              try
 	              {
-	                  entitlement = Double.parseDouble(args[6]);
+	                  entitlement = Double.parseDouble(args[5]);
 
          		  } catch (NumberFormatException e) {
-                      return(Shared.error("invalid claim entitlement: " + args[6])); 
+                      return(Shared.error("invalid claim entitlement: " + args[5])); 
         		  } 
                   transaction.setEntitlement(entitlement);	              
                   String transactionJson = genson.serialize(transaction);
@@ -740,7 +735,7 @@ public final class GameService implements ContractInterface
                   claimant.addClaimantMessage(claimantMessage.toString());
                   String claimantJson = genson.serialize(claimant);
                   stub.putStringState(gameCode + DelimitedString.DELIMITER + claimantName, claimantJson);                     
-                  return(Shared.OK);
+                  return(Shared.OK + DelimitedString.DELIMITER + number);
                }
                else
                {

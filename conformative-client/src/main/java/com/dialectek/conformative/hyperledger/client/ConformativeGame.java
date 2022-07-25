@@ -75,11 +75,12 @@ public class ConformativeGame extends JFrame implements ActionListener
         		return;
         	}
         	String transactionNumber = transactionNumberText.getText();
+        	int t = -1;
         	if (!Shared.isVoid(transactionNumber))
         	{
         		try
         		{
-        			if (Integer.parseInt(transactionNumber) < 0)
+        			if ((t = Integer.parseInt(transactionNumber)) < 0)
         			{
                 		JOptionPane.showMessageDialog(this, "Invalid transaction number: " + transactionNumber);
                 		return;         				
@@ -91,28 +92,8 @@ public class ConformativeGame extends JFrame implements ActionListener
         		}
         	}
         	
-        	// Get game state.
-        	byte[] response = null;
-    		try
-    		{
-    			if (Shared.isVoid(transactionNumber))
-    			{
-    				response = NetworkClient.contract.submitTransaction("requestService", Shared.SYNC_GAME, gameCode);
-    			} else {
-    				response = NetworkClient.contract.submitTransaction("requestService", Shared.SYNC_GAME, gameCode, transactionNumber);    				
-    			}   			
-    		}
-    		catch(Exception e)
-    		{
-    			JOptionPane.showMessageDialog(this, "Cannot get game state");
-    			return;
-    		}
-    		if (response == null)
-    		{
-        		JOptionPane.showMessageDialog(this, "Cannot get game state"); 
-        		return;
-    		}
-        	new Host(response.toString());
+        	// Start host.
+        	new Host(gameCode, t);
         }        
         return;
      }
@@ -143,11 +124,12 @@ public class ConformativeGame extends JFrame implements ActionListener
          		return;
          	}         	
          	String transactionNumber = transactionNumberText.getText();
+         	int t = -1;
          	if (!Shared.isVoid(transactionNumber))
          	{
          		try
          		{
-         			if (Integer.parseInt(transactionNumber) < 0)
+         			if ((t = Integer.parseInt(transactionNumber)) < 0)
          			{
                  		JOptionPane.showMessageDialog(this, "Invalid transaction number: " + transactionNumber);
                  		return;         				
@@ -158,29 +140,9 @@ public class ConformativeGame extends JFrame implements ActionListener
              		return;        			
          		}
          	}
-         	
-         	// Get player state.
-         	byte[] response = null;
-     		try
-     		{
-     			if (Shared.isVoid(transactionNumber))
-     			{
-     				response = NetworkClient.contract.submitTransaction("requestService", Shared.SYNC_PLAYER, gameCode, playerName);
-     			} else {
-     				response = NetworkClient.contract.submitTransaction("requestService", Shared.SYNC_PLAYER, gameCode, playerName, transactionNumber);    				
-     			}   			
-     		}
-     		catch(Exception e)
-     		{
-     			JOptionPane.showMessageDialog(this, "Cannot get player state");
-     			return;
-     		}
-     		if (response == null)
-     		{
-         		JOptionPane.showMessageDialog(this, "Cannot get player state"); 
-         		return;
-     		}
-         	//new Player(response.toString());
+
+         	// Start player client.
+         	new Player(gameCode, playerName, t);
          }
          return;
      }

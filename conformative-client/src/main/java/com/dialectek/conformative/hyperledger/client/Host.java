@@ -192,10 +192,15 @@ public class Host extends JFrame implements ActionListener, ItemListener
    // Timer.
    private final int timerInterval_ms = 500;
    private Timer     timer;
+   private final int syncFreq = 10;
+   private int syncCounter = 0;
 
    // Constructor.
-   public Host(String hostState)
-   {	  
+   public Host(String gameCode, int transactionNumber)
+   {
+	  this.gameCode = gameCode;
+	  this.transactionNumber = transactionNumber;
+	  
       // Title.
       setTitle("Conformative Game Host");
 
@@ -211,6 +216,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
       gameCodeLabel = new Label("Code:");
       homeFlexTable.setValueAt(gameCodeLabel, 0, 0);
       gameCodeTextBox = new TextField(120);
+      gameCodeTextBox.setText(gameCode);
       homeFlexTable.setValueAt(gameCodeTextBox, 0, 1);
       gameResourcesLabel = new Label("Resources:");
       homeFlexTable.setValueAt(gameResourcesLabel, 0, 2);
@@ -542,9 +548,17 @@ public class Host extends JFrame implements ActionListener, ItemListener
       roleTabPanel.setSelectedIndex(HOME_TAB);
       roleTabPanel.setSize(454, 413);
       add(roleTabPanel);
-
+      
       // Initialize.
-      init(hostState);
+      gameState         = Shared.PENDING;
+      resources         = 0.0;
+      auditorNames      = new ArrayList<String>();
+      auditorGrants     = new ArrayList<String>();
+      auditorPenalties  = new ArrayList<String>();
+      resetTransaction();
+
+      // Synchronize host with network.
+      sync();
 
       // Enable UI.
       enableUI();
@@ -554,7 +568,14 @@ public class Host extends JFrame implements ActionListener, ItemListener
       {
           public void run() 
           {
-              doUpdate();
+        	  syncCounter++;
+        	  if (syncCounter >= syncFreq)
+        	  {
+        		  syncCounter = 0;
+        		  sync();
+        	  }
+              animateWaitTextBox(transactionClaimAmountTextBox);
+              animateWaitTextBox(transactionGrantClaimantTextBox);
           }
       };
       timer = new Timer("Timer");
@@ -565,27 +586,32 @@ public class Host extends JFrame implements ActionListener, ItemListener
       setVisible(true);      
    }
    
-   // Initialize.
-   private void init(String hostState)
+   // Synchronize host with network.
+   private void sync()
    {
-	      gameCode          = "";
-	      gameState         = Shared.PENDING;
-	      resources         = 0.0;
-	      auditorNames      = new ArrayList<String>();
-	      auditorGrants     = new ArrayList<String>();
-	      auditorPenalties  = new ArrayList<String>();
-	      transactionNumber = -1;
-	      resetTransaction();	   
+	    disableUI();
+   		try
+   		{
+   	       	byte[] response = null;
+   			if (transactionNumber == -1)
+   			{
+   				response = NetworkClient.contract.submitTransaction("requestService", Shared.SYNC_GAME, gameCode);
+   			} else {
+   				response = NetworkClient.contract.submitTransaction("requestService", Shared.SYNC_GAME, gameCode, (transactionNumber + ""));    				
+   			} 
+   	   		if (response == null || !Shared.isOK(response.toString()))
+   	   		{
+   	       		//JOptionPane.showMessageDialog(this, "Cannot sync host"); 
+   	   			System.err.println("Cannot sync host");
+   	   		}   			
+   		}
+   		catch(Exception e)
+   		{
+   			//JOptionPane.showMessageDialog(this, "Cannot sync host");
+   			System.err.println("Cannot sync host");
+   		}
+   		enableUI();
    }
-
-
-   // Update.
-   private void doUpdate()
-   {
-      animateWaitTextBox(transactionClaimAmountTextBox);
-      animateWaitTextBox(transactionGrantClaimantTextBox);
-   }
-
 
    // Animate wait text box.
    private void animateWaitTextBox(TextField textBox)
@@ -852,7 +878,6 @@ public class Host extends JFrame implements ActionListener, ItemListener
                   return;
                }
             }
-            transactionNumber++;
             transactionState = TRANSACTION_STATE.CLAIM_DISTRIBUTION;
             transactionClaimPanel.setVisible(true);
             enableUI();
@@ -960,14 +985,25 @@ public class Host extends JFrame implements ActionListener, ItemListener
             disableUI();
             try
             {
+            	   transactionNumber = -1;
 	   			   byte[] response = NetworkClient.contract.submitTransaction("requestService", 
-	   					   Shared.START_CLAIM, gameCode, (transactionNumber + ""),
+	   					   Shared.START_CLAIM, gameCode,
 	   					   transactionParticipantsClaimantTextBox.getText().trim(),
 	   					   transactionClaimDistributionMeanTextBox.getText().trim(),
 	   			   		   transactionClaimDistributionSigmaTextBox.getText().trim(),
-	   			   		   transactionClaimEntitlementTextBox.getText().trim());	   			   
-	   			   if (response == null || !Shared.isOK(response.toString()))
+	   			   		   transactionClaimEntitlementTextBox.getText().trim());
+	   			   if (response != null && Shared.isOK(response.toString()))
 	   			   {
+	   				   try
+	   				   {
+	   					   String[] parts = response.toString().split(DelimitedString.DELIMITER);
+	   					   transactionNumber = Integer.parseInt(parts[1]);
+	   				   } catch (Exception e)
+	   				   {
+	   					   transactionNumber = -1;
+	   		         	   JOptionPane.showMessageDialog(this, "Error starting transaction");	   					     	               	   					   
+	   				   }
+	   			   } else {
 	   				   if (response != null)
 	   				   {
 	   					   JOptionPane.showMessageDialog(this, "Error starting transaction: " + response.toString());
@@ -1044,11 +1080,6 @@ public class Host extends JFrame implements ActionListener, ItemListener
             transactionPenaltyAuditorAmountTextBox.setText("");
             transactionFinishPendingParticipantsListBox.setSelectedIndex(0);
             transactionFinishedParticipantsListBox.setSelectedIndex(0);
-            DelimitedString setPenaltyRequest = new DelimitedString(Shared.SET_PENALTY);
-            setPenaltyRequest.add(gameCode);
-            setPenaltyRequest.add(transactionNumber);
-            setPenaltyRequest.add(auditorPenaltyParameter);
-            setPenaltyRequest.add(claimantPenaltyParameter);
             try
             {
 	   			   byte[] response = NetworkClient.contract.submitTransaction("requestService", 
@@ -1125,35 +1156,24 @@ public class Host extends JFrame implements ActionListener, ItemListener
             transactionState = TRANSACTION_STATE.INACTIVE;
             clearPlayerResources();
             disableUI();
-            DelimitedString finishRequest = new DelimitedString(Shared.FINISH_TRANSACTION);
-            finishRequest.add(gameCode);
-            finishRequest.add(transactionNumber);
-            gameService.requestService(finishRequest.toString(),
-                                       new AsyncCallback<String>()
-                                       {
-                                          public void onFailure(Throwable caught)
-                                          {
-                                             JOptionPane.showMessageDialog(this, "Error finishing transaction: " + caught.getMessage());
-                                             resetTransaction();
-                                          }
-
-                                          public void onSuccess(String result)
-                                          {
-                                             if (!Shared.isOK(result))
-                                             {
-                                                if (Shared.isError(result))
-                                                {
-                                                   JOptionPane.showMessageDialog(this, result);
-                                                }
-                                                else
-                                                {
-                                                   JOptionPane.showMessageDialog(this, "Error finishing transaction");
-                                                }
-                                             }
-                                             resetTransaction();
-                                          }
-                                       }
-                                       );
+            try
+            {
+	   			   byte[] response = NetworkClient.contract.submitTransaction("requestService", 
+	   					   Shared.FINISH_TRANSACTION, gameCode, (transactionNumber + ""));	   			   
+	   			   if (response == null || !Shared.isOK(response.toString()))
+	   			   {
+	   				   if (response != null)
+	   				   {
+	   					   JOptionPane.showMessageDialog(this, "Error finishing transaction: " + response.toString());
+	   				   } else {
+	   					   JOptionPane.showMessageDialog(this, "Error finishing transaction");	   					   
+	   				   }	   				   
+	   			   }
+            } catch (Exception e)
+            {
+         	   JOptionPane.showMessageDialog(this, "Error finishing transaction");	   					     	               
+            } 
+            resetTransaction();
          }
 
          // Abort transaction.
@@ -1168,7 +1188,6 @@ public class Host extends JFrame implements ActionListener, ItemListener
 
             case CLAIM_DISTRIBUTION:
             case CLAIM_ENTITLEMENT:
-               transactionNumber--;
                resetTransaction();
                return;
 
@@ -1176,45 +1195,43 @@ public class Host extends JFrame implements ActionListener, ItemListener
                break;
             }
             disableUI();
-            DelimitedString abortRequest = new DelimitedString(Shared.ABORT_TRANSACTION);
-            abortRequest.add(gameCode);
-            abortRequest.add(transactionNumber);
-            abortRequest.add(transactionParticipantsClaimantTextBox.getText());
-            if (transactionState != TRANSACTION_STATE.CLAIM_WAIT)
+            try
             {
-               for (int i = 1; i < transactionParticipantsAuditorListBox.getItemCount(); i++)
-               {
-                  abortRequest.add(transactionParticipantsClaimantTextBox.getText());
-               }
-            }
-            gameService.requestService(abortRequest.toString(),
-                                       new AsyncCallback<String>()
-                                       {
-                                          public void onFailure(Throwable caught)
-                                          {
-                                             JOptionPane.showMessageDialog(this, "Error aborting transaction: " + caught.getMessage());
-                                             transactionNumber--;
-                                             resetTransaction();
-                                          }
-
-                                          public void onSuccess(String result)
-                                          {
-                                             if (!Shared.isOK(result))
-                                             {
-                                                if (Shared.isError(result))
-                                                {
-                                                   JOptionPane.showMessageDialog(this, result);
-                                                }
-                                                else
-                                                {
-                                                   JOptionPane.showMessageDialog(this, "Error aborting transaction");
-                                                }
-                                             }
-                                             transactionNumber--;
-                                             resetTransaction();
-                                          }
-                                       }
-                                       );
+	              int n = 4;
+	              if (transactionState != TRANSACTION_STATE.CLAIM_WAIT)
+	              {
+	                   if (transactionParticipantsAuditorListBox.getItemCount() > 1)
+	                   {
+	                	   n += transactionParticipantsAuditorListBox.getItemCount() - 1;
+	                   }
+	               }            	
+	   			   String[] args = new String[n];
+	   			   args[0] = Shared.ABORT_TRANSACTION;
+	   			   args[1] = gameCode;
+	   			   args[2] = transactionNumber + "";
+	   			   args[3] = transactionParticipantsClaimantTextBox.getText();
+	               if (transactionState != TRANSACTION_STATE.CLAIM_WAIT)
+	               {
+	                   for (int i = 1; i < transactionParticipantsAuditorListBox.getItemCount(); i++)
+	                   {
+	                      args[3 + i] = (String)transactionParticipantsAuditorListBox.getItemAt(i);
+	                   }
+	               }            		   			   
+	   			   byte[] response = NetworkClient.contract.submitTransaction("requestService", args);
+	   			   if (response == null || !Shared.isOK(response.toString()))
+	   			   {
+	   				   if (response != null)
+	   				   {
+	   					   JOptionPane.showMessageDialog(this, "Error aborting transaction: " + response.toString());
+	   				   } else {
+	   					   JOptionPane.showMessageDialog(this, "Error aborting transaction");	   					   
+	   				   }	   				   
+	   			   }
+            } catch (Exception e)
+            {
+         	   JOptionPane.showMessageDialog(this, "Error aborting transaction");	   					     	               
+            } 
+            resetTransaction();
          }
    }
 
@@ -1490,6 +1507,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
    // Reset transaction.
    private void resetTransaction()
    {
+	  transactionNumber = -1;
       if (gameState == Shared.RUNNING)
       {
          transactionState = TRANSACTION_STATE.INACTIVE;
