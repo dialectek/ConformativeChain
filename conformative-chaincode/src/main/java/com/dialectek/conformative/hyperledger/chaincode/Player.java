@@ -24,14 +24,8 @@ public class Player
    private double entitledResources;
    
    @Property()   
-   ArrayList<String> playerMessages;
-   
-   @Property()
-   ArrayList<String> claimantMessages;
-   
-   @Property()
-   ArrayList<String> auditorMessages;
-   
+   ArrayList<String> messages;
+
    public Player(@JsonProperty("name") final String name,
            @JsonProperty("gameCode") final String gameCode) 
    {
@@ -39,9 +33,7 @@ public class Player
       this.gameCode     = gameCode;
       personalResources = 0.0;
       entitledResources = 0.0;
-      playerMessages = new ArrayList<String>();
-      claimantMessages = new ArrayList<String>();
-      auditorMessages = new ArrayList<String>();
+      messages = new ArrayList<String>();
    }
 
    public String getName()
@@ -79,48 +71,18 @@ public class Player
       this.entitledResources = entitledResources;
    }
    
-   public void addPlayerMessage(String message)
+   public void addMessage(String message)
    {
-      playerMessages.add(message);
+      messages.add(message);
    }
 
-   public ArrayList<String> getPlayerMessages()
+   public ArrayList<String> getMessages()
    {
-      return playerMessages;
+      return messages;
    }
    
-   public void clearPlayerMessages()
+   public void clearMessages()
    {
-      playerMessages.clear();
-   } 
-   
-   public void addClaimantMessage(String message)
-   {
-      claimantMessages.add(message);
-   }
-
-   public ArrayList<String> getClaimantMessages()
-   {
-      return claimantMessages;
-   }
-   
-   public void clearClaimantMessages()
-   {
-      claimantMessages.clear();
-   } 
-      
-   public void addAuditorMessage(String message)
-   {
-      auditorMessages.add(message);
-   }
-
-   public ArrayList<String> getAuditorMessages()
-   {
-      return auditorMessages;
-   }
-   
-   public void clearAuditorMessages()
-   {
-      auditorMessages.clear();
-   }        
+      messages.clear();
+   }  
 }

@@ -4,6 +4,8 @@ package com.dialectek.conformative.hyperledger.chaincode;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.regex.Pattern;
+
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 
@@ -14,6 +16,7 @@ import com.owlike.genson.annotation.JsonProperty;
 @DataType()
 public class Game
 {
+	
    @Property()
    private final String code;
 
@@ -28,12 +31,12 @@ public class Game
    
    @Property()
    private int state;
-   
+
    @Property()
    private int transactionCount;
    
    @Property()
-   private ArrayList<String> hostMessages;
+   private ArrayList<String> messages;
    
    public Game(@JsonProperty("code") final String code, 
            @JsonProperty("initialCommonResources") final double initialCommonResources) 
@@ -42,7 +45,7 @@ public class Game
       this.initialCommonResources = initialCommonResources;
       commonResources             = initialCommonResources;
       playerNames = new ArrayList<String>();
-      hostMessages = new ArrayList<String>();
+      messages = new ArrayList<String>();
       state = Shared.PENDING;
       transactionCount = 0;
    }
@@ -82,10 +85,14 @@ public class Game
    }
    
    public boolean addPlayerName(String name)
-   {
+   {	   
 	  if (Shared.isVoid(name) ||
 			  name.contains(DelimitedString.DELIMITER) ||
 			  name.equals(Shared.ALL_PLAYERS))
+	  {
+		  return false;
+	  }
+	  if (!Pattern.matches("[a-zA-Z0-9]+", name)) 
 	  {
 		  return false;
 	  }
@@ -142,18 +149,18 @@ public class Game
       return transactionCount - 1;
    }
    
-   public void addHostMessage(String message)
+   public void addMessage(String message)
    {
-      hostMessages.add(message);
+      messages.add(message);
    }
 
-   public ArrayList<String> getHostMessages()
+   public ArrayList<String> getMessages()
    {
-      return hostMessages;
+      return messages;
    }
    
-   public void clearHostMessages()
+   public void clearMessages()
    {
-      hostMessages.clear();
+      messages.clear();
    }           
 }
