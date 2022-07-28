@@ -4,19 +4,15 @@ package com.dialectek.conformative.hyperledger.client;
 
 import java.awt.Button;
 import java.awt.Canvas;
-import java.awt.Dimension;
 import java.awt.Label;
 import java.awt.TextArea;
 import java.awt.TextField;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -35,7 +31,8 @@ import com.dialectek.conformative.hyperledger.shared.Shared;
 
 public class Host extends JFrame implements ActionListener, ItemListener
 {
-   private Label              conformativeGameLabel;
+   private static final long serialVersionUID = 1L;
+   
    private JTabbedPane        roleTabPanel;
    private JPanel             homePanel;
    private JTable             homeFlexTable;
@@ -142,9 +139,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
    private JPanel             transactionCompletionPanel;
    private Button             transactionFinishButton;
    private Button             transactionAbortButton;
-
-   private static final int HOME_TAB        = 0;
-   private static final int TRANSACTION_TAB = 1;
+   private boolean UIinit = false;
 
    // Game code.
    private String gameCode;
@@ -230,7 +225,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
       gameCreateDeleteButton.addActionListener(this);
       gameStateLabel = new Label("State:");
       homeFlexTable.setValueAt(gameStateLabel, 1, 0);
-      gameStateListBox = new JComboBox();
+      gameStateListBox = new JComboBox<String>();
       homeFlexTable.setValueAt(gameStateListBox, 1, 1);
       gameStateListBox.setEnabled(false);
       gameStateListBox.addItemListener(this);
@@ -259,7 +254,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
       playersJoinedTextBox.setText("0");
       playersJoinedPanel.add(playersJoinedTextBox);
       playersJoinedTextBox.setSize(40, playersJoinedTextBox.getSize().height);
-      playersListBox = new JComboBox();
+      playersListBox = new JComboBox<String>();
       playersJoinedPanel.add(playersListBox);
       playersListBox.addItemListener(this);
       playersListBox.addItem(Shared.ALL_PLAYERS);
@@ -342,7 +337,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
       transactionParticipantsClaimantCaptionPanel.setSize(430, transactionParticipantsClaimantCaptionPanel.getSize().height);
       transactionParticipantsClaimantPanel = new JPanel();
       transactionParticipantsClaimantCaptionPanel.add(transactionParticipantsClaimantPanel);
-      transactionParticipantsClaimantCandidateListBox = new JComboBox();
+      transactionParticipantsClaimantCandidateListBox = new JComboBox<String>();
       transactionParticipantsClaimantCandidateListBox.addItemListener(this);
       transactionParticipantsClaimantPanel.add(transactionParticipantsClaimantCandidateListBox);
       transactionParticipantsClaimantCandidateListBox.setSize(65, transactionParticipantsClaimantCandidateListBox.getSize().height);
@@ -360,7 +355,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
       transactionParticipantsAuditorCaptionPanel.setSize(430, transactionParticipantsAuditorCaptionPanel.getSize().height);
       transactionParticipantsAuditorPanel = new JPanel();
       transactionParticipantsAuditorCaptionPanel.add(transactionParticipantsAuditorPanel);
-      transactionParticipantsAuditorCandidateListBox = new JComboBox();
+      transactionParticipantsAuditorCandidateListBox = new JComboBox<String>();
       transactionParticipantsAuditorCandidateListBox.addItemListener(this);
       transactionParticipantsAuditorPanel.add(transactionParticipantsAuditorCandidateListBox);
       transactionParticipantsAuditorCandidateListBox.setSize(65, transactionParticipantsAuditorCandidateListBox.getSize().height);
@@ -368,7 +363,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
       transactionParticipantsAuditorPanel.add(transactionParticipantsAuditorLabel);
       transactionParticipantsAuditorPanel.setLayout(new BoxLayout(transactionParticipantsClaimantPanel, BoxLayout.Y_AXIS)); 
       transactionParticipantsAuditorLabel.setSize(60, transactionParticipantsAuditorLabel.getSize().height);
-      transactionParticipantsAuditorListBox = new JComboBox();
+      transactionParticipantsAuditorListBox = new JComboBox<String>();
       transactionParticipantsAuditorListBox.addItemListener(this);
       transactionParticipantsAuditorPanel.add(transactionParticipantsAuditorListBox);
       transactionParticipantsAuditorListBox.setSize(65, transactionParticipantsAuditorListBox.getSize().height);
@@ -452,12 +447,12 @@ public class Host extends JFrame implements ActionListener, ItemListener
       transactionGrantCaptionPanel.add(transactionGrantFlexTable);
       transactionGrantAuditorWorkingLabel = new Label("Auditing:");
       transactionGrantFlexTable.setValueAt(transactionGrantAuditorWorkingLabel, 0, 0);
-      transactionGrantAuditorWorkingListBox = new JComboBox();
+      transactionGrantAuditorWorkingListBox = new JComboBox<String>();
       transactionGrantFlexTable.setValueAt(transactionGrantAuditorWorkingListBox, 0, 1);
       transactionGrantAuditorWorkingListBox.setSize(65, transactionGrantAuditorWorkingListBox.getSize().height);
       transactionGrantAuditorCompletedLabel = new Label("Completed:");
       transactionGrantFlexTable.setValueAt(transactionGrantAuditorCompletedLabel, 0, 2);
-      transactionGrantAuditorCompletedListBox = new JComboBox();
+      transactionGrantAuditorCompletedListBox = new JComboBox<String>();
       transactionGrantAuditorCompletedListBox.addItemListener(this);
       transactionGrantFlexTable.setValueAt(transactionGrantAuditorCompletedListBox, 0, 3);
       transactionGrantAuditorCompletedListBox.setSize(65, transactionGrantAuditorCompletedListBox.getSize().height);
@@ -506,7 +501,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
       transactionPenaltyPanel.add(transactionPenaltyFlexTable);
       transactionPenaltyAuditorLabel = new Label("Auditor:");
       transactionPenaltyFlexTable.setValueAt(transactionPenaltyAuditorLabel, 0, 0);
-      transactionPenaltyAuditorListBox = new JComboBox();
+      transactionPenaltyAuditorListBox = new JComboBox<String>();
       transactionPenaltyAuditorListBox.addItemListener(this);
       transactionPenaltyFlexTable.setValueAt(transactionPenaltyAuditorListBox, 0, 1);
       transactionPenaltyAuditorListBox.setSize(65, transactionPenaltyAuditorListBox.getSize().height);
@@ -531,12 +526,12 @@ public class Host extends JFrame implements ActionListener, ItemListener
       transactionFinishCaptionPanel.add(transactionFinishFlexTable);
       transactionFinishPendingParticipantsLabel = new Label("Participant:");
       transactionFinishFlexTable.setValueAt(transactionFinishPendingParticipantsLabel, 0, 0);
-      transactionFinishPendingParticipantsListBox = new JComboBox();
+      transactionFinishPendingParticipantsListBox = new JComboBox<String>();
       transactionFinishFlexTable.setValueAt(transactionFinishPendingParticipantsListBox, 0, 1);
       transactionFinishPendingParticipantsListBox.setSize(65, transactionFinishPendingParticipantsListBox.getSize().height);
       transactionFinishedLabel = new Label("finished->");
       transactionFinishFlexTable.setValueAt(transactionFinishedLabel, 0, 2);
-      transactionFinishedParticipantsListBox = new JComboBox();
+      transactionFinishedParticipantsListBox = new JComboBox<String>();
       transactionFinishFlexTable.setValueAt(transactionFinishedParticipantsListBox, 0, 3);
       transactionFinishedParticipantsListBox.setSize(65, transactionFinishedParticipantsListBox.getSize().height);
       transactionCompletionPanel = new JPanel();
@@ -548,10 +543,10 @@ public class Host extends JFrame implements ActionListener, ItemListener
       transactionAbortButton = new Button("Abort");
       transactionCompletionPanel.add(transactionAbortButton);
       transactionAbortButton.addActionListener(this);
-
-      roleTabPanel.setSelectedIndex(HOME_TAB);
+      roleTabPanel.setSelectedIndex(0);
       roleTabPanel.setSize(454, 413);
       add(roleTabPanel);
+      UIinit = true;
       
       // Initialize.
       gameState         = -1;
@@ -1529,6 +1524,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
    // Disable UI.
    private void disableUI()
    {
+	  if (!UIinit) return;
       gameCodeTextBox.setEditable(false);
       gameResourcesTextBox.setEditable(false);
       gameCreateDeleteButton.setEnabled(false);
@@ -1563,6 +1559,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
    // Enable UI.
    private void enableUI()
    {
+	  if (!UIinit) return;
       gameCreateDeleteButton.setEnabled(true);
       if (gameState == -1)
       {
@@ -1608,16 +1605,16 @@ public class Host extends JFrame implements ActionListener, ItemListener
             transactionParticipantsAuditorCandidateListBox.setEnabled(false);
             transactionParticipantsAuditorListBox.setEnabled(false);
             transactionParticipantsSetButton.setEnabled(false);
-            transactionClaimDistributionMeanTextBox.setReadOnly(true);
-            transactionClaimDistributionSigmaTextBox.setReadOnly(true);
+            transactionClaimDistributionMeanTextBox.setEditable(false);
+            transactionClaimDistributionSigmaTextBox.setEditable(false);
             transactionClaimDistributionParameterSetButton.setEnabled(false);
-            transactionClaimEntitlementTextBox.setReadOnly(true);
+            transactionClaimEntitlementTextBox.setEditable(false);
             transactionClaimEntitlementGenerateButton.setEnabled(false);
             transactionClaimEntitlementSetButton.setEnabled(false);
             transactionGrantAuditorWorkingListBox.setEnabled(false);
             transactionGrantAuditorCompletedListBox.setEnabled(false);
-            transactionPenaltyClaimantParameterTextBox.setReadOnly(true);
-            transactionPenaltyAuditorParameterTextBox.setReadOnly(true);
+            transactionPenaltyClaimantParameterTextBox.setEditable(false);
+            transactionPenaltyAuditorParameterTextBox.setEditable(false);
             transactionPenaltySetButton.setEnabled(false);
             transactionPenaltyAuditorListBox.setEnabled(false);
             transactionFinishPendingParticipantsListBox.setEnabled(false);
@@ -1631,16 +1628,16 @@ public class Host extends JFrame implements ActionListener, ItemListener
             transactionParticipantsAuditorCandidateListBox.setEnabled(true);
             transactionParticipantsAuditorListBox.setEnabled(true);
             transactionParticipantsSetButton.setEnabled(true);
-            transactionClaimDistributionMeanTextBox.setReadOnly(true);
-            transactionClaimDistributionSigmaTextBox.setReadOnly(true);
+            transactionClaimDistributionMeanTextBox.setEditable(false);
+            transactionClaimDistributionSigmaTextBox.setEditable(false);
             transactionClaimDistributionParameterSetButton.setEnabled(false);
-            transactionClaimEntitlementTextBox.setReadOnly(true);
+            transactionClaimEntitlementTextBox.setEditable(false);
             transactionClaimEntitlementGenerateButton.setEnabled(false);
             transactionClaimEntitlementSetButton.setEnabled(false);
             transactionGrantAuditorWorkingListBox.setEnabled(false);
             transactionGrantAuditorCompletedListBox.setEnabled(false);
-            transactionPenaltyClaimantParameterTextBox.setReadOnly(true);
-            transactionPenaltyAuditorParameterTextBox.setReadOnly(true);
+            transactionPenaltyClaimantParameterTextBox.setEditable(false);
+            transactionPenaltyAuditorParameterTextBox.setEditable(false);
             transactionPenaltySetButton.setEnabled(false);
             transactionPenaltyAuditorListBox.setEnabled(false);
             transactionFinishPendingParticipantsListBox.setEnabled(false);
@@ -1654,16 +1651,16 @@ public class Host extends JFrame implements ActionListener, ItemListener
             transactionParticipantsAuditorCandidateListBox.setEnabled(true);
             transactionParticipantsAuditorListBox.setEnabled(true);
             transactionParticipantsSetButton.setEnabled(false);
-            transactionClaimDistributionMeanTextBox.setReadOnly(false);
-            transactionClaimDistributionSigmaTextBox.setReadOnly(false);
+            transactionClaimDistributionMeanTextBox.setEditable(true);
+            transactionClaimDistributionSigmaTextBox.setEditable(true);
             transactionClaimDistributionParameterSetButton.setEnabled(true);
-            transactionClaimEntitlementTextBox.setReadOnly(true);
+            transactionClaimEntitlementTextBox.setEditable(false);
             transactionClaimEntitlementGenerateButton.setEnabled(false);
             transactionClaimEntitlementSetButton.setEnabled(false);
             transactionGrantAuditorWorkingListBox.setEnabled(false);
             transactionGrantAuditorCompletedListBox.setEnabled(false);
-            transactionPenaltyClaimantParameterTextBox.setReadOnly(true);
-            transactionPenaltyAuditorParameterTextBox.setReadOnly(true);
+            transactionPenaltyClaimantParameterTextBox.setEditable(false);
+            transactionPenaltyAuditorParameterTextBox.setEditable(false);
             transactionPenaltySetButton.setEnabled(false);
             transactionPenaltyAuditorListBox.setEnabled(false);
             transactionFinishPendingParticipantsListBox.setEnabled(false);
@@ -1677,16 +1674,16 @@ public class Host extends JFrame implements ActionListener, ItemListener
             transactionParticipantsAuditorCandidateListBox.setEnabled(true);
             transactionParticipantsAuditorListBox.setEnabled(true);
             transactionParticipantsSetButton.setEnabled(false);
-            transactionClaimDistributionMeanTextBox.setReadOnly(true);
-            transactionClaimDistributionSigmaTextBox.setReadOnly(true);
+            transactionClaimDistributionMeanTextBox.setEditable(false);
+            transactionClaimDistributionSigmaTextBox.setEditable(false);
             transactionClaimDistributionParameterSetButton.setEnabled(false);
-            transactionClaimEntitlementTextBox.setReadOnly(false);
+            transactionClaimEntitlementTextBox.setEditable(true);
             transactionClaimEntitlementGenerateButton.setEnabled(true);
             transactionClaimEntitlementSetButton.setEnabled(true);
             transactionGrantAuditorWorkingListBox.setEnabled(false);
             transactionGrantAuditorCompletedListBox.setEnabled(false);
-            transactionPenaltyClaimantParameterTextBox.setReadOnly(true);
-            transactionPenaltyAuditorParameterTextBox.setReadOnly(true);
+            transactionPenaltyClaimantParameterTextBox.setEditable(false);
+            transactionPenaltyAuditorParameterTextBox.setEditable(false);
             transactionPenaltySetButton.setEnabled(false);
             transactionPenaltyAuditorListBox.setEnabled(false);
             transactionFinishPendingParticipantsListBox.setEnabled(false);
@@ -1700,16 +1697,16 @@ public class Host extends JFrame implements ActionListener, ItemListener
             transactionParticipantsAuditorCandidateListBox.setEnabled(true);
             transactionParticipantsAuditorListBox.setEnabled(true);
             transactionParticipantsSetButton.setEnabled(false);
-            transactionClaimDistributionMeanTextBox.setReadOnly(true);
-            transactionClaimDistributionSigmaTextBox.setReadOnly(true);
+            transactionClaimDistributionMeanTextBox.setEditable(false);
+            transactionClaimDistributionSigmaTextBox.setEditable(false);
             transactionClaimDistributionParameterSetButton.setEnabled(false);
-            transactionClaimEntitlementTextBox.setReadOnly(true);
+            transactionClaimEntitlementTextBox.setEditable(false);
             transactionClaimEntitlementGenerateButton.setEnabled(false);
             transactionClaimEntitlementSetButton.setEnabled(false);
             transactionGrantAuditorWorkingListBox.setEnabled(false);
             transactionGrantAuditorCompletedListBox.setEnabled(false);
-            transactionPenaltyClaimantParameterTextBox.setReadOnly(true);
-            transactionPenaltyAuditorParameterTextBox.setReadOnly(true);
+            transactionPenaltyClaimantParameterTextBox.setEditable(false);
+            transactionPenaltyAuditorParameterTextBox.setEditable(false);
             transactionPenaltySetButton.setEnabled(false);
             transactionPenaltyAuditorListBox.setEnabled(false);
             transactionFinishPendingParticipantsListBox.setEnabled(false);
@@ -1723,16 +1720,16 @@ public class Host extends JFrame implements ActionListener, ItemListener
             transactionParticipantsAuditorCandidateListBox.setEnabled(true);
             transactionParticipantsAuditorListBox.setEnabled(true);
             transactionParticipantsSetButton.setEnabled(false);
-            transactionClaimDistributionMeanTextBox.setReadOnly(true);
-            transactionClaimDistributionSigmaTextBox.setReadOnly(true);
+            transactionClaimDistributionMeanTextBox.setEditable(false);
+            transactionClaimDistributionSigmaTextBox.setEditable(false);
             transactionClaimDistributionParameterSetButton.setEnabled(false);
-            transactionClaimEntitlementTextBox.setReadOnly(true);
+            transactionClaimEntitlementTextBox.setEditable(false);
             transactionClaimEntitlementGenerateButton.setEnabled(false);
             transactionClaimEntitlementSetButton.setEnabled(false);
             transactionGrantAuditorWorkingListBox.setEnabled(true);
             transactionGrantAuditorCompletedListBox.setEnabled(true);
-            transactionPenaltyClaimantParameterTextBox.setReadOnly(true);
-            transactionPenaltyAuditorParameterTextBox.setReadOnly(true);
+            transactionPenaltyClaimantParameterTextBox.setEditable(false);
+            transactionPenaltyAuditorParameterTextBox.setEditable(false);
             transactionPenaltySetButton.setEnabled(false);
             transactionPenaltyAuditorListBox.setEnabled(false);
             transactionFinishPendingParticipantsListBox.setEnabled(false);
@@ -1746,16 +1743,16 @@ public class Host extends JFrame implements ActionListener, ItemListener
             transactionParticipantsAuditorCandidateListBox.setEnabled(true);
             transactionParticipantsAuditorListBox.setEnabled(true);
             transactionParticipantsSetButton.setEnabled(false);
-            transactionClaimDistributionMeanTextBox.setReadOnly(true);
-            transactionClaimDistributionSigmaTextBox.setReadOnly(true);
+            transactionClaimDistributionMeanTextBox.setEditable(false);
+            transactionClaimDistributionSigmaTextBox.setEditable(false);
             transactionClaimDistributionParameterSetButton.setEnabled(false);
-            transactionClaimEntitlementTextBox.setReadOnly(true);
+            transactionClaimEntitlementTextBox.setEditable(false);
             transactionClaimEntitlementGenerateButton.setEnabled(false);
             transactionClaimEntitlementSetButton.setEnabled(false);
             transactionGrantAuditorWorkingListBox.setEnabled(true);
             transactionGrantAuditorCompletedListBox.setEnabled(true);
-            transactionPenaltyClaimantParameterTextBox.setReadOnly(false);
-            transactionPenaltyAuditorParameterTextBox.setReadOnly(false);
+            transactionPenaltyClaimantParameterTextBox.setEditable(true);
+            transactionPenaltyAuditorParameterTextBox.setEditable(true);
             transactionPenaltySetButton.setEnabled(true);
             transactionPenaltyAuditorListBox.setEnabled(false);
             transactionFinishPendingParticipantsListBox.setEnabled(false);
@@ -1769,16 +1766,16 @@ public class Host extends JFrame implements ActionListener, ItemListener
             transactionParticipantsAuditorCandidateListBox.setEnabled(true);
             transactionParticipantsAuditorListBox.setEnabled(true);
             transactionParticipantsSetButton.setEnabled(false);
-            transactionClaimDistributionMeanTextBox.setReadOnly(true);
-            transactionClaimDistributionSigmaTextBox.setReadOnly(true);
+            transactionClaimDistributionMeanTextBox.setEditable(false);
+            transactionClaimDistributionSigmaTextBox.setEditable(false);
             transactionClaimDistributionParameterSetButton.setEnabled(false);
-            transactionClaimEntitlementTextBox.setReadOnly(true);
+            transactionClaimEntitlementTextBox.setEditable(false);
             transactionClaimEntitlementGenerateButton.setEnabled(false);
             transactionClaimEntitlementSetButton.setEnabled(false);
             transactionGrantAuditorWorkingListBox.setEnabled(true);
             transactionGrantAuditorCompletedListBox.setEnabled(true);
-            transactionPenaltyClaimantParameterTextBox.setReadOnly(true);
-            transactionPenaltyAuditorParameterTextBox.setReadOnly(true);
+            transactionPenaltyClaimantParameterTextBox.setEditable(false);
+            transactionPenaltyAuditorParameterTextBox.setEditable(false);
             transactionPenaltySetButton.setEnabled(false);
             transactionPenaltyAuditorListBox.setEnabled(true);
             transactionFinishPendingParticipantsListBox.setEnabled(false);
@@ -1792,16 +1789,16 @@ public class Host extends JFrame implements ActionListener, ItemListener
             transactionParticipantsAuditorCandidateListBox.setEnabled(true);
             transactionParticipantsAuditorListBox.setEnabled(true);
             transactionParticipantsSetButton.setEnabled(false);
-            transactionClaimDistributionMeanTextBox.setReadOnly(true);
-            transactionClaimDistributionSigmaTextBox.setReadOnly(true);
+            transactionClaimDistributionMeanTextBox.setEditable(false);
+            transactionClaimDistributionSigmaTextBox.setEditable(false);
             transactionClaimDistributionParameterSetButton.setEnabled(false);
-            transactionClaimEntitlementTextBox.setReadOnly(true);
+            transactionClaimEntitlementTextBox.setEditable(false);
             transactionClaimEntitlementGenerateButton.setEnabled(false);
             transactionClaimEntitlementSetButton.setEnabled(false);
             transactionGrantAuditorWorkingListBox.setEnabled(true);
             transactionGrantAuditorCompletedListBox.setEnabled(true);
-            transactionPenaltyClaimantParameterTextBox.setReadOnly(true);
-            transactionPenaltyAuditorParameterTextBox.setReadOnly(true);
+            transactionPenaltyClaimantParameterTextBox.setEditable(false);
+            transactionPenaltyAuditorParameterTextBox.setEditable(false);
             transactionPenaltySetButton.setEnabled(false);
             transactionPenaltyAuditorListBox.setEnabled(true);
             transactionFinishPendingParticipantsListBox.setEnabled(true);
@@ -1815,16 +1812,16 @@ public class Host extends JFrame implements ActionListener, ItemListener
             transactionParticipantsAuditorCandidateListBox.setEnabled(true);
             transactionParticipantsAuditorListBox.setEnabled(true);
             transactionParticipantsSetButton.setEnabled(false);
-            transactionClaimDistributionMeanTextBox.setReadOnly(true);
-            transactionClaimDistributionSigmaTextBox.setReadOnly(true);
+            transactionClaimDistributionMeanTextBox.setEditable(false);
+            transactionClaimDistributionSigmaTextBox.setEditable(false);
             transactionClaimDistributionParameterSetButton.setEnabled(false);
-            transactionClaimEntitlementTextBox.setReadOnly(true);
+            transactionClaimEntitlementTextBox.setEditable(false);
             transactionClaimEntitlementGenerateButton.setEnabled(false);
             transactionClaimEntitlementSetButton.setEnabled(false);
             transactionGrantAuditorWorkingListBox.setEnabled(true);
             transactionGrantAuditorCompletedListBox.setEnabled(true);
-            transactionPenaltyClaimantParameterTextBox.setReadOnly(true);
-            transactionPenaltyAuditorParameterTextBox.setReadOnly(true);
+            transactionPenaltyClaimantParameterTextBox.setEditable(false);
+            transactionPenaltyAuditorParameterTextBox.setEditable(false);
             transactionPenaltySetButton.setEnabled(false);
             transactionPenaltyAuditorListBox.setEnabled(true);
             transactionFinishPendingParticipantsListBox.setEnabled(true);
