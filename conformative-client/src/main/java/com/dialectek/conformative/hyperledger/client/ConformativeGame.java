@@ -50,7 +50,8 @@ public class ConformativeGame extends JFrame implements ActionListener
       
       // Show.      
       pack(); 
-      setSize(300, 80); 
+      setSize(300, 80);
+      setLocationRelativeTo(null);
       setVisible(true);
    }
 

@@ -2,8 +2,10 @@
 
 package com.dialectek.conformative.hyperledger.client;
 
+import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Canvas;
+import java.awt.FlowLayout;
 import java.awt.Label;
 import java.awt.TextArea;
 import java.awt.TextField;
@@ -35,12 +37,14 @@ public class Host extends JFrame implements ActionListener, ItemListener
    
    private JTabbedPane        roleTabPanel;
    private JPanel             homePanel;
-   private JTable             homeFlexTable;
+   private JPanel             gameCaptionPanel;
+   private JPanel             gameCodePanel;   
    private Label              gameCodeLabel;
    private TextField          gameCodeTextBox;
    private Label              gameResourcesLabel;
    private TextField          gameResourcesTextBox;
    private Button             gameCreateDeleteButton;
+   private JPanel             gameStatePanel;   
    private Label              gameStateLabel;
    private JComboBox<String>  gameStateListBox;
    private JPanel             playersCaptionPanel;
@@ -207,26 +211,31 @@ public class Host extends JFrame implements ActionListener, ItemListener
 
       // Home tab.
       homePanel = new JPanel();
+      homePanel.setLayout(new BoxLayout(homePanel, BoxLayout.Y_AXIS)); 
       roleTabPanel.add(homePanel, "Home");
-
-      homeFlexTable = new JTable(2, 5);
-      homePanel.add(homeFlexTable);
+      gameCaptionPanel = new JPanel();
+      gameCaptionPanel.setBorder(BorderFactory.createTitledBorder("Game"));
+      gameCaptionPanel.setLayout(new BoxLayout(gameCaptionPanel, BoxLayout.Y_AXIS));
+      homePanel.add(gameCaptionPanel);
+      gameCodePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+      gameCaptionPanel.add(gameCodePanel);
       gameCodeLabel = new Label("Code:");
-      homeFlexTable.setValueAt(gameCodeLabel, 0, 0);
-      gameCodeTextBox = new TextField(120);
+      gameCodePanel.add(gameCodeLabel);
+      gameCodeTextBox = new TextField(30);
       gameCodeTextBox.setText(gameCode);
-      homeFlexTable.setValueAt(gameCodeTextBox, 0, 1);
+      gameCodePanel.add(gameCodeTextBox);
       gameResourcesLabel = new Label("Resources:");
-      homeFlexTable.setValueAt(gameResourcesLabel, 0, 2);
-      gameResourcesTextBox = new TextField(60);
-      homeFlexTable.setValueAt(gameResourcesTextBox, 0, 3);
+      gameCodePanel.add(gameResourcesLabel);
+      gameResourcesTextBox = new TextField(10);
+      gameCodePanel.add(gameResourcesTextBox);
       gameCreateDeleteButton = new Button("Create");
-      homeFlexTable.setValueAt(gameCreateDeleteButton, 0, 4);
       gameCreateDeleteButton.addActionListener(this);
+      gameCodePanel.add(gameCreateDeleteButton);
+      gameStatePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+      gameCaptionPanel.add(gameStatePanel);
       gameStateLabel = new Label("State:");
-      homeFlexTable.setValueAt(gameStateLabel, 1, 0);
+      gameStatePanel.add(gameStateLabel);
       gameStateListBox = new JComboBox<String>();
-      homeFlexTable.setValueAt(gameStateListBox, 1, 1);
       gameStateListBox.setEnabled(false);
       gameStateListBox.addItemListener(this);
       gameStateListBox.addItem("<state>");
@@ -234,7 +243,8 @@ public class Host extends JFrame implements ActionListener, ItemListener
       gameStateListBox.addItem("Joining");
       gameStateListBox.addItem("Running");
       gameStateListBox.addItem("Completed");
-      gameStateListBox.setSelectedIndex(Shared.PENDING);
+      gameStateListBox.setSelectedIndex(0);
+      gameStatePanel.add(gameStateListBox);
       playersCaptionPanel = new JPanel();
       playersCaptionPanel.setBorder(BorderFactory.createTitledBorder("Players"));
       homePanel.add(playersCaptionPanel);
@@ -291,7 +301,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
       playerResourcePanel.add(playerCommonResourceTextBox);
       playerCommonResourceTextBox.setSize(60, playerCommonResourceTextBox.getSize().height);
       playerChatCaptionPanel = new JPanel();
-      playerChatCaptionPanel.setBorder(BorderFactory.createTitledBorder("Player chat"));      
+      playerChatCaptionPanel.setBorder(BorderFactory.createTitledBorder("Chat"));      
       homePanel.add(playerChatCaptionPanel);
       playerChatCaptionPanel.setSize(450, playerChatCaptionPanel.getSize().height);
       playerChatPanel = new JPanel();
@@ -361,7 +371,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
       transactionParticipantsAuditorCandidateListBox.setSize(65, transactionParticipantsAuditorCandidateListBox.getSize().height);
       transactionParticipantsAuditorLabel = new Label("select->");
       transactionParticipantsAuditorPanel.add(transactionParticipantsAuditorLabel);
-      transactionParticipantsAuditorPanel.setLayout(new BoxLayout(transactionParticipantsClaimantPanel, BoxLayout.Y_AXIS)); 
+      transactionParticipantsAuditorPanel.setLayout(new BoxLayout(transactionParticipantsAuditorPanel, BoxLayout.Y_AXIS)); 
       transactionParticipantsAuditorLabel.setSize(60, transactionParticipantsAuditorLabel.getSize().height);
       transactionParticipantsAuditorListBox = new JComboBox<String>();
       transactionParticipantsAuditorListBox.addItemListener(this);
@@ -617,6 +627,8 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	// Button handler.
 	public void actionPerformed(ActionEvent event) 
 	{
+		 if (!UIinit) return;
+		  
          // Create/delete game.
          if (event.getSource() == gameCreateDeleteButton)
          {
@@ -1224,6 +1236,8 @@ public class Host extends JFrame implements ActionListener, ItemListener
    @Override
    public void itemStateChanged(ItemEvent event) 
    {
+	   if (!UIinit) return;
+	   
        if (event.getStateChange() == ItemEvent.SELECTED) 
        {
          if (event.getSource() == gameStateListBox)
