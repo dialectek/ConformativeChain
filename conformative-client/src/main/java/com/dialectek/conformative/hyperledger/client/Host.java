@@ -2,7 +2,6 @@
 
 package com.dialectek.conformative.hyperledger.client;
 
-import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Canvas;
 import java.awt.FlowLayout;
@@ -13,6 +12,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -319,7 +319,6 @@ public class Host extends JFrame implements ActionListener, ItemListener
       transactionParticipantsCaptionPanel = new JPanel();
       transactionParticipantsCaptionPanel.setBorder(BorderFactory.createTitledBorder("1. Participants"));      
       transactionPanel.add(transactionParticipantsCaptionPanel);
-      //transactionParticipantsCaptionPanel.setSize(450, transactionParticipantsCaptionPanel.getSize().height);
       transactionParticipantsPanel = new JPanel();
       transactionParticipantsPanel.setVisible(false);
       transactionParticipantsCaptionPanel.add(transactionParticipantsPanel);
@@ -539,15 +538,15 @@ public class Host extends JFrame implements ActionListener, ItemListener
       UIinit = true;
       
       // Initialize.
-      gameState         = -1;
+      gameState         = 0;
       resources         = 0.0;
       auditorNames      = new ArrayList<String>();
       auditorGrants     = new ArrayList<String>();
       auditorPenalties  = new ArrayList<String>();
       resetTransaction();
 
-      // Synchronize host with network.
-      sync();
+      // Synchronize game with network.
+      syncGame();
 
       // Enable UI.
       enableUI();
@@ -561,14 +560,14 @@ public class Host extends JFrame implements ActionListener, ItemListener
         	  if (syncCounter >= syncFreq)
         	  {
         		  syncCounter = 0;
-        		  sync();
+        		  syncMessages();
         	  }
               animateWaitTextBox(transactionClaimAmountTextBox);
               animateWaitTextBox(transactionGrantClaimantTextBox);
           }
       };
       timer = new Timer("Timer");
-      timer.schedule(task, timerInterval_ms);
+      timer.schedule(task, timerInterval_ms, timerInterval_ms);
       
       // Show.      
       pack(); 
@@ -647,14 +646,16 @@ public class Host extends JFrame implements ActionListener, ItemListener
                return;
             }
             disableUI();
-            if (gameState == -1)
+            if (gameState == 0)
             {
                // Create game.
                try
                {
-	   			   byte[] response = NetworkClient.contract.submitTransaction("requestService", 
-	   					   Shared.CREATE_GAME, gameCode, (resources + ""));
-	   			   if (response != null && Shared.isOK(response.toString()))
+            	   DelimitedString request = new DelimitedString(Shared.CREATE_GAME);
+            	   request.add(gameCode);
+            	   request.add(resources);
+	   			   byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
+	   			   if (response != null && Shared.isOK(new String(response, StandardCharsets.UTF_8)))
 	   			   {
 	                   gameCreateDeleteButton.setLabel("Delete");
 	                   gameState = Shared.PENDING;
@@ -664,14 +665,14 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	   			   } else {
 	   				   if (response != null)
 	   				   {
-	   					   JOptionPane.showMessageDialog(this, "Error creating game: " + response.toString());
+	   					   JOptionPane.showMessageDialog(this, "Error creating game: " + new String(response, StandardCharsets.UTF_8));
 	   				   } else {
 	   					   JOptionPane.showMessageDialog(this, "Error creating game");	   					   
 	   				   }	   				   
 	   			   }
                } catch (Exception e)
                {
-            	   JOptionPane.showMessageDialog(this, "Error creating game");	   					     	               
+            	   JOptionPane.showMessageDialog(this, "Error creating game: " + e.getMessage());	   					     	               
                }
                enableUI();
             }
@@ -687,13 +688,16 @@ public class Host extends JFrame implements ActionListener, ItemListener
                }
                try
                {
-	   			   byte[] response = NetworkClient.contract.submitTransaction("requestService", 
-	   					   Shared.DELETE_GAME, gameCode);
-	   			   if (response != null && Shared.isOK(response.toString()))
+            	   DelimitedString request = new DelimitedString(Shared.DELETE_GAME);
+            	   request.add(gameCode);          	   
+	   			   byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
+	   			   if (response != null && Shared.isOK(new String(response, StandardCharsets.UTF_8)))
 	   			   {
                        gameCreateDeleteButton.setLabel("Create");
-                       gameState = -1;
+                       gameState = 0;
+                       gameStateListBox.removeItemListener(this);
                        gameStateListBox.setSelectedIndex(0);
+                       gameStateListBox.addItemListener(this);
                        playersListBox.removeAll();
                        playersListBox.insertItemAt(Shared.ALL_PLAYERS, 0);
                        clearPlayerResources();
@@ -702,14 +706,14 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	   			   } else {
 	   				   if (response != null)
 	   				   {
-	   					   JOptionPane.showMessageDialog(this, "Error deleting game: " + response.toString());
+	   					   JOptionPane.showMessageDialog(this, "Error deleting game: " + new String(response, StandardCharsets.UTF_8));
 	   				   } else {
 	   					   JOptionPane.showMessageDialog(this, "Error deleting game");	   					   
 	   				   }	   				   
 	   			   }
                } catch (Exception e)
                {
-            	   JOptionPane.showMessageDialog(this, "Error deleting game");	   					     	               
+            	   JOptionPane.showMessageDialog(this, "Error deleting game: " + e.getMessage());	   					     	               
                }
                enableUI();               
             }
@@ -718,7 +722,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
          // Remove player.
          else if (event.getSource() == playerRemoveButton)
          {
-            if (gameState == -1)
+            if (gameState == 0)
             {
                JOptionPane.showMessageDialog(this, "Please create game!");
                return;
@@ -745,9 +749,11 @@ public class Host extends JFrame implements ActionListener, ItemListener
             {
 	            try
 	            {
-	   			   byte[] response = NetworkClient.contract.submitTransaction("requestService", 
-	   					   Shared.REMOVE_PLAYER, gameCode, removePlayer);
-	   			   if (response != null && Shared.isOK(response.toString()))
+            	   DelimitedString request = new DelimitedString(Shared.REMOVE_PLAYER);
+            	   request.add(gameCode);
+            	   request.add(removePlayer);
+	   			   byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString()); 
+	   			   if (response != null && Shared.isOK(new String(response, StandardCharsets.UTF_8)))
 	   			   {
 	                   if (removePlayer.equals(Shared.ALL_PLAYERS))
 	                   {
@@ -774,14 +780,14 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	   			   } else {
 	   				   if (response != null)
 	   				   {
-	   					   JOptionPane.showMessageDialog(this, "Error removing player: " + response.toString());
+	   					   JOptionPane.showMessageDialog(this, "Error removing player: " + new String(response, StandardCharsets.UTF_8));
 	   				   } else {
 	   					   JOptionPane.showMessageDialog(this, "Error removing player");	   					   
 	   				   }
 	   			   }
 	            } catch (Exception e)
 	            {
-	         	   JOptionPane.showMessageDialog(this, "Error removing player");
+	         	   JOptionPane.showMessageDialog(this, "Error removing player: " + e.getMessage());
 	            } 
 	            removePlayer = null;
             }
@@ -802,7 +808,12 @@ public class Host extends JFrame implements ActionListener, ItemListener
             {
                return;
             }
-            if (gameState == -1)
+            if (chatText.contains(DelimitedString.DELIMITER))
+            {
+            	JOptionPane.showMessageDialog(this, "Text cannot contain: " + DelimitedString.DELIMITER);
+            	return;
+            }
+            if (gameState == 0)
             {
                JOptionPane.showMessageDialog(this, "Please create game!");
                return;
@@ -810,9 +821,11 @@ public class Host extends JFrame implements ActionListener, ItemListener
             disableUI();
             try
             {
-   			   byte[] response = NetworkClient.contract.submitTransaction("requestService", 
-   					   Shared.HOST_CHAT_MESSAGE, gameCode, chatText);
-   			   if (response != null && Shared.isOK(response.toString()))
+               DelimitedString request = new DelimitedString(Shared.HOST_CHAT_MESSAGE);
+               request.add(gameCode);
+               request.add(chatText);
+   			   byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
+   			   if (response != null && Shared.isOK(new String(response, StandardCharsets.UTF_8)))
    			   {
                    playerChatTextArea.setText(playerChatTextArea.getText() +
                            "host: " +
@@ -821,14 +834,14 @@ public class Host extends JFrame implements ActionListener, ItemListener
    			   } else {
    				   if (response != null)
    				   {
-   					   JOptionPane.showMessageDialog(this, "Error sending chat: " + response.toString());
+   					   JOptionPane.showMessageDialog(this, "Error sending chat: " + new String(response, StandardCharsets.UTF_8));
    				   } else {
    					   JOptionPane.showMessageDialog(this, "Error sending chat");	   					   
    				   }	   				   
    			   }
             } catch (Exception e)
             {
-         	   JOptionPane.showMessageDialog(this, "Error sending chat");	   					     	               
+         	   JOptionPane.showMessageDialog(this, "Error sending chat: " + e.getMessage());	   					     	               
             }
             enableUI();              
          }
@@ -963,17 +976,18 @@ public class Host extends JFrame implements ActionListener, ItemListener
             try
             {
             	   transactionNumber = -1;
-	   			   byte[] response = NetworkClient.contract.submitTransaction("requestService", 
-	   					   Shared.START_CLAIM, gameCode,
-	   					   transactionParticipantsClaimantTextBox.getText().trim(),
-	   					   transactionClaimDistributionMeanTextBox.getText().trim(),
-	   			   		   transactionClaimDistributionSigmaTextBox.getText().trim(),
-	   			   		   transactionClaimEntitlementTextBox.getText().trim());
-	   			   if (response != null && Shared.isOK(response.toString()))
+                   DelimitedString request = new DelimitedString(Shared.START_CLAIM);
+                   request.add(gameCode);
+                   request.add(transactionParticipantsClaimantTextBox.getText().trim());
+                   request.add(transactionClaimDistributionMeanTextBox.getText().trim());
+                   request.add(transactionClaimDistributionSigmaTextBox.getText().trim());
+                   request.add(transactionClaimEntitlementTextBox.getText().trim());
+       			   byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());            	   
+	   			   if (response != null && Shared.isOK(new String(response, StandardCharsets.UTF_8)))
 	   			   {
 	   				   try
 	   				   {
-	   					   String[] parts = response.toString().split(DelimitedString.DELIMITER);
+	   					   String[] parts = new String(response, StandardCharsets.UTF_8).split(DelimitedString.DELIMITER);
 	   					   transactionNumber = Integer.parseInt(parts[1]);
 	   				   } catch (Exception e)
 	   				   {
@@ -983,14 +997,14 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	   			   } else {
 	   				   if (response != null)
 	   				   {
-	   					   JOptionPane.showMessageDialog(this, "Error starting transaction: " + response.toString());
+	   					   JOptionPane.showMessageDialog(this, "Error starting transaction: " + new String(response, StandardCharsets.UTF_8));
 	   				   } else {
 	   					   JOptionPane.showMessageDialog(this, "Error starting transaction");	   					   
 	   				   }	   				   
 	   			   }
             } catch (Exception e)
             {
-         	   JOptionPane.showMessageDialog(this, "Error starting transaction");	   					     	               
+         	   JOptionPane.showMessageDialog(this, "Error starting transaction: " + e.getMessage());	   					     	               
             }
             enableUI();            
          }
@@ -1059,22 +1073,24 @@ public class Host extends JFrame implements ActionListener, ItemListener
             transactionFinishedParticipantsListBox.setSelectedIndex(0);
             try
             {
-	   			   byte[] response = NetworkClient.contract.submitTransaction("requestService", 
-	   					   Shared.SET_PENALTY, gameCode, (transactionNumber + ""),
-	   					   (auditorPenaltyParameter + ""),
-	   					   (claimantPenaltyParameter + ""));	   			   
-	   			   if (response == null || !Shared.isOK(response.toString()))
-	   			   {
+                DelimitedString request = new DelimitedString(Shared.SET_PENALTY);
+                request.add(gameCode);
+                request.add(transactionNumber);
+                request.add(auditorPenaltyParameter);
+                request.add(claimantPenaltyParameter);       	
+	   			byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());	   			   
+	   			if (response == null || !Shared.isOK(new String(response, StandardCharsets.UTF_8)))
+	   			{
 	   				   if (response != null)
 	   				   {
-	   					   JOptionPane.showMessageDialog(this, "Error setting penalties: " + response.toString());
+	   					   JOptionPane.showMessageDialog(this, "Error setting penalties: " + new String(response, StandardCharsets.UTF_8));
 	   				   } else {
 	   					   JOptionPane.showMessageDialog(this, "Error setting penalties");	   					   
 	   				   }	   				   
-	   			   }
+	   			}
             } catch (Exception e)
             {
-         	   JOptionPane.showMessageDialog(this, "Error setting penalties");	   					     	               
+         	   JOptionPane.showMessageDialog(this, "Error setting penalties: " + e.getMessage());	   					     	               
             }
             enableUI();                 
          }
@@ -1135,20 +1151,22 @@ public class Host extends JFrame implements ActionListener, ItemListener
             disableUI();
             try
             {
-	   			   byte[] response = NetworkClient.contract.submitTransaction("requestService", 
-	   					   Shared.FINISH_TRANSACTION, gameCode, (transactionNumber + ""));	   			   
-	   			   if (response == null || !Shared.isOK(response.toString()))
-	   			   {
+                DelimitedString request = new DelimitedString(Shared.FINISH_TRANSACTION);
+                request.add(gameCode);
+                request.add(transactionNumber);             	
+	   			byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString()); 		   
+	   			if (response == null || !Shared.isOK(new String(response, StandardCharsets.UTF_8)))
+	   			{
 	   				   if (response != null)
 	   				   {
-	   					   JOptionPane.showMessageDialog(this, "Error finishing transaction: " + response.toString());
+	   					   JOptionPane.showMessageDialog(this, "Error finishing transaction: " + new String(response, StandardCharsets.UTF_8));
 	   				   } else {
 	   					   JOptionPane.showMessageDialog(this, "Error finishing transaction");	   					   
 	   				   }	   				   
-	   			   }
+	   			}
             } catch (Exception e)
             {
-         	   JOptionPane.showMessageDialog(this, "Error finishing transaction");	   					     	               
+         	   JOptionPane.showMessageDialog(this, "Error finishing transaction: " + e.getMessage());	   					     	               
             } 
             resetTransaction();
          }
@@ -1173,40 +1191,31 @@ public class Host extends JFrame implements ActionListener, ItemListener
             }
             disableUI();
             try
-            {
-	              int n = 4;
-	              if (transactionState != TRANSACTION_STATE.CLAIM_WAIT)
-	              {
-	                   if (transactionParticipantsAuditorListBox.getItemCount() > 1)
-	                   {
-	                	   n += transactionParticipantsAuditorListBox.getItemCount() - 1;
-	                   }
-	               }            	
-	   			   String[] args = new String[n];
-	   			   args[0] = Shared.ABORT_TRANSACTION;
-	   			   args[1] = gameCode;
-	   			   args[2] = transactionNumber + "";
-	   			   args[3] = transactionParticipantsClaimantTextBox.getText();
+            {   	
+	   			   DelimitedString request = new DelimitedString(Shared.ABORT_TRANSACTION);
+	   			   request.add(gameCode);
+	   			   request.add(transactionNumber);
+	   			   request.add(transactionParticipantsClaimantTextBox.getText());
 	               if (transactionState != TRANSACTION_STATE.CLAIM_WAIT)
 	               {
 	                   for (int i = 1; i < transactionParticipantsAuditorListBox.getItemCount(); i++)
 	                   {
-	                      args[3 + i] = transactionParticipantsAuditorListBox.getItemAt(i);
+	                      request.add(transactionParticipantsAuditorListBox.getItemAt(i));
 	                   }
-	               }            		   			   
-	   			   byte[] response = NetworkClient.contract.submitTransaction("requestService", args);
-	   			   if (response == null || !Shared.isOK(response.toString()))
+	               }   	               
+	   			   byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
+	   			   if (response == null || !Shared.isOK(new String(response, StandardCharsets.UTF_8)))
 	   			   {
 	   				   if (response != null)
 	   				   {
-	   					   JOptionPane.showMessageDialog(this, "Error aborting transaction: " + response.toString());
+	   					   JOptionPane.showMessageDialog(this, "Error aborting transaction: " + new String(response, StandardCharsets.UTF_8));
 	   				   } else {
 	   					   JOptionPane.showMessageDialog(this, "Error aborting transaction");	   					   
 	   				   }	   				   
 	   			   }
             } catch (Exception e)
             {
-         	   JOptionPane.showMessageDialog(this, "Error aborting transaction");	   					     	               
+         	   JOptionPane.showMessageDialog(this, "Error aborting transaction: " + e.getMessage());	   					     	               
             } 
             resetTransaction();
          }
@@ -1223,11 +1232,6 @@ public class Host extends JFrame implements ActionListener, ItemListener
          if (event.getSource() == gameStateListBox)
          {
             // Update game state.
-            if (gameState == -1)
-            {
-               JOptionPane.showMessageDialog(this, "Please create game!");
-               return;
-            }
             int nextState = gameStateListBox.getSelectedIndex();
             if (nextState == gameState)
             {
@@ -1247,13 +1251,13 @@ public class Host extends JFrame implements ActionListener, ItemListener
                return;
             }
             disableUI();
-            DelimitedString updateRequest = new DelimitedString(Shared.UPDATE_GAME);
-            updateRequest.add(gameCode);
-            updateRequest.add(gameStateListBox.getSelectedIndex());
 	        try
 	        {
-			   byte[] response = NetworkClient.contract.submitTransaction("requestService", updateRequest.parse());
-			   if (response != null && Shared.isOK(response.toString()))
+	           DelimitedString request = new DelimitedString(Shared.UPDATE_GAME);
+	           request.add(gameCode);
+	           request.add(gameStateListBox.getSelectedIndex());	        	
+			   byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
+			   if (response != null && Shared.isOK(new String(response, StandardCharsets.UTF_8)))
 			   {
                    nextState = gameStateListBox.getSelectedIndex();
                    if (nextState != gameState)
@@ -1264,7 +1268,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
 			   } else {
 				   if (response != null)
 				   {
-					   JOptionPane.showMessageDialog(this, "Error updating transaction: " + response.toString());
+					   JOptionPane.showMessageDialog(this, "Error updating transaction: " + new String(response, StandardCharsets.UTF_8));
 				   } else {
 					   JOptionPane.showMessageDialog(this, "Error updating transaction");	   					   
 				   }	   				   
@@ -1380,15 +1384,15 @@ public class Host extends JFrame implements ActionListener, ItemListener
          return;
       }
       disableUI();
-      DelimitedString updateRequest = new DelimitedString(Shared.GET_PLAYER_RESOURCES);
-      updateRequest.add(gameCode);
-      updateRequest.add(playerName);
       try
       {
-		   byte[] response = NetworkClient.contract.submitTransaction("requestService", updateRequest.parse());
-		   if (response != null && Shared.isOK(response.toString()))
+           DelimitedString request = new DelimitedString(Shared.GET_PLAYER_RESOURCES);
+           request.add(gameCode);
+           request.add(playerName);   	  
+		   byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
+		   if (response != null && Shared.isOK(new String(response, StandardCharsets.UTF_8)))
 		   {
-               String[] args = new DelimitedString(response.toString()).parse();
+               String[] args = new DelimitedString(new String(response, StandardCharsets.UTF_8)).parse();
                if (args.length != 3)
                {
                   JOptionPane.showMessageDialog(this, "Error getting player resources");
@@ -1400,7 +1404,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
 		   } else {
 			   if (response != null)
 			   {
-				   JOptionPane.showMessageDialog(this, "Error getting player resources: " + response.toString());
+				   JOptionPane.showMessageDialog(this, "Error getting player resources: " + new String(response, StandardCharsets.UTF_8));
 			   } else {
 				   JOptionPane.showMessageDialog(this, "Error getting player resources");	   					   
 			   }	   				   
@@ -1555,10 +1559,11 @@ public class Host extends JFrame implements ActionListener, ItemListener
    {
 	  if (!UIinit) return;
       gameCreateDeleteButton.setEnabled(true);
-      if (gameState == -1)
+      if (gameState == 0)
       {
-         gameCodeTextBox.setEditable(true);
+         gameCodeTextBox.setEditable(false);
          gameResourcesTextBox.setEditable(true);
+         gameCreateDeleteButton.setLabel("Create");
          gameStateListBox.setEnabled(false);
          playersListBox.setEnabled(false);
          playerRemoveButton.setEnabled(false);
@@ -1587,6 +1592,8 @@ public class Host extends JFrame implements ActionListener, ItemListener
       }
       else
       {
+         gameResourcesTextBox.setEditable(false);    	  
+    	 gameCreateDeleteButton.setLabel("Delete");
          gameStateListBox.setEnabled(true);
          playersListBox.setEnabled(true);
          playerRemoveButton.setEnabled(true);
@@ -1826,38 +1833,87 @@ public class Host extends JFrame implements ActionListener, ItemListener
          }
       }
    }
-
-   // Synchronize host with network.
-   private void sync()
+   
+   // Synchronize game with network.
+   private void syncGame()
    {
 	   if (Shared.isVoid(gameCode)) return;
 	    disableUI(); 
    		try
    		{
-   	       	byte[] response = null;
-   			if (transactionNumber == -1)
+   	       	DelimitedString request = new DelimitedString(Shared.SYNC_GAME);
+   	        request.add(gameCode);
+   			if (transactionNumber != -1)
    			{
-   				response = NetworkClient.contract.submitTransaction("requestService", Shared.HOST_GET_MESSAGES, gameCode);
-   			} else {
-   				response = NetworkClient.contract.submitTransaction("requestService", Shared.HOST_GET_MESSAGES, gameCode, (transactionNumber + ""));    				
-   			} 
+   				request.add(transactionNumber);
+   			}
+   			byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
+   	   		if (response == null || !Shared.isOK(new String(response, StandardCharsets.UTF_8)))
+   	   		{
+   	       		JOptionPane.showMessageDialog(this, "Cannot sync game"); 
+   	   		} else {
+   	   			String[] args = new DelimitedString(new String(response, StandardCharsets.UTF_8)).parse();
+   	   			try
+   	   			{
+   	   				gameState = Integer.parseInt(args[1]);
+   	   			} catch (Exception e)
+   	   			{
+   	   				JOptionPane.showMessageDialog(this, "Error syncing game: " + e.getMessage());
+   	   				gameState = 0;
+   	   			}
+   	   			if (gameState != 0)
+   	   			{
+   	   				int i = 2;
+   	   	            gameResourcesTextBox.setText(args[i]); i++;
+                    playersJoinedTextBox.setText(args[i]); 
+                    int n = Integer.parseInt(args[i]);
+                    i++;
+                    playersListBox.removeAll();
+                    for (int j = 0; j < n; j++)
+                    {
+                    	playersListBox.addItem(args[i + j]);
+                    } 
+   	   			}
+   	   		}
+   		}
+   		catch(Exception e)
+   		{
+   			JOptionPane.showMessageDialog(this, "Cannot sync game: " + e.getMessage());
+   		}
+   		enableUI();
+   }
+   
+   // Synchronize host with messages.
+   private void syncMessages()
+   {
+	    if (Shared.isVoid(gameCode)) return;
+	    disableUI(); 
+   		try
+   		{
+            DelimitedString request = new DelimitedString(Shared.HOST_GET_MESSAGES);
+            request.add(gameCode);     	       	
+   			if (transactionNumber != -1)
+   			{   				
+   				request.add(transactionNumber);   				
+   			}
+			byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
    	   		if (response == null)
    	   		{
    	       		//JOptionPane.showMessageDialog(this, "Cannot get host messages"); 
    	   			System.err.println("Cannot get host messages");
    	   		} else {
-   	   			update(response.toString());
+   	   			update(new String(response, StandardCharsets.UTF_8));
    	   		}
    		}
    		catch(Exception e)
    		{
    			//JOptionPane.showMessageDialog(this, "Cannot get host messages");
-   			System.err.println("Cannot get host messages");
+   			System.err.println("Cannot get host messages: " + e.getMessage());
    		}
    		enableUI();
    }
  
-   // Update host.
+   // Update host with messages.
   public void update(String messages)
   {
      if (Shared.isVoid(messages.toString()))
@@ -1871,7 +1927,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
      }     
      if (Shared.isError(messages))
      {
-    	 // game not found: reset host.
+    	 gameState = 0;
     	 return;
      }
      for (int n = 0; n < elements.length; )
@@ -1945,9 +2001,9 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	        auditorNames.clear();
 	        auditorGrants.clear();
 	        auditorPenalties.clear();
-	        DelimitedString auditRequest = new DelimitedString(Shared.START_AUDIT);
-	        auditRequest.add(gameCode);
-	        auditRequest.add(transactionNumber);	        
+	        DelimitedString request = new DelimitedString(Shared.START_AUDIT);
+	        request.add(gameCode);
+	        request.add(transactionNumber);	        
 	        if (transactionParticipantsAuditorListBox.getItemCount() == 1)
 	        {
 	           transactionGrantClaimantTextBox.setText(claim + "");
@@ -1966,7 +2022,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	              }
 	              else
 	              {
-	                 auditRequest.add(transactionParticipantsAuditorListBox.getItemAt(i));
+	                 request.add(transactionParticipantsAuditorListBox.getItemAt(i));
 	              }
 	           }
 	           transactionGrantAuditorWorkingListBox.setSelectedIndex(0);
@@ -1974,12 +2030,12 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	        }
 	        try
 	        {
-			   byte[] response = NetworkClient.contract.submitTransaction("requestService", auditRequest.parse());
-			   if (response == null || !Shared.isOK(response.toString()))
+			   byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
+			   if (response == null || !Shared.isOK(new String(response, StandardCharsets.UTF_8)))
 			   {
 				   if (response != null)
 				   {
-					   JOptionPane.showMessageDialog(this, "Error starting transaction: " + response.toString());
+					   JOptionPane.showMessageDialog(this, "Error starting transaction: " + new String(response, StandardCharsets.UTF_8));
 				   } else {
 					   JOptionPane.showMessageDialog(this, "Error starting transaction");	   					   
 				   }	   				   
@@ -2028,18 +2084,18 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	           transactionGrantClaimantTextBox.setText(grant + "");
 	           transactionState = TRANSACTION_STATE.PENALTY_PARAMETERS;
 	           transactionPenaltyPanel.setVisible(true);
-	           DelimitedString grantRequest = new DelimitedString(Shared.SET_GRANT);
-	           grantRequest.add(gameCode);
-	           grantRequest.add(transactionNumber);
-	           grantRequest.add(grant);
+	           DelimitedString request = new DelimitedString(Shared.SET_GRANT);
+	           request.add(gameCode);
+	           request.add(transactionNumber);
+	           request.add(grant);
 	           try
 	           {
-				   byte[] response = NetworkClient.contract.submitTransaction("requestService", grantRequest.parse());
-				   if (response == null || !Shared.isOK(response.toString()))
+				   byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
+				   if (response == null || !Shared.isOK(new String(response, StandardCharsets.UTF_8)))
 				   {
 					   if (response != null)
 					   {
-						   JOptionPane.showMessageDialog(this, "Error setting grant: " + response.toString());
+						   JOptionPane.showMessageDialog(this, "Error setting grant: " + new String(response, StandardCharsets.UTF_8));
 					   } else {
 						   JOptionPane.showMessageDialog(this, "Error setting grant");	   					   
 					   }	   				   

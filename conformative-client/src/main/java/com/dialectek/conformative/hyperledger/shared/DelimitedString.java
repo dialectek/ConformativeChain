@@ -4,7 +4,7 @@ package com.dialectek.conformative.hyperledger.shared;
 
 public class DelimitedString
 {
-   public static final String DELIMITER = "/";
+   public static final String DELIMITER = ";";
 
    private String str;
 

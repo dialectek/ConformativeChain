@@ -36,18 +36,18 @@ public final class GameService implements ContractInterface
    private final Genson genson = new Genson();
    
    @Transaction(intent = Transaction.TYPE.SUBMIT)
-   public void InitLedger(final Context ctx) 
+   public String InitLedger(final Context ctx) 
    {
+	   return(Shared.OK);
    }
    
    @Transaction(intent = Transaction.TYPE.SUBMIT)
-   public String requestService(final Context ctx, final String in) 
+   public String requestService(final Context ctx, final String input) 
    {
-      ChaincodeStub stub = ctx.getStub();
-      String input = stub.getStringState(in);	
+      ChaincodeStub stub = ctx.getStub();	
       if (Shared.isVoid(input))
       {
-	      return Shared.error("empty input");  
+	      return Shared.error("empty input");
       }
       String[] args = new DelimitedString(input).parse();
       if (args.length < 2)
@@ -204,8 +204,87 @@ public final class GameService implements ContractInterface
             }
          }
          else
-         {     	        	 
-            if (request.equals(Shared.CREATE_GAME) && (args.length == 3))
+         {
+            if (request.equals(Shared.SYNC_GAME) && 
+             		(args.length == 3 || args.length == 4))
+            {
+             	// Synchronize game.
+                 if (game != null)
+                 {
+                     DelimitedString response = new DelimitedString(Shared.OK);
+                     response.add(game.getState());
+                     response.add(game.getCommonResources());                    
+                     ArrayList<String> playerNames = game.getPlayerNames();
+                     response.add(playerNames.size());
+                     for (String name : playerNames)
+                     {
+                     	response.add(name);
+                     }                                                      
+                     if (args.length == 4)
+                     {
+                           int number;
+ 	               		  try 
+ 	               		  {
+ 	               			  number = Integer.parseInt(args[3]);
+ 	               		  } catch (NumberFormatException e) {
+ 	                             return(Shared.error("invalid transaction number: " + args[3])); 
+ 	               		  }                  
+ 	               	      String transactionJSON = stub.getStringState(gameCode + DelimitedString.DELIMITER + number);
+ 	               	      if (Shared.isVoid(transactionJSON)) 
+ 	               	      {
+ 	               		      return Shared.error("transaction number not found: " + number); 
+ 	               	      } 
+ 	               	      com.dialectek.conformative.hyperledger.chaincode.Transaction transaction = 
+ 	               	    		  genson.deserialize(transactionJSON, com.dialectek.conformative.hyperledger.chaincode.Transaction.class);
+ 	               	      response.add(transaction.getClaimantName());
+ 	               	      response.add(transaction.getMean());
+ 	               	      response.add(transaction.getSigma());	
+ 	               	      response.add(transaction.getEntitlement());
+ 	               	      response.add(transaction.getClaim());	 
+ 	               	      response.add(transaction.getClaimantName());
+ 	               	      ArrayList<String> auditorNames = transaction.getAuditorNames();
+ 	               	      response.add(auditorNames.size());
+ 	               	      for (String name : auditorNames)
+ 	               	      {
+ 	               	    	  response.add(name);
+ 	               	      }
+ 	               	      ArrayList<Double> auditorGrants = transaction.getAuditorGrants();
+ 	               	      response.add(auditorGrants.size());
+ 	               	      for (Double grant : auditorGrants)
+ 	               	      {
+ 	               	    	  response.add(grant);
+ 	               	      }
+ 	               	      response.add(transaction.getClaimantGrant());
+ 	               	      ArrayList<Double> auditorPenalties = transaction.getAuditorPenalties();
+ 	               	      response.add(auditorPenalties.size());
+ 	               	      for (Double penalty : auditorPenalties)
+ 	               	      {
+ 	               	    	  response.add(penalty);
+ 	               	      }
+ 	               	      response.add(transaction.getClaimantPenalty());
+ 	               	      ArrayList<String> beneficiaries = transaction.getBeneficiaries();
+ 	               	      response.add(beneficiaries.size());
+ 	               	      for (String name : beneficiaries)
+ 	               	      {
+ 	               	    	  response.add(name);
+ 	               	      }
+ 	               	      ArrayList<Double> donations = transaction.getDonations();
+ 	               	      response.add(donations.size());
+ 	               	      for (Double donation : donations)
+ 	               	      {
+ 	               	    	  response.add(donation);
+ 	               	      }	               	      
+                     }
+                     return(response.toString());               
+                 }
+                 else
+                 {
+                     DelimitedString response = new DelimitedString(Shared.OK);
+                     response.add(0);
+                 	 return(response.toString());
+                 } 
+            }
+            else if (request.equals(Shared.CREATE_GAME) && (args.length == 3))
             {
                // Create game?
                if (game == null)

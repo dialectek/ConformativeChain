@@ -6,6 +6,7 @@ public class Shared
 {
    // Messages.
    // Formats: <operation>/<game code>/<args> | <operation>/<game code>/<player name>/<args>
+   public static final String SYNC_GAME            = "sync_game";
    public static final String CREATE_GAME          = "create_game";
    public static final String UPDATE_GAME          = "update_game";
    public static final String DELETE_GAME          = "delete_game";

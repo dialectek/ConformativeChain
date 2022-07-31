@@ -26,7 +26,8 @@ public class ConformativeGame extends JFrame implements ActionListener
 	  // Connect to network.
 	  try
 	  {
-		  NetworkClient.init();
+		  NetworkClient.init("appUser");
+		  NetworkClient.initLedger();  // flibber
 	  } catch (Exception e)
 	  {
   		  JOptionPane.showMessageDialog(this, "Cannot connect to network");

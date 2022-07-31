@@ -8,6 +8,7 @@ package com.dialectek.conformative.hyperledger.client;
 
 import java.util.Properties;
 import java.util.Set;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.PrivateKey;
@@ -35,13 +36,14 @@ public class NetworkClient
 	}
 	
 	// Network and contract.
+	static public Gateway gateway;
 	static public Network network;
 	static public Contract contract;
 
 	// Initialize.
-	public static void init() throws Exception 
+	public static void init(String user) throws Exception 
 	{
-		// enrolls the admin
+		// enroll admin
 		try {
 			enrollAdmin();
 		} catch (Exception e) {
@@ -49,15 +51,23 @@ public class NetworkClient
 		}
 
 		// connect to the network and access the smart contract
-		try (Gateway gateway = connect()) 
+		try
 		{
+			// connect
+			gateway = connect();
+			
 			// get the network and contract
 			network = gateway.getNetwork("mychannel");
-			contract = network.getContract("conformative-chaincode");
+			contract = network.getContract("conformative-chaincode");			
 		}
 		catch(Exception e){
 			System.err.println(e);
 		}
+	}
+	
+	public static void terminate()
+	{
+		if (gateway != null) gateway.close();
 	}
 	
 	// helper function for getting connected to the gateway
@@ -70,21 +80,25 @@ public class NetworkClient
 		// load a CCP
 		Path networkConfigPath = Paths.get("..", "..", "..", "organizations", "peerOrganizations", "org1.example.com", "connection-org1.yaml");
 		Gateway.Builder builder = Gateway.createBuilder();
-		builder.identity(wallet, "appUser").networkConfig(networkConfigPath).discovery(true);
+		builder.identity(wallet, "admin").networkConfig(networkConfigPath).discovery(true);
 		return builder.connect();
 	}
 
 	// Initialize ledger.
-	public static void initLedger() throws Exception 
+	public static String initLedger() throws Exception 
 	{
 		try
 		{
-			// initialize the ledger
-			contract.submitTransaction("InitLedger");
+			byte[] response = contract.submitTransaction("InitLedger");
+			if (response != null)
+			{
+				return new String(response, StandardCharsets.UTF_8);
+			}
 		}
 		catch(Exception e){
 			System.err.println(e);
 		}
+		return null;
 	}
 	
 	// Enroll admin.
@@ -102,10 +116,9 @@ public class NetworkClient
 		// Create a wallet for managing identities
 		Wallet wallet = Wallets.newFileSystemWallet(Paths.get("wallet"));
 
-		// Check to see if we've already enrolled the admin user.
+		// Remove possibly expired admin identity.
 		if (wallet.get("admin") != null) {
-			System.out.println("An identity for the admin user \"admin\" already exists in the wallet");
-			return;
+			wallet.remove("admin");
 		}
 
 		// Enroll the admin user, and import the new identity into the wallet.
@@ -117,6 +130,7 @@ public class NetworkClient
 		wallet.put("admin", user);
 	}
 
+	// register user.
 	public static void registerUser(String userName) throws Exception 
 	{
 		// Create a CA client for interacting with the CA.
@@ -131,17 +145,17 @@ public class NetworkClient
 		// Create a wallet for managing identities
 		Wallet wallet = Wallets.newFileSystemWallet(Paths.get("wallet"));
 
-		// Check to see if we've already enrolled the user.
+		// Remove possibly expired user identity.
 		if (wallet.get(userName) != null) {
-			System.out.println("An identity for the user " + userName + " already exists in the wallet");
-			return;
+			wallet.remove(userName);
 		}
-
+		
 		X509Identity adminIdentity = (X509Identity)wallet.get("admin");
 		if (adminIdentity == null) {
 			System.out.println("\"admin\" needs to be enrolled and added to the wallet first");
 			return;
 		}
+		
 		User admin = new User() {
 
 			@Override
@@ -199,6 +213,8 @@ public class NetworkClient
 	
 	public static void main(String[] args) throws Exception 
 	{
-		init();
+		init("appUser");
+		initLedger();
+		terminate();
 	}
 }
