@@ -4,12 +4,17 @@ package com.dialectek.conformative.hyperledger.shared;
 
 public class Shared
 {
+	// Channel and contract names.
+	public static String CHANNEL_NAME = "mychannel";
+	public static String CONTRACT_NAME = "conformative-chaincode";
+		
    // Messages.
    // Formats: <operation>/<game code>/<args> | <operation>/<game code>/<player name>/<args>
    public static final String SYNC_GAME            = "sync_game";	
    public static final String CREATE_GAME          = "create_game";
    public static final String UPDATE_GAME          = "update_game";
    public static final String DELETE_GAME          = "delete_game";
+   public static final String SYNC_PLAYER          = "sync_player";   
    public static final String JOIN_GAME            = "join_game";
    public static final String QUIT_GAME            = "quit_game";
    public static final String REMOVE_PLAYER        = "remove_player";

@@ -85,7 +85,8 @@ public final class GameService implements ContractInterface
         	}
          }
          
-         if ((request.equals(Shared.JOIN_GAME) ||
+         if ((request.equals(Shared.SYNC_PLAYER) ||
+        	  request.equals(Shared.JOIN_GAME) || 
               request.equals(Shared.QUIT_GAME) ||
               request.equals(Shared.PLAYER_GET_MESSAGES) ||
               request.equals(Shared.PLAYER_CHAT_MESSAGE) ||             
@@ -104,7 +105,84 @@ public final class GameService implements ContractInterface
                if (player.getName().equals(playerName)) { break; }
                player = null;
             }
-            if (request.equals(Shared.JOIN_GAME) && (args.length == 3))
+            if (request.equals(Shared.SYNC_PLAYER) && (args.length == 3) || args.length == 4)
+            {
+            	// Synchronize player.
+            	if (player != null)
+            	{
+                    DelimitedString response = new DelimitedString(Shared.OK);
+                    response.add(player.getPersonalResources());
+                    response.add(player.getEntitledResources());
+                    ArrayList<String> messages = player.getMessages();
+                    response.add(messages.size());
+                    for (String message : messages)
+                    {
+                    	response.add(message);
+                    }
+                    player.clearMessages();
+                    String playerJson = genson.serialize(player);
+                    stub.putStringState(gameCode + DelimitedString.DELIMITER + playerName, playerJson);                     
+                    if (args.length == 4)
+                    {
+                          int number;
+	               		  try 
+	               		  {
+	               			  number = Integer.parseInt(args[3]);
+	               		  } catch (NumberFormatException e) {
+	                             return(Shared.error("invalid transaction number: " + args[3])); 
+	               		  }                  
+	               	      String transactionJSON = stub.getStringState(gameCode + DelimitedString.DELIMITER + number);
+	               	      if (Shared.isVoid(transactionJSON)) 
+	               	      {
+	               		      return Shared.error("transaction number not found: " + number); 
+	               	      } 
+	               	      com.dialectek.conformative.hyperledger.chaincode.Transaction transaction = 
+	               	    		  genson.deserialize(transactionJSON, com.dialectek.conformative.hyperledger.chaincode.Transaction.class);
+	               	      response.add(transaction.getClaimantName());
+	               	      response.add(transaction.getMean());
+	               	      response.add(transaction.getSigma());	
+	               	      response.add(transaction.getEntitlement());
+	               	      response.add(transaction.getClaim());	 
+	               	      response.add(transaction.getClaimantName());
+	               	      ArrayList<String> auditorNames = transaction.getAuditorNames();
+	               	      response.add(auditorNames.size());
+	               	      for (String name : auditorNames)
+	               	      {
+	               	    	  response.add(name);
+	               	      }
+	               	      ArrayList<Double> auditorGrants = transaction.getAuditorGrants();
+	               	      response.add(auditorGrants.size());
+	               	      for (Double grant : auditorGrants)
+	               	      {
+	               	    	  response.add(grant);
+	               	      }
+	               	      response.add(transaction.getClaimantGrant());
+	               	      ArrayList<Double> auditorPenalties = transaction.getAuditorPenalties();
+	               	      response.add(auditorPenalties.size());
+	               	      for (Double penalty : auditorPenalties)
+	               	      {
+	               	    	  response.add(penalty);
+	               	      }
+	               	      response.add(transaction.getClaimantPenalty());
+	               	      ArrayList<String> beneficiaries = transaction.getBeneficiaries();
+	               	      response.add(beneficiaries.size());
+	               	      for (String name : beneficiaries)
+	               	      {
+	               	    	  response.add(name);
+	               	      }
+	               	      ArrayList<Double> donations = transaction.getDonations();
+	               	      response.add(donations.size());
+	               	      for (Double donation : donations)
+	               	      {
+	               	    	  response.add(donation);
+	               	      }	               	      
+                    }
+                    return(response.toString());     
+            	} else {
+                    return(Shared.error("player not found: " + playerName));            		
+            	}           
+            }            
+            else if (request.equals(Shared.JOIN_GAME) && (args.length == 3))
             {
                // Join game?
                if (player == null)

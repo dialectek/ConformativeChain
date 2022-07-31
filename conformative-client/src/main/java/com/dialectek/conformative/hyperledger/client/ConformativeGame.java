@@ -27,12 +27,13 @@ public class ConformativeGame extends JFrame implements ActionListener
 	  // Connect to network.
 	  try
 	  {
-		  NetworkClient.init("appUser");
-		  NetworkClient.initLedger();  // flibber
+		  if (!NetworkClient.init())
+		  {
+	  		  JOptionPane.showMessageDialog(this, "Cannot connect to network");			  
+		  }
 	  } catch (Exception e)
 	  {
   		  JOptionPane.showMessageDialog(this, "Cannot connect to network");
-		  //System.exit(1);
 	  }
 	  
       // Set title.
@@ -127,12 +128,12 @@ public class ConformativeGame extends JFrame implements ActionListener
          		return;
          	}         	
          	String transactionNumber = transactionNumberText.getText();
-         	int t = -1;
+         	int n = -1;
          	if (!Shared.isVoid(transactionNumber))
          	{
          		try
          		{
-         			if ((t = Integer.parseInt(transactionNumber)) < 0)
+         			if ((n = Integer.parseInt(transactionNumber)) < 0)
          			{
                  		JOptionPane.showMessageDialog(this, "Invalid transaction number: " + transactionNumber);
                  		return;         				
@@ -143,9 +144,18 @@ public class ConformativeGame extends JFrame implements ActionListener
              		return;        			
          		}
          	}
+         	
+         	// Register user.
+         	try 
+         	{
+				NetworkClient.registerUser(playerName);
+			} catch (Exception e) 
+         	{
+         		JOptionPane.showMessageDialog(this, "Cannot register player as network user: " + e.getMessage());
+			}
 
          	// Start player client.
-         	new Player(gameCode, playerName, t);
+         	new Player(gameCode, playerName, n);
          }
          return;
      }

@@ -28,6 +28,8 @@ import org.hyperledger.fabric_ca.sdk.HFCAClient;
 import org.hyperledger.fabric.sdk.User;
 import org.hyperledger.fabric_ca.sdk.RegistrationRequest;
 
+import com.dialectek.conformative.hyperledger.shared.Shared;
+
 public class NetworkClient 
 {
 	static 
@@ -41,13 +43,17 @@ public class NetworkClient
 	static public Contract contract;
 
 	// Initialize.
-	public static void init(String user) throws Exception 
+	public static boolean init() throws Exception 
 	{
+		boolean result = true;
+		
 		// enroll admin
 		try {
 			enrollAdmin();
 		} catch (Exception e) {
+			System.err.println("Error enrolling admin: " + e.getMessage());
 			System.err.println(e);
+			result = false;
 		}
 
 		// connect to the network and access the smart contract
@@ -57,12 +63,17 @@ public class NetworkClient
 			gateway = connect();
 			
 			// get the network and contract
-			network = gateway.getNetwork("mychannel");
-			contract = network.getContract("conformative-chaincode");			
+			network = gateway.getNetwork(Shared.CHANNEL_NAME);
+			contract = network.getContract(Shared.CONTRACT_NAME);
+			
+			if (gateway == null || network == null || contract == null) result = false;
 		}
 		catch(Exception e){
+			System.err.println("Error connecting to network: " + e.getMessage());
 			System.err.println(e);
+			result = false;
 		}
+		return result;
 	}
 	
 	public static void terminate()
@@ -213,8 +224,9 @@ public class NetworkClient
 	
 	public static void main(String[] args) throws Exception 
 	{
-		init("appUser");
+		init();
 		initLedger();
+		registerUser("appUser");
 		terminate();
 	}
 }
