@@ -536,6 +536,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
       roleTabPanel.setSelectedIndex(0);
       add(roleTabPanel);
       UIinit = true;
+      enableUI();
       
       // Initialize.
       gameState         = 0;
@@ -547,9 +548,6 @@ public class Host extends JFrame implements ActionListener, ItemListener
 
       // Synchronize game with network.
       syncGame();
-
-      // Enable UI.
-      enableUI();
 
       // Start timer.
       TimerTask task = new TimerTask() 
@@ -567,7 +565,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
           }
       };
       timer = new Timer("Timer");
-      timer.schedule(task, timerInterval_ms, timerInterval_ms);
+      timer.schedule(task, 0, timerInterval_ms);
       
       // Show.      
       pack(); 
@@ -1850,7 +1848,12 @@ public class Host extends JFrame implements ActionListener, ItemListener
    			byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
    	   		if (response == null || !Shared.isOK(new String(response, StandardCharsets.UTF_8)))
    	   		{
-   	       		JOptionPane.showMessageDialog(this, "Cannot sync game"); 
+   	   			if (response == null)
+   	   			{  	 
+   	   				JOptionPane.showMessageDialog(this, "Cannot sync game");
+   	   			} else {
+   	   				JOptionPane.showMessageDialog(this, "Cannot sync game: " + new String(response, StandardCharsets.UTF_8));  	   				
+   	   			}
    	   		} else {
    	   			String[] args = new DelimitedString(new String(response, StandardCharsets.UTF_8)).parse();
    	   			try
@@ -1864,7 +1867,10 @@ public class Host extends JFrame implements ActionListener, ItemListener
    	   			if (gameState != 0)
    	   			{
    	   				int i = 2;
-   	   	            gameResourcesTextBox.setText(args[i]); i++;
+   	   	            gameResourcesTextBox.setText(args[i]); 
+   	   	            i++;
+   	   	            playerTotalResourceTextBox.setText(args[i]);
+   	   	            i++;
                     playersJoinedTextBox.setText(args[i]); 
                     int n = Integer.parseInt(args[i]);
                     i++;
@@ -1878,7 +1884,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
    		}
    		catch(Exception e)
    		{
-   			JOptionPane.showMessageDialog(this, "Cannot sync game: " + e.getMessage());
+   			JOptionPane.showMessageDialog(this, "Cannot sync game");
    		}
    		enableUI();
    }
@@ -1887,30 +1893,30 @@ public class Host extends JFrame implements ActionListener, ItemListener
    private void syncMessages()
    {
 	    if (Shared.isVoid(gameCode)) return;
-	    disableUI(); 
    		try
    		{
             DelimitedString request = new DelimitedString(Shared.HOST_GET_MESSAGES);
             request.add(gameCode);     	       	
-   			if (transactionNumber != -1)
-   			{   				
-   				request.add(transactionNumber);   				
-   			}
 			byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
-   	   		if (response == null)
+   	   		if (response != null)
    	   		{
-   	       		//JOptionPane.showMessageDialog(this, "Cannot get host messages"); 
-   	   			System.err.println("Cannot get host messages");
-   	   		} else {
-   	   			update(new String(response, StandardCharsets.UTF_8));
+   	   			String messages= new String(response, StandardCharsets.UTF_8);
+   	   			if (Shared.isOK(messages))
+   	   			{
+   	   				String[] args = new DelimitedString(messages).parse();
+   	   				if (args.length > 1)
+   	   				{
+   	    	   			disableUI();
+   	    	   			update(messages);
+   	    	   			enableUI();   	   					
+   	   				}
+   	   			} else {
+   	   				gameState = 0;
+   	   				enableUI();
+   	   			}
    	   		}
    		}
-   		catch(Exception e)
-   		{
-   			//JOptionPane.showMessageDialog(this, "Cannot get host messages");
-   			System.err.println("Cannot get host messages: " + e.getMessage());
-   		}
-   		enableUI();
+   		catch(Exception e) {}
    }
  
    // Update host with messages.
@@ -1920,22 +1926,22 @@ public class Host extends JFrame implements ActionListener, ItemListener
      {
         return;
      }
-     String[] elements = messages.split(DelimitedString.DELIMITER);
-     if (elements == null || elements.length == 0)
-     {
-        return;
-     }     
      if (Shared.isError(messages))
      {
     	 gameState = 0;
     	 return;
-     }
-     for (int n = 0; n < elements.length; )
+     }    
+     String[] fields = messages.split(DelimitedString.DELIMITER);
+     if (fields == null || fields.length == 1)
+     {
+        return;
+     }     
+     for (int n = 1; n < fields.length; )
      {
     	 int c = 0;
-    	 for (int i = n; i < elements.length; i++)
+    	 for (int i = n; i < fields.length; i++)
     	 {
-    		 if (elements[i].equals(Shared.MESSAGE_DELIMITER)) break;
+    		 if (fields[i].equals(Shared.MESSAGE_DELIMITER)) break;
     		 c++;
     	 }
     	 if (c < 2)
@@ -1946,7 +1952,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
     	 String[] args = new String[c];
     	 for (int j = 0; j < c; j++)
     	 {
-    		 args[j] = elements[j + n];
+    		 args[j] = fields[j + n];
     	 }
     	 n += (c + 1);
     	 String operation = args[0];

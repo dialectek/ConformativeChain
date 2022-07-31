@@ -205,14 +205,14 @@ public final class GameService implements ContractInterface
          }
          else
          {
-            if (request.equals(Shared.SYNC_GAME) && 
-             		(args.length == 3 || args.length == 4))
+            if (request.equals(Shared.SYNC_GAME) && (args.length == 2 || args.length == 3))
             {
-             	// Synchronize game.
+             	 // Synchronize game.
                  if (game != null)
                  {
                      DelimitedString response = new DelimitedString(Shared.OK);
                      response.add(game.getState());
+                     response.add(game.getInitialCommonResources());
                      response.add(game.getCommonResources());                    
                      ArrayList<String> playerNames = game.getPlayerNames();
                      response.add(playerNames.size());
@@ -220,14 +220,14 @@ public final class GameService implements ContractInterface
                      {
                      	response.add(name);
                      }                                                      
-                     if (args.length == 4)
+                     if (args.length == 3)
                      {
-                           int number;
+                          int number;
  	               		  try 
  	               		  {
- 	               			  number = Integer.parseInt(args[3]);
+ 	               			  number = Integer.parseInt(args[2]);
  	               		  } catch (NumberFormatException e) {
- 	                             return(Shared.error("invalid transaction number: " + args[3])); 
+ 	                             return(Shared.error("invalid transaction number: " + args[2])); 
  	               		  }                  
  	               	      String transactionJSON = stub.getStringState(gameCode + DelimitedString.DELIMITER + number);
  	               	      if (Shared.isVoid(transactionJSON)) 
@@ -444,14 +444,18 @@ public final class GameService implements ContractInterface
             	{
                   	 DelimitedString response = new DelimitedString(Shared.OK);
                 	 ArrayList<String> messages = game.getMessages();
-                	 for (String message : messages)
+                	 if (messages.size() > 0)
                 	 {
-                		 response.add(message);
-                		 response.add(Shared.MESSAGE_DELIMITER);
+	                	 for (String message : messages)
+	                	 {
+	                		 response.add(message);
+	                		 response.add(Shared.MESSAGE_DELIMITER);
+	                	 }
+	                	 game.clearMessages();
+	                     String gameJson = genson.serialize(game);
+	                     stub.putStringState(gameCode, gameJson);
                 	 }
-                	 game.clearMessages();
-                     String gameJson = genson.serialize(game);
-                     stub.putStringState(gameCode, gameJson);
+                	 return response.toString();
             	} else {
              	   return(Shared.error("game code not found: " + gameCode));            		
             	}

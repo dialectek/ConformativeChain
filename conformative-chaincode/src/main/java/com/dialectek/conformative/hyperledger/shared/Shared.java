@@ -16,7 +16,7 @@ public class Shared
    public static final String GET_PLAYER_RESOURCES = "get_player_resources";
    public static final String SET_PLAYER_RESOURCES = "set_player_resources";
    public static final String CHAT_MESSAGE         = "chat_message"; 
-   public static final String MESSAGE_DELIMITER    = "messagez_delimiter";   
+   public static final String MESSAGE_DELIMITER    = "message_delimiter";   
    public static final String HOST_GET_MESSAGES    = "host_get_messages";   
    public static final String HOST_CHAT_MESSAGE    = "host_chat_message";
    public static final String HOST_CLEAR_MESSAGES  = "host_clear_messages";
