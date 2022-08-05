@@ -70,6 +70,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
    private JPanel             transactionHistoryCaptionPanel;
    private TextArea           transactionHistoryTextArea;
    private JPanel             transactionPanel;
+   private JTabbedPane        transactionTabPanel;   
    private JPanel             transactionParticipantsCaptionPanel;
    private JPanel             transactionParticipantsPanel;
    private JPanel             transactionParticipantsClaimantCaptionPanel;
@@ -82,6 +83,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
    private JComboBox<String>  transactionParticipantsAuditorCandidateListBox;
    private Label              transactionParticipantsAuditorLabel;
    private JComboBox<String>  transactionParticipantsAuditorListBox;
+   private JPanel             transactionParticipantsSetButtonPanel;   
    private Button             transactionParticipantsSetButton;
    private JPanel             transactionClaimCaptionPanel;
    private JPanel             transactionClaimPanel;
@@ -89,43 +91,46 @@ public class Host extends JFrame implements ActionListener, ItemListener
    private JPanel             transactionClaimDistributionPanel;
    private Canvas             transactionClaimDistributionCanvas;
    private NormalDistribution transactionClaimDistribution;
-   private JTable             transactionClaimDistributionParameterFlexTable;
    private Label              transactionClaimDistributionMeanLabel;
    private TextField          transactionClaimDistributionMeanTextBox;
    private Label              transactionClaimDistributionSigmaLabel;
    private TextField          transactionClaimDistributionSigmaTextBox;
    private Button             transactionClaimDistributionParameterSetButton;
+   private JPanel             transactionClaimDistributionTestPanel;   
    private Label              transactionClaimDistributionTestValueLabel;
    private TextField          transactionClaimDistributionTestValueTextBox;
    private Button             transactionClaimDistributionTestButton;
    private TextField          transactionClaimDistributionTestProbabilityTextBox;
-   private JTable             transactionClaimFlexTable;
+   private JPanel             transactionClaimEntitlementPanel;   
    private Label              transactionClaimEntitlementLabel;
    private TextField          transactionClaimEntitlementTextBox;
    private Button             transactionClaimEntitlementGenerateButton;
    private Button             transactionClaimEntitlementSetButton;
+   private JPanel             transactionClaimAmountPanel;
    private Label              transactionClaimAmountLabel;
    private TextField          transactionClaimAmountTextBox;
    private JPanel             transactionGrantCaptionPanel;
-   private JTable             transactionGrantFlexTable;
+   private JPanel             transactionGrantPanel;
+   private JPanel             transactionGrantAuditorPanel;
    private Label              transactionGrantAuditorWorkingLabel;
    private JComboBox<String>  transactionGrantAuditorWorkingListBox;
    private Label              transactionGrantAuditorCompletedLabel;
    private JComboBox<String>  transactionGrantAuditorCompletedListBox;
    private Label              transactionGrantAuditorAmountLabel;
    private TextField          transactionGrantAuditorAmountTextBox;
+   private JPanel             transactionGrantClaimantPanel;
    private Label              transactionGrantClaimantLabel;
    private TextField          transactionGrantClaimantTextBox;
    private JPanel             transactionPenaltyCaptionPanel;
    private JPanel             transactionPenaltyPanel;
    private JPanel             transactionPenaltyParameterCaptionPanel;
-   private JTable             transactionPenaltyParameterFlexTable;
+   private JPanel             transactionPenaltyClaimantParameterPanel;
    private Label              transactionPenaltyClaimantParameterLabel;
    private TextField          transactionPenaltyClaimantParameterTextBox;
    private Label              transactionPenaltyAuditorParameterLabel;
    private TextField          transactionPenaltyAuditorParameterTextBox;
    private Button             transactionPenaltySetButton;
-   private JTable             transactionPenaltyFlexTable;
+   private JPanel             transactionPenaltyAuditorPanel;
    private Label              transactionPenaltyAuditorLabel;
    private JComboBox<String>  transactionPenaltyAuditorListBox;
    private Label              transactionPenaltyAuditorAmountLabel;
@@ -133,13 +138,13 @@ public class Host extends JFrame implements ActionListener, ItemListener
    private Label              transactionPenaltyClaimantLabel;
    private TextField          transactionPenaltyClaimantTextBox;
    private JPanel             transactionFinishCaptionPanel;
-   private JTable             transactionFinishFlexTable;
+   private JPanel             transactionFinishPanel;
    private Label              transactionFinishPendingParticipantsLabel;
    private JComboBox<String>  transactionFinishPendingParticipantsListBox;
    private Label              transactionFinishedLabel;
    private JComboBox<String>  transactionFinishedParticipantsListBox;
    private JPanel             transactionCompletionPanel;
-   private Button             transactionFinishButton;
+   private Button             transactionCommitButton;
    private Button             transactionAbortButton;
    private boolean UIinit = false;
 
@@ -314,222 +319,216 @@ public class Host extends JFrame implements ActionListener, ItemListener
 
       // Transaction tab.
       transactionPanel = new JPanel();
-      transactionPanel.setLayout(new BoxLayout(transactionPanel, BoxLayout.Y_AXIS));     
-      roleTabPanel.add(transactionPanel, "Transaction");
+      transactionPanel.setLayout(new BoxLayout(transactionPanel, BoxLayout.Y_AXIS));
+      roleTabPanel.add(transactionPanel, "Transaction");      
+      transactionTabPanel = new JTabbedPane();     
+      transactionPanel.add(transactionTabPanel);
       transactionParticipantsCaptionPanel = new JPanel();
-      transactionParticipantsCaptionPanel.setBorder(BorderFactory.createTitledBorder("1. Participants"));      
-      transactionPanel.add(transactionParticipantsCaptionPanel);
+      transactionParticipantsCaptionPanel.setLayout(new BoxLayout(transactionParticipantsCaptionPanel, BoxLayout.Y_AXIS));      
+      transactionTabPanel.add(transactionParticipantsCaptionPanel, "Participants");
       transactionParticipantsPanel = new JPanel();
-      transactionParticipantsPanel.setVisible(false);
+      transactionParticipantsPanel.setLayout(new BoxLayout(transactionParticipantsPanel, BoxLayout.Y_AXIS));      
+      transactionParticipantsPanel.setVisible(true);
       transactionParticipantsCaptionPanel.add(transactionParticipantsPanel);
       transactionParticipantsClaimantCaptionPanel = new JPanel();
-      transactionParticipantsClaimantCaptionPanel.setBorder(BorderFactory.createTitledBorder("Claimant"));       
+      transactionParticipantsClaimantCaptionPanel.setBorder(BorderFactory.createTitledBorder("Claimant"));
+      transactionParticipantsClaimantCaptionPanel.setLayout(new BoxLayout(transactionParticipantsClaimantCaptionPanel, BoxLayout.Y_AXIS));      
       transactionParticipantsPanel.add(transactionParticipantsClaimantCaptionPanel);
-      transactionParticipantsClaimantCaptionPanel.setSize(430, transactionParticipantsClaimantCaptionPanel.getSize().height);
-      transactionParticipantsClaimantPanel = new JPanel();
+      transactionParticipantsClaimantPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       transactionParticipantsClaimantCaptionPanel.add(transactionParticipantsClaimantPanel);
       transactionParticipantsClaimantCandidateListBox = new JComboBox<String>();
+      transactionParticipantsClaimantCandidateListBox.addItem("<player name>");
       transactionParticipantsClaimantCandidateListBox.addItemListener(this);
       transactionParticipantsClaimantPanel.add(transactionParticipantsClaimantCandidateListBox);
-      transactionParticipantsClaimantCandidateListBox.setSize(65, transactionParticipantsClaimantCandidateListBox.getSize().height);
       transactionParticipantsClaimantLabel = new Label("select->");
       transactionParticipantsClaimantPanel.add(transactionParticipantsClaimantLabel);
-      transactionParticipantsClaimantPanel.setLayout(new BoxLayout(transactionParticipantsClaimantPanel, BoxLayout.Y_AXIS)); 
-      transactionParticipantsClaimantLabel.setSize(60, transactionParticipantsClaimantLabel.getSize().height);
-      transactionParticipantsClaimantTextBox = new TextField();
+      transactionParticipantsClaimantTextBox = new TextField(30);
+      transactionParticipantsClaimantTextBox.setText("<player name>");
       transactionParticipantsClaimantTextBox.setEditable(false);
       transactionParticipantsClaimantPanel.add(transactionParticipantsClaimantTextBox);
-      transactionParticipantsClaimantTextBox.setSize(300, transactionParticipantsClaimantTextBox.getSize().height);
       transactionParticipantsAuditorCaptionPanel = new JPanel();
-      transactionParticipantsAuditorCaptionPanel.setBorder(BorderFactory.createTitledBorder("Auditors"));       
+      transactionParticipantsAuditorCaptionPanel.setBorder(BorderFactory.createTitledBorder("Auditors"));
+      transactionParticipantsAuditorCaptionPanel.setLayout(new BoxLayout(transactionParticipantsAuditorCaptionPanel, BoxLayout.Y_AXIS));           
       transactionParticipantsPanel.add(transactionParticipantsAuditorCaptionPanel);
-      transactionParticipantsAuditorCaptionPanel.setSize(430, transactionParticipantsAuditorCaptionPanel.getSize().height);
-      transactionParticipantsAuditorPanel = new JPanel();
+      transactionParticipantsAuditorPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       transactionParticipantsAuditorCaptionPanel.add(transactionParticipantsAuditorPanel);
       transactionParticipantsAuditorCandidateListBox = new JComboBox<String>();
+      transactionParticipantsAuditorCandidateListBox.addItem("<player name>");      
       transactionParticipantsAuditorCandidateListBox.addItemListener(this);
       transactionParticipantsAuditorPanel.add(transactionParticipantsAuditorCandidateListBox);
-      transactionParticipantsAuditorCandidateListBox.setSize(65, transactionParticipantsAuditorCandidateListBox.getSize().height);
-      transactionParticipantsAuditorLabel = new Label("select->");
+      transactionParticipantsAuditorLabel = new Label("<-select->");
       transactionParticipantsAuditorPanel.add(transactionParticipantsAuditorLabel);
-      transactionParticipantsAuditorPanel.setLayout(new BoxLayout(transactionParticipantsAuditorPanel, BoxLayout.Y_AXIS)); 
-      transactionParticipantsAuditorLabel.setSize(60, transactionParticipantsAuditorLabel.getSize().height);
       transactionParticipantsAuditorListBox = new JComboBox<String>();
+      transactionParticipantsAuditorListBox.addItem("<player name>");      
       transactionParticipantsAuditorListBox.addItemListener(this);
       transactionParticipantsAuditorPanel.add(transactionParticipantsAuditorListBox);
-      transactionParticipantsAuditorListBox.setSize(65, transactionParticipantsAuditorListBox.getSize().height);
+      transactionParticipantsSetButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+      transactionParticipantsPanel.add(transactionParticipantsSetButtonPanel);      
       transactionParticipantsSetButton = new Button("Set");
-      transactionParticipantsPanel.add(transactionParticipantsSetButton);
-      transactionParticipantsSetButton.addActionListener(this);
+      transactionParticipantsSetButtonPanel.add(transactionParticipantsSetButton);
+      transactionParticipantsSetButton.addActionListener(this);         
       transactionClaimCaptionPanel = new JPanel();
-      transactionClaimCaptionPanel.setBorder(BorderFactory.createTitledBorder("2. Claim"));      
-      transactionPanel.add(transactionClaimCaptionPanel);
-      transactionClaimCaptionPanel.setSize(450, transactionClaimCaptionPanel.getSize().height);
+      transactionClaimCaptionPanel.setLayout(new BoxLayout(transactionClaimCaptionPanel, BoxLayout.Y_AXIS));       
+      transactionTabPanel.add(transactionClaimCaptionPanel, "Claim");
       transactionClaimPanel = new JPanel();
-      transactionClaimPanel.setVisible(false);
+      transactionClaimPanel.setLayout(new BoxLayout(transactionClaimPanel, BoxLayout.Y_AXIS));      
+      transactionClaimPanel.setVisible(true);
       transactionClaimCaptionPanel.add(transactionClaimPanel);
-      transactionClaimPanel.setSize(430, transactionClaimPanel.getSize().height);
       transactionClaimDistributionCaptionPanel = new JPanel();
-      transactionClaimDistributionCaptionPanel.setBorder(BorderFactory.createTitledBorder("Resource entitlement probability"));      
+      transactionClaimDistributionCaptionPanel.setBorder(BorderFactory.createTitledBorder("Resource entitlement probability"));
+      transactionClaimDistributionCaptionPanel.setLayout(new BoxLayout(transactionClaimDistributionCaptionPanel, BoxLayout.Y_AXIS));      
       transactionClaimPanel.add(transactionClaimDistributionCaptionPanel);
-      transactionClaimDistributionCaptionPanel.setSize(430, transactionClaimDistributionCaptionPanel.getSize().height);
-      transactionClaimDistributionPanel = new JPanel();
-      transactionClaimDistributionCaptionPanel.add(transactionClaimDistributionPanel);
       transactionClaimDistributionCanvas = new Canvas();
       transactionClaimDistribution       = new NormalDistribution(transactionClaimDistributionCanvas);
       transactionClaimDistribution.draw();
-      transactionClaimDistributionPanel.add(transactionClaimDistributionCanvas);
-      transactionClaimDistributionParameterFlexTable = new JTable(2, 5);
-      transactionClaimDistributionPanel.add(transactionClaimDistributionParameterFlexTable);
+      transactionClaimDistributionCaptionPanel.add(transactionClaimDistributionCanvas);
+      transactionClaimDistributionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+      transactionClaimDistributionCaptionPanel.add(transactionClaimDistributionPanel);      
       transactionClaimDistributionMeanLabel = new Label("Mean:");
-      transactionClaimDistributionParameterFlexTable.setValueAt(transactionClaimDistributionMeanLabel, 0, 0);
-      transactionClaimDistributionMeanTextBox = new TextField();
-      transactionClaimDistributionMeanTextBox.setSize(60, transactionClaimDistributionMeanTextBox.getSize().height);
+      transactionClaimDistributionPanel.add(transactionClaimDistributionMeanLabel);
+      transactionClaimDistributionMeanTextBox = new TextField(10);
       mean = NormalDistribution.DEFAULT_MEAN;
       transactionClaimDistributionMeanTextBox.setText(mean + "");
-      transactionClaimDistributionParameterFlexTable.setValueAt(transactionClaimDistributionMeanTextBox, 0, 1);
+      transactionClaimDistributionPanel.add(transactionClaimDistributionMeanTextBox);
       transactionClaimDistributionSigmaLabel = new Label("Sigma:");
-      transactionClaimDistributionParameterFlexTable.setValueAt(transactionClaimDistributionSigmaLabel, 0, 2);
-      transactionClaimDistributionSigmaTextBox = new TextField();
-      transactionClaimDistributionSigmaTextBox.setSize(60, transactionClaimDistributionSigmaTextBox.getSize().height);
+      transactionClaimDistributionPanel.add(transactionClaimDistributionSigmaLabel);
+      transactionClaimDistributionSigmaTextBox = new TextField(10);
       sigma = NormalDistribution.DEFAULT_SIGMA;
       transactionClaimDistributionSigmaTextBox.setText(sigma + "");
-      transactionClaimDistributionParameterFlexTable.setValueAt(transactionClaimDistributionSigmaTextBox, 0, 3);
+      transactionClaimDistributionPanel.add(transactionClaimDistributionSigmaTextBox);
       transactionClaimDistributionParameterSetButton = new Button("Set");
-      transactionClaimDistributionParameterFlexTable.setValueAt(transactionClaimDistributionParameterSetButton, 0, 4);
-      transactionClaimDistributionParameterSetButton.addActionListener(this);
-      transactionClaimDistributionTestValueLabel = new Label("Test value:");
-      transactionClaimDistributionParameterFlexTable.setValueAt(transactionClaimDistributionTestValueLabel, 1, 0);
-      transactionClaimDistributionTestValueTextBox = new TextField();
-      transactionClaimDistributionTestValueTextBox.setSize(60, transactionClaimDistributionTestValueTextBox.getSize().height);
-      transactionClaimDistributionParameterFlexTable.setValueAt(transactionClaimDistributionTestValueTextBox, 1, 1);
+      transactionClaimDistributionPanel.add(transactionClaimDistributionParameterSetButton);
+      transactionClaimDistributionParameterSetButton.addActionListener(this);      
+      transactionClaimDistributionTestPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+      transactionClaimDistributionCaptionPanel.add(transactionClaimDistributionTestPanel);        
+      transactionClaimDistributionTestValueLabel = new Label("Test value:");      
+      transactionClaimDistributionTestPanel.add(transactionClaimDistributionTestValueLabel);
+      transactionClaimDistributionTestValueTextBox = new TextField(10);
+      transactionClaimDistributionTestPanel.add(transactionClaimDistributionTestValueTextBox);
       transactionClaimDistributionTestButton = new Button("Probability:");
-      transactionClaimDistributionParameterFlexTable.setValueAt(transactionClaimDistributionTestButton, 1, 2);
+      transactionClaimDistributionTestPanel.add(transactionClaimDistributionTestButton);
       transactionClaimDistributionTestButton.addActionListener(this);
-      transactionClaimDistributionTestProbabilityTextBox = new TextField();
-      transactionClaimDistributionTestProbabilityTextBox.setSize(60, transactionClaimDistributionTestProbabilityTextBox.getSize().height);
+      transactionClaimDistributionTestProbabilityTextBox = new TextField(10);
       transactionClaimDistributionTestProbabilityTextBox.setEditable(false);
-      transactionClaimDistributionParameterFlexTable.setValueAt(transactionClaimDistributionTestProbabilityTextBox, 1, 3);
-      transactionClaimFlexTable = new JTable(2, 4);
-      transactionClaimPanel.add(transactionClaimFlexTable);
+      transactionClaimDistributionTestPanel.add(transactionClaimDistributionTestProbabilityTextBox);
+      transactionClaimEntitlementPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+      transactionClaimPanel.add(transactionClaimEntitlementPanel); 
       transactionClaimEntitlementLabel = new Label("Entitlement:");
-      transactionClaimFlexTable.setValueAt(transactionClaimEntitlementLabel, 0, 0);
-      transactionClaimEntitlementTextBox = new TextField();
-      transactionClaimEntitlementTextBox.setSize(60, transactionClaimEntitlementTextBox.getSize().height);
-      transactionClaimFlexTable.setValueAt(transactionClaimEntitlementTextBox, 0, 1);
+      transactionClaimEntitlementPanel.add(transactionClaimEntitlementLabel);
+      transactionClaimEntitlementTextBox = new TextField(10);
+      transactionClaimEntitlementPanel.add(transactionClaimEntitlementTextBox);
       transactionClaimEntitlementGenerateButton = new Button("Generate");
       transactionClaimEntitlementGenerateButton.addActionListener(this);
-      transactionClaimFlexTable.setValueAt(transactionClaimEntitlementGenerateButton, 0, 2);
+      transactionClaimEntitlementPanel.add(transactionClaimEntitlementGenerateButton);
       transactionClaimEntitlementSetButton = new Button("Set");
       transactionClaimEntitlementSetButton.addActionListener(this);
-      transactionClaimFlexTable.setValueAt(transactionClaimEntitlementSetButton, 0, 3);
+      transactionClaimEntitlementPanel.add(transactionClaimEntitlementSetButton);      
+      transactionClaimAmountPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+      transactionClaimPanel.add(transactionClaimAmountPanel);       
       transactionClaimAmountLabel = new Label("Claim:");
-      transactionClaimFlexTable.setValueAt(transactionClaimAmountLabel, 1, 0);
-      transactionClaimAmountTextBox = new TextField();
+      transactionClaimAmountPanel.add(transactionClaimAmountLabel);
+      transactionClaimAmountTextBox = new TextField(10);
       transactionClaimAmountTextBox.setEditable(false);
-      transactionClaimAmountTextBox.setSize(60, transactionClaimAmountTextBox.getSize().height);
-      transactionClaimFlexTable.setValueAt(transactionClaimAmountTextBox, 1, 1);
+      transactionClaimAmountPanel.add(transactionClaimAmountTextBox);      
       transactionGrantCaptionPanel = new JPanel();
-      transactionGrantCaptionPanel.setBorder(BorderFactory.createTitledBorder("3. Grant"));            
-      transactionPanel.add(transactionGrantCaptionPanel);
-      transactionGrantCaptionPanel.setSize(450, transactionGrantCaptionPanel.getSize().height);
-      transactionGrantFlexTable = new JTable(2, 6);
-      transactionGrantFlexTable.setVisible(false);
-      transactionGrantCaptionPanel.add(transactionGrantFlexTable);
+      transactionGrantCaptionPanel.setLayout(new BoxLayout(transactionGrantCaptionPanel, BoxLayout.Y_AXIS));       
+      transactionTabPanel.add(transactionGrantCaptionPanel, "Grant");
+      transactionGrantPanel = new JPanel();
+      transactionGrantPanel.setLayout(new BoxLayout(transactionGrantPanel, BoxLayout.Y_AXIS));
+      transactionGrantPanel.setVisible(true);
+      transactionGrantCaptionPanel.add(transactionGrantPanel);      
+      transactionGrantAuditorPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+      transactionGrantPanel.add(transactionGrantAuditorPanel);
       transactionGrantAuditorWorkingLabel = new Label("Auditing:");
-      transactionGrantFlexTable.setValueAt(transactionGrantAuditorWorkingLabel, 0, 0);
+      transactionGrantAuditorPanel.add(transactionGrantAuditorWorkingLabel);
       transactionGrantAuditorWorkingListBox = new JComboBox<String>();
-      transactionGrantFlexTable.setValueAt(transactionGrantAuditorWorkingListBox, 0, 1);
-      transactionGrantAuditorWorkingListBox.setSize(65, transactionGrantAuditorWorkingListBox.getSize().height);
+      transactionGrantAuditorWorkingListBox.addItem("<player name>");      
+      transactionGrantAuditorPanel.add(transactionGrantAuditorWorkingListBox);
       transactionGrantAuditorCompletedLabel = new Label("Completed:");
-      transactionGrantFlexTable.setValueAt(transactionGrantAuditorCompletedLabel, 0, 2);
+      transactionGrantAuditorPanel.add(transactionGrantAuditorCompletedLabel);
       transactionGrantAuditorCompletedListBox = new JComboBox<String>();
+      transactionGrantAuditorCompletedListBox.addItem("<player name>");        
       transactionGrantAuditorCompletedListBox.addItemListener(this);
-      transactionGrantFlexTable.setValueAt(transactionGrantAuditorCompletedListBox, 0, 3);
-      transactionGrantAuditorCompletedListBox.setSize(65, transactionGrantAuditorCompletedListBox.getSize().height);
+      transactionGrantAuditorPanel.add(transactionGrantAuditorCompletedListBox);
       transactionGrantAuditorAmountLabel = new Label("amount->");
-      transactionGrantFlexTable.setValueAt(transactionGrantAuditorAmountLabel, 0, 4);
-      transactionGrantAuditorAmountTextBox = new TextField();
+      transactionGrantAuditorPanel.add(transactionGrantAuditorAmountLabel);
+      transactionGrantAuditorAmountTextBox = new TextField(10);
       transactionGrantAuditorAmountTextBox.setEditable(false);
-      transactionGrantAuditorAmountTextBox.setSize(60, transactionGrantAuditorAmountTextBox.getSize().height);
-      transactionGrantFlexTable.setValueAt(transactionGrantAuditorAmountTextBox, 0, 5);
+      transactionGrantAuditorPanel.add(transactionGrantAuditorAmountTextBox);
+      transactionGrantClaimantPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));      
+      transactionGrantPanel.add(transactionGrantClaimantPanel);      
       transactionGrantClaimantLabel = new Label("Claimant:");
-      transactionGrantFlexTable.setValueAt(transactionGrantClaimantLabel, 1, 0);
-      transactionGrantClaimantTextBox = new TextField();
+      transactionGrantClaimantPanel.add(transactionGrantClaimantLabel);
+      transactionGrantClaimantTextBox = new TextField(10);
       transactionGrantClaimantTextBox.setEditable(false);
-      transactionGrantClaimantTextBox.setSize(60, transactionGrantClaimantTextBox.getSize().height);
-      transactionGrantFlexTable.setValueAt(transactionGrantClaimantTextBox, 1, 1);
+      transactionGrantClaimantPanel.add(transactionGrantClaimantTextBox);      
       transactionPenaltyCaptionPanel = new JPanel();
-      transactionPenaltyCaptionPanel.setBorder(BorderFactory.createTitledBorder("4. Penalty"));      
-      transactionPanel.add(transactionPenaltyCaptionPanel);
-      transactionPenaltyCaptionPanel.setSize(450, transactionPenaltyCaptionPanel.getSize().height);
+      transactionPenaltyCaptionPanel.setLayout(new BoxLayout(transactionPenaltyCaptionPanel, BoxLayout.Y_AXIS));     
+      transactionTabPanel.add(transactionPenaltyCaptionPanel, "Penalty");
       transactionPenaltyPanel = new JPanel();
-      transactionPenaltyPanel.setVisible(false);
+      transactionPenaltyPanel.setLayout(new BoxLayout(transactionPenaltyPanel, BoxLayout.Y_AXIS));      
+      //transactionPenaltyPanel.setVisible(false);
       transactionPenaltyCaptionPanel.add(transactionPenaltyPanel);
       transactionPenaltyParameterCaptionPanel = new JPanel();
-      transactionPenaltyParameterCaptionPanel.setBorder(BorderFactory.createTitledBorder("Parameters"));      
+      transactionPenaltyParameterCaptionPanel.setBorder(BorderFactory.createTitledBorder("Parameters"));
+      transactionPenaltyParameterCaptionPanel.setLayout(new BoxLayout(transactionPenaltyParameterCaptionPanel, BoxLayout.Y_AXIS));      
       transactionPenaltyPanel.add(transactionPenaltyParameterCaptionPanel);
-      transactionPenaltyParameterFlexTable = new JTable(1, 5);
-      transactionPenaltyParameterCaptionPanel.add(transactionPenaltyParameterFlexTable);
+      transactionPenaltyClaimantParameterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+      transactionPenaltyParameterCaptionPanel.add(transactionPenaltyClaimantParameterPanel);
       transactionPenaltyClaimantParameterLabel = new Label("Claimant:");
-      transactionPenaltyParameterFlexTable.setValueAt(transactionPenaltyClaimantParameterLabel, 0, 0);
-      transactionPenaltyClaimantParameterTextBox = new TextField();
-      transactionPenaltyClaimantParameterTextBox.setSize(60, transactionPenaltyClaimantParameterTextBox.getSize().height);
+      transactionPenaltyClaimantParameterPanel.add(transactionPenaltyClaimantParameterLabel);
+      transactionPenaltyClaimantParameterTextBox = new TextField(10);
       claimantPenaltyParameter = DEFAULT_CLAIMANT_PENALTY_PARAMETER;
       transactionPenaltyClaimantParameterTextBox.setText(claimantPenaltyParameter + "");
-      transactionPenaltyParameterFlexTable.setValueAt(transactionPenaltyClaimantParameterTextBox, 0, 1);
+      transactionPenaltyClaimantParameterPanel.add(transactionPenaltyClaimantParameterTextBox);
       transactionPenaltyAuditorParameterLabel = new Label("Auditor:");
-      transactionPenaltyParameterFlexTable.setValueAt(transactionPenaltyAuditorParameterLabel, 0, 2);
+      transactionPenaltyClaimantParameterPanel.add(transactionPenaltyAuditorParameterLabel);
       transactionPenaltyAuditorParameterTextBox = new TextField();
-      transactionPenaltyAuditorParameterTextBox.setSize(60, transactionPenaltyAuditorParameterTextBox.getSize().height);
       auditorPenaltyParameter = DEFAULT_AUDITOR_PENALTY_PARAMETER;
       transactionPenaltyAuditorParameterTextBox.setText(auditorPenaltyParameter + "");
-      transactionPenaltyParameterFlexTable.setValueAt(transactionPenaltyAuditorParameterTextBox, 0, 3);
+      transactionPenaltyClaimantParameterPanel.add(transactionPenaltyAuditorParameterTextBox);
       transactionPenaltySetButton = new Button("Set");
       transactionPenaltySetButton.addActionListener(this);
-      transactionPenaltyParameterFlexTable.setValueAt(transactionPenaltySetButton, 0, 4);
-      transactionPenaltyFlexTable = new JTable(1, 6);
-      transactionPenaltyPanel.add(transactionPenaltyFlexTable);
+      transactionPenaltyClaimantParameterPanel.add(transactionPenaltySetButton);      
+      transactionPenaltyAuditorPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+      transactionPenaltyPanel.add(transactionPenaltyAuditorPanel);      
       transactionPenaltyAuditorLabel = new Label("Auditor:");
-      transactionPenaltyFlexTable.setValueAt(transactionPenaltyAuditorLabel, 0, 0);
+      transactionPenaltyAuditorPanel.add(transactionPenaltyAuditorLabel);
       transactionPenaltyAuditorListBox = new JComboBox<String>();
+      transactionPenaltyAuditorListBox.addItem("<player name>");
       transactionPenaltyAuditorListBox.addItemListener(this);
-      transactionPenaltyFlexTable.setValueAt(transactionPenaltyAuditorListBox, 0, 1);
-      transactionPenaltyAuditorListBox.setSize(65, transactionPenaltyAuditorListBox.getSize().height);
+      transactionPenaltyAuditorPanel.add(transactionPenaltyAuditorListBox);
       transactionPenaltyAuditorAmountLabel = new Label("amount->");
-      transactionPenaltyFlexTable.setValueAt(transactionPenaltyAuditorAmountLabel, 0, 2);
-      transactionPenaltyAuditorAmountTextBox = new TextField();
+      transactionPenaltyAuditorPanel.add(transactionPenaltyAuditorAmountLabel);
+      transactionPenaltyAuditorAmountTextBox = new TextField(10);
       transactionPenaltyAuditorAmountTextBox.setEditable(false);
-      transactionPenaltyAuditorAmountTextBox.setSize(60, transactionPenaltyAuditorAmountTextBox.getSize().height);
-      transactionPenaltyFlexTable.setValueAt(transactionPenaltyAuditorAmountTextBox, 0, 3);
+      transactionPenaltyAuditorPanel.add(transactionPenaltyAuditorAmountTextBox);
       transactionPenaltyClaimantLabel = new Label("Claimant:");
-      transactionPenaltyFlexTable.setValueAt(transactionPenaltyClaimantLabel, 0, 4);
-      transactionPenaltyClaimantTextBox = new TextField();
+      transactionPenaltyAuditorPanel.add(transactionPenaltyClaimantLabel);
+      transactionPenaltyClaimantTextBox = new TextField(10);
       transactionPenaltyClaimantTextBox.setEditable(false);
-      transactionPenaltyClaimantTextBox.setSize(60, transactionPenaltyClaimantTextBox.getSize().height);
-      transactionPenaltyFlexTable.setValueAt(transactionPenaltyClaimantTextBox, 0, 5);
+      transactionPenaltyAuditorPanel.add(transactionPenaltyClaimantTextBox);      
       transactionFinishCaptionPanel = new JPanel();
-      transactionFinishCaptionPanel.setBorder(BorderFactory.createTitledBorder("5. Finish"));            
-      transactionPanel.add(transactionFinishCaptionPanel);
-      transactionFinishCaptionPanel.setSize(450, transactionFinishCaptionPanel.getSize().height);
-      transactionFinishFlexTable = new JTable(1, 4);
-      transactionFinishFlexTable.setVisible(false);
-      transactionFinishCaptionPanel.add(transactionFinishFlexTable);
+      transactionFinishCaptionPanel.setLayout(new BoxLayout(transactionFinishCaptionPanel, BoxLayout.Y_AXIS));      
+      transactionTabPanel.add(transactionFinishCaptionPanel, "Finish");
+      transactionFinishPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+      //transactionFinishPanel.setVisible(false);
+      transactionFinishCaptionPanel.add(transactionFinishPanel);
       transactionFinishPendingParticipantsLabel = new Label("Participant:");
-      transactionFinishFlexTable.setValueAt(transactionFinishPendingParticipantsLabel, 0, 0);
+      transactionFinishPanel.add(transactionFinishPendingParticipantsLabel);
       transactionFinishPendingParticipantsListBox = new JComboBox<String>();
-      transactionFinishFlexTable.setValueAt(transactionFinishPendingParticipantsListBox, 0, 1);
-      transactionFinishPendingParticipantsListBox.setSize(65, transactionFinishPendingParticipantsListBox.getSize().height);
+      transactionFinishPendingParticipantsListBox.addItem("<player name>");
+      transactionFinishPanel.add(transactionFinishPendingParticipantsListBox);
       transactionFinishedLabel = new Label("finished->");
-      transactionFinishFlexTable.setValueAt(transactionFinishedLabel, 0, 2);
+      transactionFinishPanel.add(transactionFinishedLabel);
       transactionFinishedParticipantsListBox = new JComboBox<String>();
-      transactionFinishFlexTable.setValueAt(transactionFinishedParticipantsListBox, 0, 3);
-      transactionFinishedParticipantsListBox.setSize(65, transactionFinishedParticipantsListBox.getSize().height);
+      transactionFinishedParticipantsListBox.addItem("<player name>");      
+      transactionFinishPanel.add(transactionFinishedParticipantsListBox);
       transactionCompletionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       transactionPanel.add(transactionCompletionPanel);
-      transactionFinishButton = new Button("Commit");
-      transactionCompletionPanel.add(transactionFinishButton);
-      transactionFinishButton.addActionListener(this);
+      transactionCommitButton = new Button("Commit");
+      transactionCompletionPanel.add(transactionCommitButton);
+      transactionCommitButton.addActionListener(this);
       transactionAbortButton = new Button("Abort");
       transactionCompletionPanel.add(transactionAbortButton);
       transactionAbortButton.addActionListener(this);
@@ -867,7 +866,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
                }
             }
             transactionState = TRANSACTION_STATE.CLAIM_DISTRIBUTION;
-            transactionClaimPanel.setVisible(true);
+            //transactionClaimPanel.setVisible(true);
             enableUI();
          }
          
@@ -1049,7 +1048,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
                return;
             }
             transactionState = TRANSACTION_STATE.FINISH_WAIT;
-            transactionFinishFlexTable.setVisible(true);
+            //transactionFinishFlexTable.setVisible(true);
             disableUI();
             double claim   = Double.parseDouble(transactionClaimAmountTextBox.getText());
             double grant   = Double.parseDouble(transactionGrantClaimantTextBox.getText());
@@ -1094,7 +1093,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
          }
 
          // Commit transaction.
-         else if (event.getSource() == transactionFinishButton)
+         else if (event.getSource() == transactionCommitButton)
          {
             String transactionText = new Date().toString() + ":";
             transactionText += "transaction number=" + transactionNumber;
@@ -1457,7 +1456,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
       if (gameState == Shared.RUNNING)
       {
          transactionState = TRANSACTION_STATE.INACTIVE;
-         transactionParticipantsPanel.setVisible(true);
+         //transactionParticipantsPanel.setVisible(true);
          transactionParticipantsClaimantCandidateListBox.removeAll();
          transactionParticipantsClaimantTextBox.setText("");
          transactionParticipantsAuditorCandidateListBox.removeAll();
@@ -1477,13 +1476,13 @@ public class Host extends JFrame implements ActionListener, ItemListener
       else
       {
          transactionState = TRANSACTION_STATE.UNAVAILABLE;
-         transactionParticipantsPanel.setVisible(false);
+         //transactionParticipantsPanel.setVisible(false);
          transactionParticipantsClaimantCandidateListBox.removeAll();
          transactionParticipantsClaimantTextBox.setText("");
          transactionParticipantsAuditorCandidateListBox.removeAll();
          transactionParticipantsAuditorListBox.removeAll();
       }
-      transactionClaimPanel.setVisible(false);
+      //transactionClaimPanel.setVisible(false);
       if (transactionClaimDistribution != null)
       {
          transactionClaimDistributionMeanTextBox.setText(mean + "");
@@ -1499,18 +1498,18 @@ public class Host extends JFrame implements ActionListener, ItemListener
       transactionClaimDistributionTestProbabilityTextBox.setText("");
       transactionClaimEntitlementTextBox.setText("");
       transactionClaimAmountTextBox.setText("");
-      transactionGrantFlexTable.setVisible(false);
+      //transactionGrantFlexTable.setVisible(false);
       transactionGrantAuditorWorkingListBox.removeAll();
       transactionGrantAuditorCompletedListBox.removeAll();
       transactionGrantAuditorAmountTextBox.setText("");
       transactionGrantClaimantTextBox.setText("");
-      transactionPenaltyPanel.setVisible(false);
+      //transactionPenaltyPanel.setVisible(false);
       transactionPenaltyClaimantParameterTextBox.setText(claimantPenaltyParameter + "");
       transactionPenaltyAuditorParameterTextBox.setText(auditorPenaltyParameter + "");
       transactionPenaltyAuditorListBox.removeAll();
       transactionPenaltyAuditorAmountTextBox.setText("");
       transactionPenaltyClaimantTextBox.setText("");
-      transactionFinishFlexTable.setVisible(false);
+      //transactionFinishFlexTable.setVisible(false);
       transactionFinishPendingParticipantsListBox.removeAll();
       transactionFinishedParticipantsListBox.removeAll();
       enableUI();
@@ -1547,7 +1546,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
       transactionPenaltyAuditorListBox.setEnabled(false);
       transactionFinishPendingParticipantsListBox.setEnabled(false);
       transactionFinishedParticipantsListBox.setEnabled(false);
-      transactionFinishButton.setEnabled(false);
+      transactionCommitButton.setEnabled(false);
       transactionAbortButton.setEnabled(false);
    }
 
@@ -1585,7 +1584,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
          transactionPenaltyAuditorListBox.setEnabled(false);
          transactionFinishPendingParticipantsListBox.setEnabled(false);
          transactionFinishedParticipantsListBox.setEnabled(false);
-         transactionFinishButton.setEnabled(false);
+         transactionCommitButton.setEnabled(false);
          transactionAbortButton.setEnabled(false);
       }
       else
@@ -1618,7 +1617,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
             transactionPenaltyAuditorListBox.setEnabled(false);
             transactionFinishPendingParticipantsListBox.setEnabled(false);
             transactionFinishedParticipantsListBox.setEnabled(false);
-            transactionFinishButton.setEnabled(false);
+            transactionCommitButton.setEnabled(false);
             transactionAbortButton.setEnabled(true);
             break;
 
@@ -1641,7 +1640,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
             transactionPenaltyAuditorListBox.setEnabled(false);
             transactionFinishPendingParticipantsListBox.setEnabled(false);
             transactionFinishedParticipantsListBox.setEnabled(false);
-            transactionFinishButton.setEnabled(false);
+            transactionCommitButton.setEnabled(false);
             transactionAbortButton.setEnabled(true);
             break;
 
@@ -1664,7 +1663,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
             transactionPenaltyAuditorListBox.setEnabled(false);
             transactionFinishPendingParticipantsListBox.setEnabled(false);
             transactionFinishedParticipantsListBox.setEnabled(false);
-            transactionFinishButton.setEnabled(false);
+            transactionCommitButton.setEnabled(false);
             transactionAbortButton.setEnabled(true);
             break;
 
@@ -1687,7 +1686,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
             transactionPenaltyAuditorListBox.setEnabled(false);
             transactionFinishPendingParticipantsListBox.setEnabled(false);
             transactionFinishedParticipantsListBox.setEnabled(false);
-            transactionFinishButton.setEnabled(false);
+            transactionCommitButton.setEnabled(false);
             transactionAbortButton.setEnabled(true);
             break;
 
@@ -1710,7 +1709,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
             transactionPenaltyAuditorListBox.setEnabled(false);
             transactionFinishPendingParticipantsListBox.setEnabled(false);
             transactionFinishedParticipantsListBox.setEnabled(false);
-            transactionFinishButton.setEnabled(false);
+            transactionCommitButton.setEnabled(false);
             transactionAbortButton.setEnabled(true);
             break;
 
@@ -1733,7 +1732,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
             transactionPenaltyAuditorListBox.setEnabled(false);
             transactionFinishPendingParticipantsListBox.setEnabled(false);
             transactionFinishedParticipantsListBox.setEnabled(false);
-            transactionFinishButton.setEnabled(false);
+            transactionCommitButton.setEnabled(false);
             transactionAbortButton.setEnabled(true);
             break;
 
@@ -1756,7 +1755,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
             transactionPenaltyAuditorListBox.setEnabled(false);
             transactionFinishPendingParticipantsListBox.setEnabled(false);
             transactionFinishedParticipantsListBox.setEnabled(false);
-            transactionFinishButton.setEnabled(false);
+            transactionCommitButton.setEnabled(false);
             transactionAbortButton.setEnabled(true);
             break;
 
@@ -1779,7 +1778,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
             transactionPenaltyAuditorListBox.setEnabled(true);
             transactionFinishPendingParticipantsListBox.setEnabled(false);
             transactionFinishedParticipantsListBox.setEnabled(false);
-            transactionFinishButton.setEnabled(false);
+            transactionCommitButton.setEnabled(false);
             transactionAbortButton.setEnabled(true);
             break;
 
@@ -1802,7 +1801,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
             transactionPenaltyAuditorListBox.setEnabled(true);
             transactionFinishPendingParticipantsListBox.setEnabled(true);
             transactionFinishedParticipantsListBox.setEnabled(true);
-            transactionFinishButton.setEnabled(false);
+            transactionCommitButton.setEnabled(false);
             transactionAbortButton.setEnabled(true);
             break;
 
@@ -1825,7 +1824,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
             transactionPenaltyAuditorListBox.setEnabled(true);
             transactionFinishPendingParticipantsListBox.setEnabled(true);
             transactionFinishedParticipantsListBox.setEnabled(true);
-            transactionFinishButton.setEnabled(true);
+            transactionCommitButton.setEnabled(true);
             transactionAbortButton.setEnabled(true);
             break;
          }
@@ -2003,7 +2002,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	        double claim = Double.parseDouble(args[2]);
 	        transactionClaimAmountTextBox.setText(claim + "");
 	        transactionState = TRANSACTION_STATE.GRANT_WAIT;
-	        transactionGrantFlexTable.setVisible(true);
+	        //transactionGrantFlexTable.setVisible(true);
 	        auditorNames.clear();
 	        auditorGrants.clear();
 	        auditorPenalties.clear();
@@ -2014,7 +2013,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	        {
 	           transactionGrantClaimantTextBox.setText(claim + "");
 	           transactionState = TRANSACTION_STATE.PENALTY_PARAMETERS;
-	           transactionPenaltyPanel.setVisible(true);
+	           //transactionPenaltyPanel.setVisible(true);
 	        }
 	        else
 	        {
@@ -2089,7 +2088,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	           grant /= (double)(i);
 	           transactionGrantClaimantTextBox.setText(grant + "");
 	           transactionState = TRANSACTION_STATE.PENALTY_PARAMETERS;
-	           transactionPenaltyPanel.setVisible(true);
+	           //transactionPenaltyPanel.setVisible(true);
 	           DelimitedString request = new DelimitedString(Shared.SET_GRANT);
 	           request.add(gameCode);
 	           request.add(transactionNumber);

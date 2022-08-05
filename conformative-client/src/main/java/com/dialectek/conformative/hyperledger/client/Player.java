@@ -460,8 +460,8 @@ public class Player extends JFrame implements ActionListener, ItemListener
       claimantChatPanel.add(claimantChatSendButton);
 
       add(roleTabPanel);
-      roleTabPanel.setEnabledAt(CLAIM_TAB, false);
-      roleTabPanel.setEnabledAt(AUDIT_TAB, false);      
+      //roleTabPanel.setEnabledAt(CLAIM_TAB, false);
+      //roleTabPanel.setEnabledAt(AUDIT_TAB, false);      
       UIinit = true;
       //enableUI();
       
