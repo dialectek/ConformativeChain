@@ -190,13 +190,17 @@ public final class GameService implements ContractInterface
                   if (game.getState() == Shared.JOINING)
                   {
                 	 if (game.addPlayerName(playerName))
-                	 {
+                	 {             		 
 	                     String gameJson = genson.serialize(game);
 	                     stub.putStringState(gameCode, gameJson);
 	                     player = new Player(playerName, gameCode);
 	                     String playerJson = genson.serialize(player);
-	                     stub.putStringState(gameCode + DelimitedString.DELIMITER + playerName, playerJson);                     
-	                     return(Shared.OK);
+	                     stub.putStringState(gameCode + DelimitedString.DELIMITER + playerName, playerJson);
+                    	 DelimitedString response = new DelimitedString(Shared.OK);
+                    	 response.add(player.getPersonalResources());
+                    	 response.add(game.getCommonResources());
+                    	 response.add(player.getEntitledResources());
+	                     return(response.toString());
                 	 } else {
                          return(Shared.error("invalid player name: " + playerName));               		 
                 	 }

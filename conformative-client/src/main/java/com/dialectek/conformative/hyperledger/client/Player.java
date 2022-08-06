@@ -12,17 +12,17 @@ import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
+import java.nio.charset.StandardCharsets;
 import java.util.Timer;
 import java.util.TimerTask;
-
+import java.util.regex.Pattern;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import javax.swing.UIManager;
-import javax.swing.plaf.FontUIResource;
-
+import com.dialectek.conformative.hyperledger.shared.DelimitedString;
 import com.dialectek.conformative.hyperledger.shared.Shared;
 
 public class Player extends JFrame implements ActionListener
@@ -149,6 +149,9 @@ public class Player extends JFrame implements ActionListener
    private String playerName;
    private String gameCode;
 
+   // Game state.
+   private int gameState;
+
    // Transaction state.
    public enum TRANSACTION_STATE
    {
@@ -174,11 +177,39 @@ public class Player extends JFrame implements ActionListener
    private int syncCounter = 0;
    
    // Constructor.
-   public Player(String gameCode, String playerName, int transactionNumber)
+   public Player(String gameCode, String playerName, int transactionNumber) throws Exception
    {
 	  this.gameCode = gameCode;
+	  if (Shared.isVoid(gameCode))
+	  {
+          JOptionPane.showMessageDialog(this, "Invalid game code: " + gameCode);
+          throw new Exception("Invalid game code");
+	  }
 	  this.playerName = playerName;
+	  if (Shared.isVoid(playerName) ||
+			  playerName.contains(DelimitedString.DELIMITER) ||
+			  playerName.equals(Shared.ALL_PLAYERS))
+	  {
+          JOptionPane.showMessageDialog(this, "Invalid player name: " + playerName);
+          throw new Exception("Invalid player name");
+	  }
+	  if (!Pattern.matches("[a-zA-Z0-9]+", playerName)) 
+	  {
+          JOptionPane.showMessageDialog(this, "Invalid player name: " + playerName);
+          throw new Exception("Invalid player name");
+	  }
+	  try 
+	  {
+		    Integer.parseInt(playerName);
+	        JOptionPane.showMessageDialog(this, "Invalid player name: " + playerName);
+	        throw new Exception("Invalid player name");
+	  } catch (NumberFormatException e) {}	  
 	  this.transactionNumber = transactionNumber;
+	  if (transactionNumber < -1)
+	  {
+          JOptionPane.showMessageDialog(this, "Invalid transaction number: " + transactionNumber);
+          throw new Exception("Invalid transaction number");
+	  }
 	  
       // Title.
       setTitle("Conformative Game Player");
@@ -197,7 +228,8 @@ public class Player extends JFrame implements ActionListener
       homePanel.add(playerPanel);
       playerNameLabel = newLabel("Name:");      
       playerPanel.add(playerNameLabel);
-      playerNameTextBox = new TextField(50);
+      playerNameTextBox = new TextField(30);
+      playerNameTextBox.setEditable(false);
       playerPanel.add(playerNameTextBox);
       playerJoinQuitButton = new Button("Join");
       playerJoinQuitButton.addActionListener(this);
@@ -207,6 +239,7 @@ public class Player extends JFrame implements ActionListener
       gameCodeLabel = newLabel("Code:");
       gameCodePanel.add(gameCodeLabel);
       gameCodeTextBox = new TextField(30);
+      gameCodeTextBox.setEditable(false);
       gameCodePanel.add(gameCodeTextBox);
       homeResourcesCaptionPanel = new JPanel();
       homeResourcesCaptionPanel.setBorder(BorderFactory.createTitledBorder("Resources"));
@@ -471,9 +504,10 @@ public class Player extends JFrame implements ActionListener
       roleTabPanel.setEnabledAt(CLAIM_TAB, false);
       roleTabPanel.setEnabledAt(AUDIT_TAB, false);      
       UIinit = true;
-      //enableUI();
+      enableUI();
       
       // Initialize state.
+      gameState         = 0;      
       playerName        = "";
       gameCode          = "";
       claimState        = TRANSACTION_STATE.INACTIVE;
@@ -481,7 +515,7 @@ public class Player extends JFrame implements ActionListener
       transactionNumber = -1;
 
       // Synchronize player with network.
-      //syncPlayer();
+      syncPlayer();
 
       // Start timer.
       TimerTask task = new TimerTask() 
@@ -492,7 +526,7 @@ public class Player extends JFrame implements ActionListener
         	  if (syncCounter >= syncFreq)
         	  {
         		  syncCounter = 0;
-        		  //syncMessages();
+        		  syncMessages();
         	  }
               animateWaitTextBox(claimResourcesGrantTextBox);
               animateWaitTextBox(claimResourcesPenaltyTextBox);
@@ -545,161 +579,115 @@ public class Player extends JFrame implements ActionListener
    // Button handler.
    public void actionPerformed(ActionEvent event)
    {
-   } // flibber
-   /*
+	  if (!UIinit) return;
+	  
      // Join/quit game.
      if (event.getSource() == playerJoinQuitButton)
      {
-        playerName = playerNameTextBox.getText().trim();
+        playerName = playerNameTextBox.getText();
         if (Shared.isVoid(playerName))
         {
-           Window.alert("Please enter name");
+           JOptionPane.showMessageDialog(this, "Please enter name");
            playerName = "";
            return;
         }
         if (playerName.contains(DelimitedString.DELIMITER))
         {
-           Window.alert("Invalid name character: " + DelimitedString.DELIMITER);
+           JOptionPane.showMessageDialog(this, "Invalid name character: " + DelimitedString.DELIMITER);
            playerName = "";
            return;
         }
         if (playerName.equals(Shared.ALL_PLAYERS))
         {
-           Window.alert("Invalid name");
+           JOptionPane.showMessageDialog(this, "Invalid name");
            playerName = "";
            return;
         }
         playerNameTextBox.setText(playerName);
-        gameCode = gameCodeTextBox.getText().trim();
+        gameCode = gameCodeTextBox.getText();
         if (Shared.isVoid(gameCode))
         {
-           Window.alert("Please enter game code");
+           JOptionPane.showMessageDialog(this, "Please enter game code");
            gameCode = "";
            return;
         }
         if (gameCode.contains(DelimitedString.DELIMITER))
         {
-           Window.alert("Invalid game code character: " + DelimitedString.DELIMITER);
+           JOptionPane.showMessageDialog(this, "Invalid game code character: " + DelimitedString.DELIMITER);
            gameCode = "";
            return;
         }
         gameCodeTextBox.setText(gameCode);
         disableUI();
-        if (channel == null)
+        if (gameState == Shared.JOINING)
         {
-           // Join.
-           DelimitedString joinRequest = new DelimitedString(Shared.JOIN_GAME);
-           joinRequest.add(gameCode);
-           joinRequest.add(playerName);
-           gameService.requestService(joinRequest.toString(),
-                                      new AsyncCallback<String>()
-                                      {
-                                         public void onFailure(Throwable caught)
-                                         {
-                                            Window.alert("Error joining game: " + caught.getMessage());
-                                            enableUI();
-                                         }
-
-                                         public void onSuccess(String result)
-                                         {
-                                            if (Shared.isVoid(result))
-                                            {
-                                               Window.alert("Cannot join game: void channel token data");
-                                            }
-                                            else
-                                            {
-                                               if (Shared.isError(result))
-                                               {
-                                                  Window.alert(result);
-                                               }
-                                               else
-                                               {
-                                                  // Create server communication channel.
-                                                  String[] args = new DelimitedString(result).parse();
-                                                  if (args.length < 4)
-                                                  {
-                                                     Window.alert("Cannot join game: invalid channel token data: " + result);
-                                                  }
-                                                  else
-                                                  {
-                                                     String token = args[0];
-                                                     for (int i = 1, j = args.length - 3; i < j; i++)
-                                                     {
-                                                        token = token + DelimitedString.DELIMITER + args[i];
-                                                     }
-                                                     ChannelFactory channelFactory = new ChannelFactoryImpl();
-                                                     channel = channelFactory.createChannel(token);
-                                                     if (channel == null)
-                                                     {
-                                                        Window.alert("Cannot join game: cannot create channel for token: " + token);
-                                                     }
-                                                     else
-                                                     {
-                                                        channelSocket = channel.open(new ChannelSocketListener());
-                                                        playerJoinQuitButton.setText("Quit");
-                                                        String personalResources = args[args.length - 3];
-                                                        String commonResources = args[args.length - 2];
-                                                        String entitledResources = args[args.length - 1];
-                                                        showHomeResources(personalResources, commonResources, entitledResources);
-                                                        Window.alert("Welcome!");
-                                                     }
-                                                  }
-                                               }
-                                            }
-                                            enableUI();
-                                         }
-                                      }
-                                      );
+            if (playerJoinQuitButton.getLabel().equals("Join"))
+            {
+	           // Join.
+	           try
+	           {
+	               DelimitedString request = new DelimitedString(Shared.JOIN_GAME);
+	               request.add(gameCode);
+	               request.add(playerName);
+	   			   byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
+	   			   if (response != null && Shared.isOK(new String(response, StandardCharsets.UTF_8)))
+	   			   {
+	                   playerJoinQuitButton.setLabel("Quit");
+	                   String[] args = new String(response, StandardCharsets.UTF_8).split(DelimitedString.DELIMITER);
+	                   String personalResources = args[1];
+	                   String commonResources = args[2];
+	                   String entitledResources = args[3];
+	                   showHomeResources(personalResources, commonResources, entitledResources);
+	                   JOptionPane.showMessageDialog(this, "Welcome!");
+	   			   } else {
+	   				   if (response != null)
+	   				   {
+	   					   JOptionPane.showMessageDialog(this, "Error joining game: " + new String(response, StandardCharsets.UTF_8));
+	   				   } else {
+	   					   JOptionPane.showMessageDialog(this, "Error joining game");	   					   
+	   				   }	   				   
+	   			   }
+	           } catch (Exception e)
+	           {
+	        	   JOptionPane.showMessageDialog(this, "Error joining game: " + e.getMessage());	   					     	               
+	           }          
+	        }
+	        else
+	        {
+	           // Quit.
+		       try
+		       {	        	
+		           DelimitedString request = new DelimitedString(Shared.QUIT_GAME);
+		           request.add(gameCode);
+		           request.add(playerName);
+	   			   byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
+	   			   if (response != null && Shared.isOK(new String(response, StandardCharsets.UTF_8)))
+	   			   {
+	                   playerJoinQuitButton.setLabel("Join");
+                       clearHomeResources();
+                       roleTabPanel.setSelectedIndex(HOME_TAB);
+                       roleTabPanel.setEnabledAt(CLAIM_TAB, false);
+                       roleTabPanel.setEnabledAt(AUDIT_TAB, false);
+                       claimState = TRANSACTION_STATE.INACTIVE;
+                       auditState = TRANSACTION_STATE.INACTIVE;
+	                   JOptionPane.showMessageDialog(this, "Goodbye!");
+	   			   } else {
+	   				   if (response != null)
+	   				   {
+	   					   JOptionPane.showMessageDialog(this, "Error quitting game: " + new String(response, StandardCharsets.UTF_8));
+	   				   } else {
+	   					   JOptionPane.showMessageDialog(this, "Error quitting game");	   					   
+	   				   }	   				   
+	   			   }
+	           } catch (Exception e)
+	           {
+	        	   JOptionPane.showMessageDialog(this, "Error quitting game: " + e.getMessage());	   					     	               
+	           }       			   
+	        }
+        } else {
+        	JOptionPane.showMessageDialog(this, "Cannot quit game after running");        	
         }
-        else
-        {
-           // Quit.
-           DelimitedString quitRequest = new DelimitedString(Shared.QUIT_GAME);
-           quitRequest.add(gameCode);
-           quitRequest.add(playerName);
-           gameService.requestService(quitRequest.toString(),
-                                      new AsyncCallback<String>()
-                                      {
-                                         public void onFailure(Throwable caught)
-                                         {
-                                            Window.alert("Error quitting game: " + caught.getMessage());
-                                            enableUI();
-                                         }
-
-                                         public void onSuccess(String result)
-                                         {
-                                            if (!Shared.isOK(result))
-                                            {
-                                               if (Shared.isError(result))
-                                               {
-                                                  Window.alert(result);
-                                               }
-                                               else
-                                               {
-                                                  Window.alert("Error quitting game");
-                                               }
-                                            }
-                                            else
-                                            {
-                                               if (channelSocket != null)
-                                               {
-                                                  channelSocket.close();
-                                               }
-                                               channel = null;
-                                               playerJoinQuitButton.setText("Join");
-                                               clearHomeResources();
-                                               roleTabPanel.selectTab(HOME_TAB);
-                                               roleTabBar.setTabEnabled(CLAIM_TAB, false);
-                                               roleTabBar.setTabEnabled(AUDIT_TAB, false);
-                                               claimState = TRANSACTION_STATE.INACTIVE;
-                                               auditState = TRANSACTION_STATE.INACTIVE;
-                                               Window.alert("Goodbye!");
-                                            }
-                                            enableUI();
-                                         }
-                                      }
-                                      );
-        }
+        enableUI();
      }
 
      // Clear chat.
@@ -718,12 +706,12 @@ public class Player extends JFrame implements ActionListener
         }
         if (chatText.contains(DelimitedString.DELIMITER))
         {
-           Window.alert("Invalid character: " + DelimitedString.DELIMITER);
+           JOptionPane.showMessageDialog(this, "Invalid character: " + DelimitedString.DELIMITER);
            return;
         }
         if (channel == null)
         {
-           Window.alert("Please join game!");
+           JOptionPane.showMessageDialog(this, "Please join game!");
            return;
         }
         disableUI();
@@ -736,7 +724,7 @@ public class Player extends JFrame implements ActionListener
                                    {
                                       public void onFailure(Throwable caught)
                                       {
-                                         Window.alert("Error sending chat: " + caught.getMessage());
+                                         JOptionPane.showMessageDialog(this, "Error sending chat: " + caught.getMessage());
                                          enableUI();
                                       }
 
@@ -746,11 +734,11 @@ public class Player extends JFrame implements ActionListener
                                          {
                                             if (Shared.isError(result))
                                             {
-                                               Window.alert(result);
+                                               JOptionPane.showMessageDialog(this, result);
                                             }
                                             else
                                             {
-                                               Window.alert("Error sending chat");
+                                               JOptionPane.showMessageDialog(this, "Error sending chat");
                                             }
                                          }
                                          else
@@ -776,17 +764,17 @@ public class Player extends JFrame implements ActionListener
         }
         if (channel == null)
         {
-           Window.alert("Please create game!");
+           JOptionPane.showMessageDialog(this, "Please create game!");
            return;
         }
         if (chatText.contains(DelimitedString.DELIMITER))
         {
-           Window.alert("Invalid character: " + DelimitedString.DELIMITER);
+           JOptionPane.showMessageDialog(this, "Invalid character: " + DelimitedString.DELIMITER);
            return;
         }
         if (channel == null)
         {
-           Window.alert("Please join game!");
+           JOptionPane.showMessageDialog(this, "Please join game!");
            return;
         }
         disableUI();
@@ -799,7 +787,7 @@ public class Player extends JFrame implements ActionListener
                                    {
                                       public void onFailure(Throwable caught)
                                       {
-                                         Window.alert("Error sending chat: " + caught.getMessage());
+                                         JOptionPane.showMessageDialog(this, "Error sending chat: " + caught.getMessage());
                                          enableUI();
                                       }
 
@@ -809,11 +797,11 @@ public class Player extends JFrame implements ActionListener
                                          {
                                             if (Shared.isError(result))
                                             {
-                                               Window.alert(result);
+                                               JOptionPane.showMessageDialog(this, result);
                                             }
                                             else
                                             {
-                                               Window.alert("Error sending chat");
+                                               JOptionPane.showMessageDialog(this, "Error sending chat");
                                             }
                                          }
                                          else
@@ -839,17 +827,17 @@ public class Player extends JFrame implements ActionListener
         }
         if (channel == null)
         {
-           Window.alert("Please create game!");
+           JOptionPane.showMessageDialog(this, "Please create game!");
            return;
         }
         if (chatText.contains(DelimitedString.DELIMITER))
         {
-           Window.alert("Invalid character: " + DelimitedString.DELIMITER);
+           JOptionPane.showMessageDialog(this, "Invalid character: " + DelimitedString.DELIMITER);
            return;
         }
         if (channel == null)
         {
-           Window.alert("Please join game!");
+           JOptionPane.showMessageDialog(this, "Please join game!");
            return;
         }
         disableUI();
@@ -862,7 +850,7 @@ public class Player extends JFrame implements ActionListener
                                    {
                                       public void onFailure(Throwable caught)
                                       {
-                                         Window.alert("Error sending chat: " + caught.getMessage());
+                                         JOptionPane.showMessageDialog(this, "Error sending chat: " + caught.getMessage());
                                          enableUI();
                                       }
 
@@ -872,11 +860,11 @@ public class Player extends JFrame implements ActionListener
                                          {
                                             if (Shared.isError(result))
                                             {
-                                               Window.alert(result);
+                                               JOptionPane.showMessageDialog(this, result);
                                             }
                                             else
                                             {
-                                               Window.alert("Error sending chat");
+                                               JOptionPane.showMessageDialog(this, "Error sending chat");
                                             }
                                          }
                                          else
@@ -897,7 +885,7 @@ public class Player extends JFrame implements ActionListener
         String valueText = claimDistributionTestValueTextBox.getText().trim();
         if (Shared.isVoid(valueText))
         {
-           Window.alert("Please enter test value");
+           JOptionPane.showMessageDialog(this, "Please enter test value");
            return;
         }
         double value;
@@ -905,7 +893,7 @@ public class Player extends JFrame implements ActionListener
            value = Double.parseDouble(valueText);
         }
         catch (NumberFormatException e) {
-           Window.alert("Invalid test value");
+           JOptionPane.showMessageDialog(this, "Invalid test value");
            return;
         }
         double probability = claimDistribution.phi(value);
@@ -916,7 +904,7 @@ public class Player extends JFrame implements ActionListener
         String valueText = auditDistributionTestValueTextBox.getText().trim();
         if (Shared.isVoid(valueText))
         {
-           Window.alert("Please enter test value");
+           JOptionPane.showMessageDialog(this, "Please enter test value");
            return;
         }
         double value;
@@ -924,7 +912,7 @@ public class Player extends JFrame implements ActionListener
            value = Double.parseDouble(valueText);
         }
         catch (NumberFormatException e) {
-           Window.alert("Invalid test value");
+           JOptionPane.showMessageDialog(this, "Invalid test value");
            return;
         }
         double probability = auditDistribution.phi(value);
@@ -935,7 +923,7 @@ public class Player extends JFrame implements ActionListener
         String claimText = claimResourcesClaimTextBox.getText().trim();
         if (Shared.isVoid(claimText))
         {
-           Window.alert("Please enter claim value");
+           JOptionPane.showMessageDialog(this, "Please enter claim value");
            return;
         }
         double claim;
@@ -943,12 +931,12 @@ public class Player extends JFrame implements ActionListener
            claim = Double.parseDouble(claimText);
         }
         catch (NumberFormatException e) {
-           Window.alert("Invalid claim value");
+           JOptionPane.showMessageDialog(this, "Invalid claim value");
            return;
         }
         if (claim < 0.0)
         {
-           Window.alert("Invalid claim value");
+           JOptionPane.showMessageDialog(this, "Invalid claim value");
            return;
         }
         claimState = TRANSACTION_STATE.WAITING;
@@ -963,7 +951,7 @@ public class Player extends JFrame implements ActionListener
                                    {
                                       public void onFailure(Throwable caught)
                                       {
-                                         Window.alert("Error sending claim: " + caught.getMessage());
+                                         JOptionPane.showMessageDialog(this, "Error sending claim: " + caught.getMessage());
                                          enableUI();
                                       }
 
@@ -973,11 +961,11 @@ public class Player extends JFrame implements ActionListener
                                          {
                                             if (Shared.isError(result))
                                             {
-                                               Window.alert(result);
+                                               JOptionPane.showMessageDialog(this, result);
                                             }
                                             else
                                             {
-                                               Window.alert("Error sending claim");
+                                               JOptionPane.showMessageDialog(this, "Error sending claim");
                                             }
                                          }
                                          enableUI();
@@ -990,7 +978,7 @@ public class Player extends JFrame implements ActionListener
         String grantText = auditResourcesGrantTextBox.getText().trim();
         if (Shared.isVoid(grantText))
         {
-           Window.alert("Please enter grant value");
+           JOptionPane.showMessageDialog(this, "Please enter grant value");
            return;
         }
         double grant;
@@ -998,12 +986,12 @@ public class Player extends JFrame implements ActionListener
            grant = Double.parseDouble(grantText);
         }
         catch (NumberFormatException e) {
-           Window.alert("Invalid grant value");
+           JOptionPane.showMessageDialog(this, "Invalid grant value");
            return;
         }
         if (grant < 0.0)
         {
-           Window.alert("Invalid grant value");
+           JOptionPane.showMessageDialog(this, "Invalid grant value");
            return;
         }
         double claim;
@@ -1011,12 +999,12 @@ public class Player extends JFrame implements ActionListener
            claim = Double.parseDouble(auditResourcesClaimTextBox.getText());
         }
         catch (NumberFormatException e) {
-           Window.alert("Invalid claim value");
+           JOptionPane.showMessageDialog(this, "Invalid claim value");
            return;
         }
         if (grant > claim)
         {
-           Window.alert("Grant cannot be greater than claim");
+           JOptionPane.showMessageDialog(this, "Grant cannot be greater than claim");
            return;
         }
         auditState = TRANSACTION_STATE.WAITING;
@@ -1032,7 +1020,7 @@ public class Player extends JFrame implements ActionListener
                                    {
                                       public void onFailure(Throwable caught)
                                       {
-                                         Window.alert("Error sending grant: " + caught.getMessage());
+                                         JOptionPane.showMessageDialog(this, "Error sending grant: " + caught.getMessage());
                                          enableUI();
                                       }
 
@@ -1042,11 +1030,11 @@ public class Player extends JFrame implements ActionListener
                                          {
                                             if (Shared.isError(result))
                                             {
-                                               Window.alert(result);
+                                               JOptionPane.showMessageDialog(this, result);
                                             }
                                             else
                                             {
-                                               Window.alert("Error sending grant");
+                                               JOptionPane.showMessageDialog(this, "Error sending grant");
                                             }
                                          }
                                          enableUI();
@@ -1059,7 +1047,7 @@ public class Player extends JFrame implements ActionListener
         String donateText = claimResourcesDonateTextBox.getText().trim();
         if (Shared.isVoid(donateText))
         {
-           Window.alert("Please enter donation value");
+           JOptionPane.showMessageDialog(this, "Please enter donation value");
            return;
         }
         double donation;
@@ -1067,23 +1055,23 @@ public class Player extends JFrame implements ActionListener
            donation = Double.parseDouble(donateText);
         }
         catch (NumberFormatException e) {
-           Window.alert("Invalid donation value");
+           JOptionPane.showMessageDialog(this, "Invalid donation value");
            return;
         }
         if (donation < 0.0)
         {
-           Window.alert("Invalid donation value");
+           JOptionPane.showMessageDialog(this, "Invalid donation value");
            return;
         }
         String beneficiary = claimResourcesDonateBeneficiaryTextBox.getText().trim();
         if (Shared.isVoid(beneficiary))
         {
-           Window.alert("Please enter beneficiary value");
+           JOptionPane.showMessageDialog(this, "Please enter beneficiary value");
            return;
         }
         if (beneficiary.equals(playerNameTextBox.getText()))
         {
-           Window.alert("Cannot donate to self");
+           JOptionPane.showMessageDialog(this, "Cannot donate to self");
            return;
         }
         disableUI();
@@ -1097,7 +1085,7 @@ public class Player extends JFrame implements ActionListener
                                    {
                                       public void onFailure(Throwable caught)
                                       {
-                                         Window.alert("Error sending donation: " + caught.getMessage());
+                                         JOptionPane.showMessageDialog(this, "Error sending donation: " + caught.getMessage());
                                          enableUI();
                                       }
 
@@ -1107,11 +1095,11 @@ public class Player extends JFrame implements ActionListener
                                          {
                                             if (Shared.isError(result))
                                             {
-                                               Window.alert(result);
+                                               JOptionPane.showMessageDialog(this, result);
                                             }
                                             else
                                             {
-                                               Window.alert("Error sending donation");
+                                               JOptionPane.showMessageDialog(this, "Error sending donation");
                                             }
                                          }
                                          else
@@ -1144,7 +1132,7 @@ public class Player extends JFrame implements ActionListener
                                    {
                                       public void onFailure(Throwable caught)
                                       {
-                                         Window.alert("Error sending finish: " + caught.getMessage());
+                                         JOptionPane.showMessageDialog(this, "Error sending finish: " + caught.getMessage());
                                          enableUI();
                                       }
 
@@ -1154,11 +1142,11 @@ public class Player extends JFrame implements ActionListener
                                          {
                                             if (Shared.isError(result))
                                             {
-                                               Window.alert(result);
+                                               JOptionPane.showMessageDialog(this, result);
                                             }
                                             else
                                             {
-                                               Window.alert("Error sending finish");
+                                               JOptionPane.showMessageDialog(this, "Error sending finish");
                                             }
                                          }
                                          enableUI();
@@ -1344,29 +1332,132 @@ public class Player extends JFrame implements ActionListener
       }
    }
 
-
-   // Channel socket listener.
-   class ChannelSocketListener implements SocketListener
+   
+   // Synchronize player with network.
+   private void syncPlayer()
    {
-      @Override
-      public void onOpen()
-      {
-      }
-
-
-      @Override
-      public void onMessage(String message)
-      {
-         if (Shared.isVoid(message))
-         {
-            return;
-         }
-         String[] args = new DelimitedString(message).parse();
-         if (args.length == 0)
-         {
-            return;
-         }
-         String operation = args[0];
+	   if (Shared.isVoid(gameCode)) return;
+	    disableUI(); 
+   		try
+   		{
+   	       	DelimitedString request = new DelimitedString(Shared.SYNC_GAME);
+   	        request.add(gameCode);
+   			if (transactionNumber != -1)
+   			{
+   				request.add(transactionNumber);
+   			}
+   			byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
+   	   		if (response == null || !Shared.isOK(new String(response, StandardCharsets.UTF_8)))
+   	   		{
+   	   			if (response == null)
+   	   			{  	 
+   	   				JOptionPane.showMessageDialog(this, "Cannot sync game");
+   	   			} else {
+   	   				JOptionPane.showMessageDialog(this, "Cannot sync game: " + new String(response, StandardCharsets.UTF_8));  	   				
+   	   			}
+   	   		} else {
+   	   			String[] args = new DelimitedString(new String(response, StandardCharsets.UTF_8)).parse();
+   	   			try
+   	   			{
+   	   				gameState = Integer.parseInt(args[1]);
+   	   			} catch (Exception e)
+   	   			{
+   	   				JOptionPane.showMessageDialog(this, "Error syncing game: " + e.getMessage());
+   	   				gameState = 0;
+   	   			}
+   	   			if (gameState != 0)
+   	   			{
+   	   				int i = 2;
+   	   	            gameResourcesTextBox.setText(args[i]); 
+   	   	            i++;
+   	   	            playerTotalResourceTextBox.setText(args[i]);
+   	   	            i++;
+                    playersJoinedTextBox.setText(args[i]); 
+                    int n = Integer.parseInt(args[i]);
+                    i++;
+                    playersListBox.removeAll();
+                    for (int j = 0; j < n; j++)
+                    {
+                    	playersListBox.addItem(args[i + j]);
+                    } 
+   	   			}
+   	   		}
+   		}
+   		catch(Exception e)
+   		{
+   			JOptionPane.showMessageDialog(this, "Cannot sync game");
+   		}
+   		enableUI();
+   }
+   
+   // Synchronize player with messages.
+   private void syncMessages()
+   {
+	    if (Shared.isVoid(gameCode)) return;
+   		try
+   		{
+            DelimitedString request = new DelimitedString(Shared.HOST_GET_MESSAGES);
+            request.add(gameCode);     	       	
+			byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
+   	   		if (response != null)
+   	   		{
+   	   			String messages= new String(response, StandardCharsets.UTF_8);
+   	   			if (Shared.isOK(messages))
+   	   			{
+   	   				String[] args = new DelimitedString(messages).parse();
+   	   				if (args.length > 1)
+   	   				{
+   	    	   			disableUI();
+   	    	   			update(messages);
+   	    	   			enableUI();   	   					
+   	   				}
+   	   			} else {
+   	   				gameState = 0;
+   	   				enableUI();
+   	   			}
+   	   		}
+   		}
+   		catch(Exception e) {}
+   }
+ 
+   // Update player with messages.
+  public void update(String messages)
+  {
+     if (Shared.isVoid(messages.toString()))
+     {
+        return;
+     }
+     if (Shared.isError(messages))
+     {
+    	 gameState = 0;
+    	 return;
+     }    
+     String[] fields = messages.split(DelimitedString.DELIMITER);
+     if (fields == null || fields.length == 1)
+     {
+        return;
+     }     
+     for (int n = 1; n < fields.length; )
+     {
+    	 int c = 0;
+    	 for (int i = n; i < fields.length; i++)
+    	 {
+    		 if (fields[i].equals(Shared.MESSAGE_DELIMITER)) break;
+    		 c++;
+    	 }
+    	 if (c < 2)
+		 {
+    		JOptionPane.showMessageDialog(this, "Invalid message from network: " + messages);
+    		return;
+		 }
+    	 String[] args = new String[c];
+    	 for (int j = 0; j < c; j++)
+    	 {
+    		 args[j] = fields[j + n];
+    	 }
+    	 n += (c + 1);
+    	 String operation = args[0];
+    	 String gameCode = args[1];
          if (operation.equals(Shared.QUIT_GAME) && (args.length == 2))
          {
             // Forced quit.
@@ -1383,7 +1474,7 @@ public class Player extends JFrame implements ActionListener
             roleTabBar.setTabEnabled(AUDIT_TAB, false);
             claimState = TRANSACTION_STATE.INACTIVE;
             auditState = TRANSACTION_STATE.INACTIVE;
-            Window.alert(args[1]);
+            JOptionPane.showMessageDialog(this, args[1]);
             enableUI();
          }
          else if (operation.equals(Shared.SET_PLAYER_RESOURCES) && (args.length == 4))
@@ -1418,12 +1509,12 @@ public class Player extends JFrame implements ActionListener
             if (args.length == 3)
             {
                String alertText = args[2];
-               Window.alert("host: " + alertText);
+               JOptionPane.showMessageDialog(this, "host: " + alertText);
             }
             else
             {
                String alertText = args[3];
-               Window.alert("host: " + alertText);
+               JOptionPane.showMessageDialog(this, "host: " + alertText);
             }
          }
          else if (operation.equals(Shared.CLAIMANT_CHAT) && (args.length == 4))
@@ -1640,24 +1731,9 @@ public class Player extends JFrame implements ActionListener
                roleTabBar.setTabEnabled(AUDIT_TAB, false);
                auditState = TRANSACTION_STATE.INACTIVE;
             }
-            Window.alert("Transaction aborted!");
+            JOptionPane.showMessageDialog(this, "Transaction aborted!");
             enableUI();
          }
       }
-
-
-      @Override
-      public void onError(ChannelError error)
-      {
-         Window.alert("Channel error: " + error.getCode() +
-                      " : " + error.getDescription());
-      }
-
-
-      @Override
-      public void onClose()
-      {
-      }
    }
-   */
 }

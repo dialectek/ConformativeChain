@@ -207,10 +207,20 @@ public class Host extends JFrame implements ActionListener, ItemListener
    private int syncCounter = 0;
 
    // Constructor.
-   public Host(String gameCode, int transactionNumber)
+   public Host(String gameCode, int transactionNumber) throws Exception
    {
 	  this.gameCode = gameCode;
+	  if (Shared.isVoid(gameCode))
+	  {
+          JOptionPane.showMessageDialog(this, "Invalid game code: " + gameCode);
+          throw new Exception("Invalid game code");
+	  }
 	  this.transactionNumber = transactionNumber;
+	  if (transactionNumber < -1)
+	  {
+          JOptionPane.showMessageDialog(this, "Invalid transaction number: " + transactionNumber);
+          throw new Exception("Invalid transaction number");
+	  }
 	  
       // Title.
       setTitle("Conformative Game Host");
@@ -623,7 +633,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
          // Create/delete game.
          if (event.getSource() == gameCreateDeleteButton)
          {
-            gameCode = gameCodeTextBox.getText().trim();
+            gameCode = gameCodeTextBox.getText();
             if ((Shared.isVoid(gameCode)))
             {
                JOptionPane.showMessageDialog(this, "Please enter game code");

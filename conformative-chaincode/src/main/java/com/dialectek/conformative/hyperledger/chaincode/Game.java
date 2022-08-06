@@ -39,10 +39,18 @@ public class Game
    private ArrayList<String> messages;
    
    public Game(@JsonProperty("code") final String code, 
-           @JsonProperty("initialCommonResources") final double initialCommonResources) 
+           @JsonProperty("initialCommonResources") final double initialCommonResources) throws Exception 
    {
 	  this.code = code;
+	  if (Shared.isVoid(code) || code.contains(DelimitedString.DELIMITER))
+	  {
+		  throw new Exception("Invalid game code");
+	  }
       this.initialCommonResources = initialCommonResources;
+	  if (initialCommonResources < 0.0)
+	  {
+		  throw new Exception("Invalid initial common resources");
+	  }      
       commonResources             = initialCommonResources;
       playerNames = new ArrayList<String>();
       messages = new ArrayList<String>();

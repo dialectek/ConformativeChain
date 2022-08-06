@@ -7,14 +7,11 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.UIManager;
-import javax.swing.plaf.FontUIResource;
-
+import com.dialectek.conformative.hyperledger.shared.DelimitedString;
 import com.dialectek.conformative.hyperledger.shared.Shared;
 
 public class ConformativeGame extends JFrame implements ActionListener
@@ -79,9 +76,9 @@ public class ConformativeGame extends JFrame implements ActionListener
         if (option == JOptionPane.OK_OPTION) 
         {
         	String gameCode = gameCodeText.getText();
-        	if (Shared.isVoid(gameCode))
+        	if (Shared.isVoid(gameCode) || gameCode.contains(DelimitedString.DELIMITER))
         	{
-        		JOptionPane.showMessageDialog(this, "Please enter game code");
+        		JOptionPane.showMessageDialog(this, "Invalid game code");
         		return;
         	}
         	String transactionNumber = transactionNumberText.getText();
@@ -102,8 +99,11 @@ public class ConformativeGame extends JFrame implements ActionListener
         		}
         	}
         	
-        	// Start host.
-        	new Host(gameCode, t);
+        	// Run host.
+        	try 
+        	{
+				new Host(gameCode, t);
+			} catch (Exception e) {}
         }        
         return;
      }
@@ -122,15 +122,17 @@ public class ConformativeGame extends JFrame implements ActionListener
          if (option == JOptionPane.OK_OPTION) 
          {
          	String gameCode = gameCodeText.getText();
-         	if (Shared.isVoid(gameCode))
+         	if (Shared.isVoid(gameCode) || gameCode.contains(DelimitedString.DELIMITER))
          	{
-         		JOptionPane.showMessageDialog(this, "Please enter game code");
+         		JOptionPane.showMessageDialog(this, "Invalid game code");
          		return;
          	}
          	String playerName = playerNameText.getText();
-         	if (Shared.isVoid(playerName))
+         	if (Shared.isVoid(playerName) || 
+         			playerName.contains(DelimitedString.DELIMITER) ||
+         			playerName.equals(Shared.ALL_PLAYERS))
          	{
-         		JOptionPane.showMessageDialog(this, "Please enter player name");
+         		JOptionPane.showMessageDialog(this, "Invalid player name");
          		return;
          	}         	
          	String transactionNumber = transactionNumberText.getText();
@@ -160,8 +162,11 @@ public class ConformativeGame extends JFrame implements ActionListener
          		JOptionPane.showMessageDialog(this, "Cannot register player as network user: " + e.getMessage());
 			}
 
-         	// Start player client.
-         	new Player(gameCode, playerName, n);
+         	// Run player client.
+         	try 
+         	{
+				new Player(gameCode, playerName, n);
+			} catch (Exception e) {} 
          }
          return;
      }
