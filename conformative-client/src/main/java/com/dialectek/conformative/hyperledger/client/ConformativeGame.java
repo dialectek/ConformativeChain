@@ -4,6 +4,7 @@ package com.dialectek.conformative.hyperledger.client;
 
 import java.awt.Button;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -11,6 +12,8 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.UIManager;
+import javax.swing.plaf.FontUIResource;
 
 import com.dialectek.conformative.hyperledger.shared.Shared;
 
@@ -39,7 +42,10 @@ public class ConformativeGame extends JFrame implements ActionListener
       // Set title.
       setTitle("Conformative Game Roles");
       setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+      
+      // Set fixed-width font.
+      setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+      
       // Create GUI.
       rootPanel             = new JPanel();
       rootPanel.setLayout(new FlowLayout());
@@ -160,7 +166,7 @@ public class ConformativeGame extends JFrame implements ActionListener
          return;
      }
    }
-   
+
    // Main.
    public static void main(String[] args)
    {

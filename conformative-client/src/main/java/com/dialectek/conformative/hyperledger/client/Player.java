@@ -5,13 +5,13 @@ package com.dialectek.conformative.hyperledger.client;
 import java.awt.Button;
 import java.awt.Canvas;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Label;
 import java.awt.TextArea;
 import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -20,8 +20,12 @@ import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.UIManager;
+import javax.swing.plaf.FontUIResource;
 
-public class Player extends JFrame implements ActionListener, ItemListener
+import com.dialectek.conformative.hyperledger.shared.Shared;
+
+public class Player extends JFrame implements ActionListener
 {
    private static final long serialVersionUID = 1L;
 	   
@@ -134,6 +138,7 @@ public class Player extends JFrame implements ActionListener, ItemListener
    private TextArea           claimantChatTextArea;
    private TextField          claimantChatTextBox;
    private Button             claimantChatSendButton;
+   private Font               labelFont;
    private boolean UIinit = false;
    
    private static final int HOME_TAB  = 0;
@@ -177,6 +182,9 @@ public class Player extends JFrame implements ActionListener, ItemListener
 	  
       // Title.
       setTitle("Conformative Game Player");
+      
+      // Set fixed-width font for labels.
+ 	  labelFont = new Font(Font.MONOSPACED, Font.PLAIN, 12);      
 
       // Role tabs.
       roleTabPanel = new JTabbedPane();
@@ -187,7 +195,7 @@ public class Player extends JFrame implements ActionListener, ItemListener
       roleTabPanel.add(homePanel, "Home");
       playerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       homePanel.add(playerPanel);
-      playerNameLabel = new Label("Name:");
+      playerNameLabel = newLabel("Name:");      
       playerPanel.add(playerNameLabel);
       playerNameTextBox = new TextField(50);
       playerPanel.add(playerNameTextBox);
@@ -196,7 +204,7 @@ public class Player extends JFrame implements ActionListener, ItemListener
       playerPanel.add(playerJoinQuitButton);
       gameCodePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       homePanel.add(gameCodePanel);
-      gameCodeLabel = new Label("Code:");
+      gameCodeLabel = newLabel("Code:");
       gameCodePanel.add(gameCodeLabel);
       gameCodeTextBox = new TextField(30);
       gameCodePanel.add(gameCodeTextBox);
@@ -206,24 +214,24 @@ public class Player extends JFrame implements ActionListener, ItemListener
       homePanel.add(homeResourcesCaptionPanel);
       homeResourcesTopPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       homeResourcesCaptionPanel.add(homeResourcesTopPanel);
-      homeResourcesActualLabel = new Label("Actual:");
+      homeResourcesActualLabel = newLabel("Actual:  ");
       homeResourcesTopPanel.add(homeResourcesActualLabel);
       homeResourcesActualTextBox = new TextField(10);
       homeResourcesActualTextBox.setEditable(false);
       homeResourcesTopPanel.add(homeResourcesActualTextBox);
-      homeResourcesPersonalLabel = new Label(" = Personal:");
+      homeResourcesPersonalLabel = newLabel(" = Personal:");
       homeResourcesTopPanel.add(homeResourcesPersonalLabel);
       homeResourcesPersonalTextBox = new TextField(10);
       homeResourcesPersonalTextBox.setEditable(false);
       homeResourcesTopPanel.add(homeResourcesPersonalTextBox);
-      homeResourcesCommonLabel = new Label(" + Common:");
+      homeResourcesCommonLabel = newLabel(" + Common:");
       homeResourcesTopPanel.add(homeResourcesCommonLabel);
       homeResourcesCommonTextBox = new TextField(10);
       homeResourcesCommonTextBox.setEditable(false);
       homeResourcesTopPanel.add(homeResourcesCommonTextBox);
       homeResourcesBottomPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       homeResourcesCaptionPanel.add(homeResourcesBottomPanel);
-      homeResourcesEntitledLabel = new Label("Entitled:");
+      homeResourcesEntitledLabel = newLabel("Entitled:");
       homeResourcesBottomPanel.add(homeResourcesEntitledLabel);
       homeResourcesEntitledTextBox = new TextField(10);
       homeResourcesEntitledTextBox.setEditable(false);
@@ -276,7 +284,7 @@ public class Player extends JFrame implements ActionListener, ItemListener
       claimDistributionCaptionPanel.add(claimDistributionCanvas);
       claimDistributionTestPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       claimDistributionCaptionPanel.add(claimDistributionTestPanel);
-      claimDistributionTestValueLabel = new Label("Test value:");
+      claimDistributionTestValueLabel = newLabel("Test value:");
       claimDistributionTestPanel.add(claimDistributionTestValueLabel);
       claimDistributionTestValueTextBox = new TextField(10);
       claimDistributionTestPanel.add(claimDistributionTestValueTextBox);
@@ -292,26 +300,26 @@ public class Player extends JFrame implements ActionListener, ItemListener
       claimPanel.add(claimResourcesCaptionPanel);
       claimResourcesEntitledPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       claimResourcesCaptionPanel.add(claimResourcesEntitledPanel);
-      claimResourcesEntitledLabel = new Label("Entitled:");
+      claimResourcesEntitledLabel = newLabel("Entitled:");
       claimResourcesEntitledPanel.add(claimResourcesEntitledLabel);
       claimResourcesEntitledTextBox = new TextField(10);
       claimResourcesEntitledTextBox.setEditable(false);
       claimResourcesEntitledPanel.add(claimResourcesEntitledTextBox);
-      claimResourcesEntitledEqualsLabel = new Label("=");
+      claimResourcesEntitledEqualsLabel = newLabel("=");
       claimResourcesEntitledPanel.add(claimResourcesEntitledEqualsLabel);
       claimResourcesEntitledPerPlayerTextBox = new TextField(10);
       claimResourcesEntitledPerPlayerTextBox.setEditable(false);
       claimResourcesEntitledPanel.add(claimResourcesEntitledPerPlayerTextBox);
-      claimResourcesEntitledTimesLabel = new Label("X");
+      claimResourcesEntitledTimesLabel = newLabel("X");
       claimResourcesEntitledPanel.add(claimResourcesEntitledTimesLabel);
       claimResourcesEntitledNumPlayersTextBox = new TextField(10);
       claimResourcesEntitledNumPlayersTextBox.setEditable(false);
       claimResourcesEntitledPanel.add(claimResourcesEntitledNumPlayersTextBox);
-      claimResourcesEntitledPlayersLabel = new Label("players");
+      claimResourcesEntitledPlayersLabel = newLabel("players");
       claimResourcesEntitledPanel.add(claimResourcesEntitledPlayersLabel);
       claimResourcesClaimPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       claimResourcesCaptionPanel.add(claimResourcesClaimPanel);     
-      claimResourcesClaimLabel = new Label("Claim:");
+      claimResourcesClaimLabel = newLabel("Claim:   ");
       claimResourcesClaimPanel.add(claimResourcesClaimLabel);
       claimResourcesClaimTextBox = new TextField(10);
       claimResourcesClaimPanel.add(claimResourcesClaimTextBox);
@@ -320,25 +328,25 @@ public class Player extends JFrame implements ActionListener, ItemListener
       claimResourcesSetButton.addActionListener(this);     
       claimResourcesGrantPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       claimResourcesCaptionPanel.add(claimResourcesGrantPanel);       
-      claimResourcesGrantLabel = new Label("Grant:");
+      claimResourcesGrantLabel = newLabel("Grant:   ");
       claimResourcesGrantPanel.add(claimResourcesGrantLabel);
       claimResourcesGrantTextBox = new TextField(10);
       claimResourcesGrantTextBox.setEditable(false);
       claimResourcesGrantPanel.add(claimResourcesGrantTextBox);
       claimResourcesPenaltyPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       claimResourcesCaptionPanel.add(claimResourcesPenaltyPanel); 
-      claimResourcesPenaltyLabel = new Label("Penalty:");
+      claimResourcesPenaltyLabel = newLabel("Penalty: ");
       claimResourcesPenaltyPanel.add(claimResourcesPenaltyLabel);
       claimResourcesPenaltyTextBox = new TextField(10);
       claimResourcesPenaltyTextBox.setEditable(false);
       claimResourcesPenaltyPanel.add(claimResourcesPenaltyTextBox);
       claimResourcesDonatePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       claimResourcesCaptionPanel.add(claimResourcesDonatePanel);
-      claimResourcesDonateLabel = new Label("Donate:");
+      claimResourcesDonateLabel = newLabel("Donate:  ");
       claimResourcesDonatePanel.add(claimResourcesDonateLabel);
       claimResourcesDonateTextBox = new TextField(10);
       claimResourcesDonatePanel.add(claimResourcesDonateTextBox);
-      claimResourcesDonateBeneficiaryLabel = new Label("To:");
+      claimResourcesDonateBeneficiaryLabel = newLabel("To:");
       claimResourcesDonatePanel.add(claimResourcesDonateBeneficiaryLabel);
       claimResourcesDonateBeneficiaryTextBox = new TextField(10);
       claimResourcesDonatePanel.add(claimResourcesDonateBeneficiaryTextBox);
@@ -372,7 +380,7 @@ public class Player extends JFrame implements ActionListener, ItemListener
       roleTabPanel.add(auditPanel, "Audit");
       claimantNamePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       auditPanel.add(claimantNamePanel);
-      claimantNameLabel = new Label("Claimant:");
+      claimantNameLabel = newLabel("Claimant:");
       claimantNamePanel.add(claimantNameLabel);
       claimantNameTextBox = new TextField(30);
       claimantNameTextBox.setEditable(false);
@@ -387,7 +395,7 @@ public class Player extends JFrame implements ActionListener, ItemListener
       auditDistributionCaptionPanel.add(auditDistributionCanvas);
       auditDistributionTestPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       auditDistributionCaptionPanel.add(auditDistributionTestPanel);
-      auditDistributionTestValueLabel = new Label("Test value:");
+      auditDistributionTestValueLabel = newLabel("Test value:");
       auditDistributionTestPanel.add(auditDistributionTestValueLabel);
       auditDistributionTestValueTextBox = new TextField(10);
       auditDistributionTestPanel.add(auditDistributionTestValueTextBox);
@@ -403,40 +411,40 @@ public class Player extends JFrame implements ActionListener, ItemListener
       auditPanel.add(auditResourcesCaptionPanel);
       auditResourcesClaimPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       auditResourcesCaptionPanel.add(auditResourcesClaimPanel);
-      auditResourcesClaimLabel = new Label("Claim:");
+      auditResourcesClaimLabel = newLabel("Claim:  ");
       auditResourcesClaimPanel.add(auditResourcesClaimLabel);
       auditResourcesClaimTextBox = new TextField(10);
       auditResourcesClaimTextBox.setEditable(false);
       auditResourcesClaimPanel.add(auditResourcesClaimTextBox);
-      auditResourcesClaimEqualsLabel = new Label("=");
+      auditResourcesClaimEqualsLabel = newLabel("=");
       auditResourcesClaimPanel.add(auditResourcesClaimEqualsLabel);
       auditResourcesClaimPerPlayerTextBox = new TextField(10);
       auditResourcesClaimPerPlayerTextBox.setEditable(false);
       auditResourcesClaimPanel.add(auditResourcesClaimPerPlayerTextBox);
-      auditResourcesClaimTimesLabel = new Label("X");
+      auditResourcesClaimTimesLabel = newLabel("X");
       auditResourcesClaimPanel.add(auditResourcesClaimTimesLabel);
       auditResourcesClaimNumPlayersTextBox = new TextField(10);
       auditResourcesClaimNumPlayersTextBox.setEditable(false);
       auditResourcesClaimPanel.add(auditResourcesClaimNumPlayersTextBox);
-      auditResourcesClaimPlayersLabel = new Label("players");
+      auditResourcesClaimPlayersLabel = newLabel("players");
       auditResourcesClaimPanel.add(auditResourcesClaimPlayersLabel);
       auditResourcesGrantPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       auditResourcesCaptionPanel.add(auditResourcesGrantPanel);
-      auditResourcesGrantLabel = new Label("Grant:");
+      auditResourcesGrantLabel = newLabel("Grant:  ");
       auditResourcesGrantPanel.add(auditResourcesGrantLabel);
       auditResourcesGrantTextBox = new TextField(10);
       auditResourcesGrantPanel.add(auditResourcesGrantTextBox);
       auditResourcesGrantSetButton = new Button("Set");
       auditResourcesGrantSetButton.addActionListener(this);
       auditResourcesGrantPanel.add(auditResourcesGrantSetButton);
-      auditResourcesGrantConsensusLabel = new Label("Consensus:");
+      auditResourcesGrantConsensusLabel = newLabel("Consensus:");
       auditResourcesGrantPanel.add(auditResourcesGrantConsensusLabel);
       auditResourcesConsensusTextBox = new TextField(10);
       auditResourcesConsensusTextBox.setEditable(false);
       auditResourcesGrantPanel.add(auditResourcesConsensusTextBox);
       auditResourcesPenaltyPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       auditResourcesCaptionPanel.add(auditResourcesPenaltyPanel);
-      auditResourcesPenaltyLabel = new Label("Penalty:");
+      auditResourcesPenaltyLabel = newLabel("Penalty:");
       auditResourcesPenaltyPanel.add(auditResourcesPenaltyLabel);
       auditResourcesPenaltyTextBox = new TextField(10);
       auditResourcesPenaltyTextBox.setEditable(false);
@@ -460,8 +468,8 @@ public class Player extends JFrame implements ActionListener, ItemListener
       claimantChatPanel.add(claimantChatSendButton);
 
       add(roleTabPanel);
-      //roleTabPanel.setEnabledAt(CLAIM_TAB, false);
-      //roleTabPanel.setEnabledAt(AUDIT_TAB, false);      
+      roleTabPanel.setEnabledAt(CLAIM_TAB, false);
+      roleTabPanel.setEnabledAt(AUDIT_TAB, false);      
       UIinit = true;
       //enableUI();
       
@@ -493,11 +501,19 @@ public class Player extends JFrame implements ActionListener, ItemListener
           }
       };
       timer = new Timer("Timer");
-      //timer.schedule(task, 0, timerInterval_ms);
+      timer.schedule(task, 0, timerInterval_ms);
       
       // Show.      
       pack(); 
       setVisible(true);     
+   }
+   
+   // Make label with font.
+   private Label newLabel(String text)
+   {
+	   Label label = new Label(text);
+	   label.setFont(labelFont);
+	   return label;
    }
 
    // Animate wait text box.
@@ -526,632 +542,630 @@ public class Player extends JFrame implements ActionListener, ItemListener
       }
    }
 
-/*
    // Button handler.
-   private class ButtonHandler implements ClickHandler
+   public void actionPerformed(ActionEvent event)
    {
-      public void onClick(ClickEvent event)
-      {
-         // Join/quit game.
-         if (event.getSource() == playerJoinQuitButton)
-         {
-            playerName = playerNameTextBox.getText().trim();
-            if (Shared.isVoid(playerName))
-            {
-               Window.alert("Please enter name");
-               playerName = "";
-               return;
-            }
-            if (playerName.contains(DelimitedString.DELIMITER))
-            {
-               Window.alert("Invalid name character: " + DelimitedString.DELIMITER);
-               playerName = "";
-               return;
-            }
-            if (playerName.equals(Shared.ALL_PLAYERS))
-            {
-               Window.alert("Invalid name");
-               playerName = "";
-               return;
-            }
-            playerNameTextBox.setText(playerName);
-            gameCode = gameCodeTextBox.getText().trim();
-            if (Shared.isVoid(gameCode))
-            {
-               Window.alert("Please enter game code");
-               gameCode = "";
-               return;
-            }
-            if (gameCode.contains(DelimitedString.DELIMITER))
-            {
-               Window.alert("Invalid game code character: " + DelimitedString.DELIMITER);
-               gameCode = "";
-               return;
-            }
-            gameCodeTextBox.setText(gameCode);
-            disableUI();
-            if (channel == null)
-            {
-               // Join.
-               DelimitedString joinRequest = new DelimitedString(Shared.JOIN_GAME);
-               joinRequest.add(gameCode);
-               joinRequest.add(playerName);
-               gameService.requestService(joinRequest.toString(),
-                                          new AsyncCallback<String>()
-                                          {
-                                             public void onFailure(Throwable caught)
-                                             {
-                                                Window.alert("Error joining game: " + caught.getMessage());
-                                                enableUI();
-                                             }
+   } // flibber
+   /*
+     // Join/quit game.
+     if (event.getSource() == playerJoinQuitButton)
+     {
+        playerName = playerNameTextBox.getText().trim();
+        if (Shared.isVoid(playerName))
+        {
+           Window.alert("Please enter name");
+           playerName = "";
+           return;
+        }
+        if (playerName.contains(DelimitedString.DELIMITER))
+        {
+           Window.alert("Invalid name character: " + DelimitedString.DELIMITER);
+           playerName = "";
+           return;
+        }
+        if (playerName.equals(Shared.ALL_PLAYERS))
+        {
+           Window.alert("Invalid name");
+           playerName = "";
+           return;
+        }
+        playerNameTextBox.setText(playerName);
+        gameCode = gameCodeTextBox.getText().trim();
+        if (Shared.isVoid(gameCode))
+        {
+           Window.alert("Please enter game code");
+           gameCode = "";
+           return;
+        }
+        if (gameCode.contains(DelimitedString.DELIMITER))
+        {
+           Window.alert("Invalid game code character: " + DelimitedString.DELIMITER);
+           gameCode = "";
+           return;
+        }
+        gameCodeTextBox.setText(gameCode);
+        disableUI();
+        if (channel == null)
+        {
+           // Join.
+           DelimitedString joinRequest = new DelimitedString(Shared.JOIN_GAME);
+           joinRequest.add(gameCode);
+           joinRequest.add(playerName);
+           gameService.requestService(joinRequest.toString(),
+                                      new AsyncCallback<String>()
+                                      {
+                                         public void onFailure(Throwable caught)
+                                         {
+                                            Window.alert("Error joining game: " + caught.getMessage());
+                                            enableUI();
+                                         }
 
-                                             public void onSuccess(String result)
-                                             {
-                                                if (Shared.isVoid(result))
-                                                {
-                                                   Window.alert("Cannot join game: void channel token data");
-                                                }
-                                                else
-                                                {
-                                                   if (Shared.isError(result))
-                                                   {
-                                                      Window.alert(result);
-                                                   }
-                                                   else
-                                                   {
-                                                      // Create server communication channel.
-                                                      String[] args = new DelimitedString(result).parse();
-                                                      if (args.length < 4)
-                                                      {
-                                                         Window.alert("Cannot join game: invalid channel token data: " + result);
-                                                      }
-                                                      else
-                                                      {
-                                                         String token = args[0];
-                                                         for (int i = 1, j = args.length - 3; i < j; i++)
-                                                         {
-                                                            token = token + DelimitedString.DELIMITER + args[i];
-                                                         }
-                                                         ChannelFactory channelFactory = new ChannelFactoryImpl();
-                                                         channel = channelFactory.createChannel(token);
-                                                         if (channel == null)
-                                                         {
-                                                            Window.alert("Cannot join game: cannot create channel for token: " + token);
-                                                         }
-                                                         else
-                                                         {
-                                                            channelSocket = channel.open(new ChannelSocketListener());
-                                                            playerJoinQuitButton.setText("Quit");
-                                                            String personalResources = args[args.length - 3];
-                                                            String commonResources = args[args.length - 2];
-                                                            String entitledResources = args[args.length - 1];
-                                                            showHomeResources(personalResources, commonResources, entitledResources);
-                                                            Window.alert("Welcome!");
-                                                         }
-                                                      }
-                                                   }
-                                                }
-                                                enableUI();
-                                             }
-                                          }
-                                          );
-            }
-            else
-            {
-               // Quit.
-               DelimitedString quitRequest = new DelimitedString(Shared.QUIT_GAME);
-               quitRequest.add(gameCode);
-               quitRequest.add(playerName);
-               gameService.requestService(quitRequest.toString(),
-                                          new AsyncCallback<String>()
-                                          {
-                                             public void onFailure(Throwable caught)
-                                             {
-                                                Window.alert("Error quitting game: " + caught.getMessage());
-                                                enableUI();
-                                             }
+                                         public void onSuccess(String result)
+                                         {
+                                            if (Shared.isVoid(result))
+                                            {
+                                               Window.alert("Cannot join game: void channel token data");
+                                            }
+                                            else
+                                            {
+                                               if (Shared.isError(result))
+                                               {
+                                                  Window.alert(result);
+                                               }
+                                               else
+                                               {
+                                                  // Create server communication channel.
+                                                  String[] args = new DelimitedString(result).parse();
+                                                  if (args.length < 4)
+                                                  {
+                                                     Window.alert("Cannot join game: invalid channel token data: " + result);
+                                                  }
+                                                  else
+                                                  {
+                                                     String token = args[0];
+                                                     for (int i = 1, j = args.length - 3; i < j; i++)
+                                                     {
+                                                        token = token + DelimitedString.DELIMITER + args[i];
+                                                     }
+                                                     ChannelFactory channelFactory = new ChannelFactoryImpl();
+                                                     channel = channelFactory.createChannel(token);
+                                                     if (channel == null)
+                                                     {
+                                                        Window.alert("Cannot join game: cannot create channel for token: " + token);
+                                                     }
+                                                     else
+                                                     {
+                                                        channelSocket = channel.open(new ChannelSocketListener());
+                                                        playerJoinQuitButton.setText("Quit");
+                                                        String personalResources = args[args.length - 3];
+                                                        String commonResources = args[args.length - 2];
+                                                        String entitledResources = args[args.length - 1];
+                                                        showHomeResources(personalResources, commonResources, entitledResources);
+                                                        Window.alert("Welcome!");
+                                                     }
+                                                  }
+                                               }
+                                            }
+                                            enableUI();
+                                         }
+                                      }
+                                      );
+        }
+        else
+        {
+           // Quit.
+           DelimitedString quitRequest = new DelimitedString(Shared.QUIT_GAME);
+           quitRequest.add(gameCode);
+           quitRequest.add(playerName);
+           gameService.requestService(quitRequest.toString(),
+                                      new AsyncCallback<String>()
+                                      {
+                                         public void onFailure(Throwable caught)
+                                         {
+                                            Window.alert("Error quitting game: " + caught.getMessage());
+                                            enableUI();
+                                         }
 
-                                             public void onSuccess(String result)
-                                             {
-                                                if (!Shared.isOK(result))
-                                                {
-                                                   if (Shared.isError(result))
-                                                   {
-                                                      Window.alert(result);
-                                                   }
-                                                   else
-                                                   {
-                                                      Window.alert("Error quitting game");
-                                                   }
-                                                }
-                                                else
-                                                {
-                                                   if (channelSocket != null)
-                                                   {
-                                                      channelSocket.close();
-                                                   }
-                                                   channel = null;
-                                                   playerJoinQuitButton.setText("Join");
-                                                   clearHomeResources();
-                                                   roleTabPanel.selectTab(HOME_TAB);
-                                                   roleTabBar.setTabEnabled(CLAIM_TAB, false);
-                                                   roleTabBar.setTabEnabled(AUDIT_TAB, false);
-                                                   claimState = TRANSACTION_STATE.INACTIVE;
-                                                   auditState = TRANSACTION_STATE.INACTIVE;
-                                                   Window.alert("Goodbye!");
-                                                }
-                                                enableUI();
-                                             }
-                                          }
-                                          );
-            }
-         }
+                                         public void onSuccess(String result)
+                                         {
+                                            if (!Shared.isOK(result))
+                                            {
+                                               if (Shared.isError(result))
+                                               {
+                                                  Window.alert(result);
+                                               }
+                                               else
+                                               {
+                                                  Window.alert("Error quitting game");
+                                               }
+                                            }
+                                            else
+                                            {
+                                               if (channelSocket != null)
+                                               {
+                                                  channelSocket.close();
+                                               }
+                                               channel = null;
+                                               playerJoinQuitButton.setText("Join");
+                                               clearHomeResources();
+                                               roleTabPanel.selectTab(HOME_TAB);
+                                               roleTabBar.setTabEnabled(CLAIM_TAB, false);
+                                               roleTabBar.setTabEnabled(AUDIT_TAB, false);
+                                               claimState = TRANSACTION_STATE.INACTIVE;
+                                               auditState = TRANSACTION_STATE.INACTIVE;
+                                               Window.alert("Goodbye!");
+                                            }
+                                            enableUI();
+                                         }
+                                      }
+                                      );
+        }
+     }
 
-         // Clear chat.
-         else if (event.getSource() == hostChatClearButton)
-         {
-            hostChatTextArea.setText("");
-         }
+     // Clear chat.
+     else if (event.getSource() == hostChatClearButton)
+     {
+        hostChatTextArea.setText("");
+     }
 
-         // Send chat to host.
-         else if (event.getSource() == hostChatSendButton)
-         {
-            String chatText = hostChatTextBox.getText();
-            if (Shared.isVoid(chatText))
-            {
-               return;
-            }
-            if (chatText.contains(DelimitedString.DELIMITER))
-            {
-               Window.alert("Invalid character: " + DelimitedString.DELIMITER);
-               return;
-            }
-            if (channel == null)
-            {
-               Window.alert("Please join game!");
-               return;
-            }
-            disableUI();
-            DelimitedString chatRequest = new DelimitedString(Shared.HOST_CHAT);
-            chatRequest.add(gameCode);
-            chatRequest.add(playerName);
-            chatRequest.add(chatText);
-            gameService.requestService(chatRequest.toString(),
-                                       new AsyncCallback<String>()
-                                       {
-                                          public void onFailure(Throwable caught)
-                                          {
-                                             Window.alert("Error sending chat: " + caught.getMessage());
-                                             enableUI();
-                                          }
+     // Send chat to host.
+     else if (event.getSource() == hostChatSendButton)
+     {
+        String chatText = hostChatTextBox.getText();
+        if (Shared.isVoid(chatText))
+        {
+           return;
+        }
+        if (chatText.contains(DelimitedString.DELIMITER))
+        {
+           Window.alert("Invalid character: " + DelimitedString.DELIMITER);
+           return;
+        }
+        if (channel == null)
+        {
+           Window.alert("Please join game!");
+           return;
+        }
+        disableUI();
+        DelimitedString chatRequest = new DelimitedString(Shared.HOST_CHAT);
+        chatRequest.add(gameCode);
+        chatRequest.add(playerName);
+        chatRequest.add(chatText);
+        gameService.requestService(chatRequest.toString(),
+                                   new AsyncCallback<String>()
+                                   {
+                                      public void onFailure(Throwable caught)
+                                      {
+                                         Window.alert("Error sending chat: " + caught.getMessage());
+                                         enableUI();
+                                      }
 
-                                          public void onSuccess(String result)
-                                          {
-                                             if (!Shared.isOK(result))
-                                             {
-                                                if (Shared.isError(result))
-                                                {
-                                                   Window.alert(result);
-                                                }
-                                                else
-                                                {
-                                                   Window.alert("Error sending chat");
-                                                }
-                                             }
-                                             else
-                                             {
-                                                hostChatTextArea.setText(hostChatTextArea.getText() +
-                                                                         playerName + ": " +
-                                                                         hostChatTextBox.getText() + "\n");
-                                                hostChatTextBox.setText("");
-                                             }
-                                             enableUI();
-                                          }
-                                       }
-                                       );
-         }
+                                      public void onSuccess(String result)
+                                      {
+                                         if (!Shared.isOK(result))
+                                         {
+                                            if (Shared.isError(result))
+                                            {
+                                               Window.alert(result);
+                                            }
+                                            else
+                                            {
+                                               Window.alert("Error sending chat");
+                                            }
+                                         }
+                                         else
+                                         {
+                                            hostChatTextArea.setText(hostChatTextArea.getText() +
+                                                                     playerName + ": " +
+                                                                     hostChatTextBox.getText() + "\n");
+                                            hostChatTextBox.setText("");
+                                         }
+                                         enableUI();
+                                      }
+                                   }
+                                   );
+     }
 
-         // Send chat to auditors.
-         else if (event.getSource() == auditorChatSendButton)
-         {
-            String chatText = auditorChatTextBox.getText();
-            if (Shared.isVoid(chatText))
-            {
-               return;
-            }
-            if (channel == null)
-            {
-               Window.alert("Please create game!");
-               return;
-            }
-            if (chatText.contains(DelimitedString.DELIMITER))
-            {
-               Window.alert("Invalid character: " + DelimitedString.DELIMITER);
-               return;
-            }
-            if (channel == null)
-            {
-               Window.alert("Please join game!");
-               return;
-            }
-            disableUI();
-            DelimitedString chatRequest = new DelimitedString(Shared.AUDITOR_CHAT);
-            chatRequest.add(gameCode);
-            chatRequest.add(transactionNumber);
-            chatRequest.add(chatText);
-            gameService.requestService(chatRequest.toString(),
-                                       new AsyncCallback<String>()
-                                       {
-                                          public void onFailure(Throwable caught)
-                                          {
-                                             Window.alert("Error sending chat: " + caught.getMessage());
-                                             enableUI();
-                                          }
+     // Send chat to auditors.
+     else if (event.getSource() == auditorChatSendButton)
+     {
+        String chatText = auditorChatTextBox.getText();
+        if (Shared.isVoid(chatText))
+        {
+           return;
+        }
+        if (channel == null)
+        {
+           Window.alert("Please create game!");
+           return;
+        }
+        if (chatText.contains(DelimitedString.DELIMITER))
+        {
+           Window.alert("Invalid character: " + DelimitedString.DELIMITER);
+           return;
+        }
+        if (channel == null)
+        {
+           Window.alert("Please join game!");
+           return;
+        }
+        disableUI();
+        DelimitedString chatRequest = new DelimitedString(Shared.AUDITOR_CHAT);
+        chatRequest.add(gameCode);
+        chatRequest.add(transactionNumber);
+        chatRequest.add(chatText);
+        gameService.requestService(chatRequest.toString(),
+                                   new AsyncCallback<String>()
+                                   {
+                                      public void onFailure(Throwable caught)
+                                      {
+                                         Window.alert("Error sending chat: " + caught.getMessage());
+                                         enableUI();
+                                      }
 
-                                          public void onSuccess(String result)
-                                          {
-                                             if (!Shared.isOK(result))
-                                             {
-                                                if (Shared.isError(result))
-                                                {
-                                                   Window.alert(result);
-                                                }
-                                                else
-                                                {
-                                                   Window.alert("Error sending chat");
-                                                }
-                                             }
-                                             else
-                                             {
-                                                auditorChatTextArea.setText(auditorChatTextArea.getText() +
-                                                                            "claimant: " +
-                                                                            auditorChatTextBox.getText() + "\n");
-                                                auditorChatTextBox.setText("");
-                                             }
-                                             enableUI();
-                                          }
-                                       }
-                                       );
-         }
+                                      public void onSuccess(String result)
+                                      {
+                                         if (!Shared.isOK(result))
+                                         {
+                                            if (Shared.isError(result))
+                                            {
+                                               Window.alert(result);
+                                            }
+                                            else
+                                            {
+                                               Window.alert("Error sending chat");
+                                            }
+                                         }
+                                         else
+                                         {
+                                            auditorChatTextArea.setText(auditorChatTextArea.getText() +
+                                                                        "claimant: " +
+                                                                        auditorChatTextBox.getText() + "\n");
+                                            auditorChatTextBox.setText("");
+                                         }
+                                         enableUI();
+                                      }
+                                   }
+                                   );
+     }
 
-         // Send chat to claimant.
-         else if (event.getSource() == claimantChatSendButton)
-         {
-            String chatText = claimantChatTextBox.getText();
-            if (Shared.isVoid(chatText))
-            {
-               return;
-            }
-            if (channel == null)
-            {
-               Window.alert("Please create game!");
-               return;
-            }
-            if (chatText.contains(DelimitedString.DELIMITER))
-            {
-               Window.alert("Invalid character: " + DelimitedString.DELIMITER);
-               return;
-            }
-            if (channel == null)
-            {
-               Window.alert("Please join game!");
-               return;
-            }
-            disableUI();
-            DelimitedString chatRequest = new DelimitedString(Shared.CLAIMANT_CHAT);
-            chatRequest.add(gameCode);
-            chatRequest.add(transactionNumber);
-            chatRequest.add(chatText);
-            gameService.requestService(chatRequest.toString(),
-                                       new AsyncCallback<String>()
-                                       {
-                                          public void onFailure(Throwable caught)
-                                          {
-                                             Window.alert("Error sending chat: " + caught.getMessage());
-                                             enableUI();
-                                          }
+     // Send chat to claimant.
+     else if (event.getSource() == claimantChatSendButton)
+     {
+        String chatText = claimantChatTextBox.getText();
+        if (Shared.isVoid(chatText))
+        {
+           return;
+        }
+        if (channel == null)
+        {
+           Window.alert("Please create game!");
+           return;
+        }
+        if (chatText.contains(DelimitedString.DELIMITER))
+        {
+           Window.alert("Invalid character: " + DelimitedString.DELIMITER);
+           return;
+        }
+        if (channel == null)
+        {
+           Window.alert("Please join game!");
+           return;
+        }
+        disableUI();
+        DelimitedString chatRequest = new DelimitedString(Shared.CLAIMANT_CHAT);
+        chatRequest.add(gameCode);
+        chatRequest.add(transactionNumber);
+        chatRequest.add(chatText);
+        gameService.requestService(chatRequest.toString(),
+                                   new AsyncCallback<String>()
+                                   {
+                                      public void onFailure(Throwable caught)
+                                      {
+                                         Window.alert("Error sending chat: " + caught.getMessage());
+                                         enableUI();
+                                      }
 
-                                          public void onSuccess(String result)
-                                          {
-                                             if (!Shared.isOK(result))
-                                             {
-                                                if (Shared.isError(result))
-                                                {
-                                                   Window.alert(result);
-                                                }
-                                                else
-                                                {
-                                                   Window.alert("Error sending chat");
-                                                }
-                                             }
-                                             else
-                                             {
-                                                claimantChatTextArea.setText(claimantChatTextArea.getText() +
-                                                                             "auditor: " +
-                                                                             claimantChatTextBox.getText() + "\n");
-                                                claimantChatTextBox.setText("");
-                                             }
-                                             enableUI();
-                                          }
-                                       }
-                                       );
-         }
+                                      public void onSuccess(String result)
+                                      {
+                                         if (!Shared.isOK(result))
+                                         {
+                                            if (Shared.isError(result))
+                                            {
+                                               Window.alert(result);
+                                            }
+                                            else
+                                            {
+                                               Window.alert("Error sending chat");
+                                            }
+                                         }
+                                         else
+                                         {
+                                            claimantChatTextArea.setText(claimantChatTextArea.getText() +
+                                                                         "auditor: " +
+                                                                         claimantChatTextBox.getText() + "\n");
+                                            claimantChatTextBox.setText("");
+                                         }
+                                         enableUI();
+                                      }
+                                   }
+                                   );
+     }
 
-         else if (event.getSource() == claimDistributionTestButton)
-         {
-            String valueText = claimDistributionTestValueTextBox.getText().trim();
-            if (Shared.isVoid(valueText))
-            {
-               Window.alert("Please enter test value");
-               return;
-            }
-            double value;
-            try {
-               value = Double.parseDouble(valueText);
-            }
-            catch (NumberFormatException e) {
-               Window.alert("Invalid test value");
-               return;
-            }
-            double probability = claimDistribution.phi(value);
-            claimDistributionTestProbabilityTextBox.setText(doubleToString(probability));
-         }
-         else if (event.getSource() == auditDistributionTestButton)
-         {
-            String valueText = auditDistributionTestValueTextBox.getText().trim();
-            if (Shared.isVoid(valueText))
-            {
-               Window.alert("Please enter test value");
-               return;
-            }
-            double value;
-            try {
-               value = Double.parseDouble(valueText);
-            }
-            catch (NumberFormatException e) {
-               Window.alert("Invalid test value");
-               return;
-            }
-            double probability = auditDistribution.phi(value);
-            auditDistributionTestProbabilityTextBox.setText(doubleToString(probability));
-         }
-         else if (event.getSource() == claimResourcesSetButton)
-         {
-            String claimText = claimResourcesClaimTextBox.getText().trim();
-            if (Shared.isVoid(claimText))
-            {
-               Window.alert("Please enter claim value");
-               return;
-            }
-            double claim;
-            try {
-               claim = Double.parseDouble(claimText);
-            }
-            catch (NumberFormatException e) {
-               Window.alert("Invalid claim value");
-               return;
-            }
-            if (claim < 0.0)
-            {
-               Window.alert("Invalid claim value");
-               return;
-            }
-            claimState = TRANSACTION_STATE.WAITING;
-            claimResourcesGrantTextBox.setText("waiting");
-            disableUI();
-            DelimitedString claimRequest = new DelimitedString(Shared.SET_CLAIM);
-            claimRequest.add(gameCode);
-            claimRequest.add(transactionNumber);
-            claimRequest.add(claim);
-            gameService.requestService(claimRequest.toString(),
-                                       new AsyncCallback<String>()
-                                       {
-                                          public void onFailure(Throwable caught)
-                                          {
-                                             Window.alert("Error sending claim: " + caught.getMessage());
-                                             enableUI();
-                                          }
+     else if (event.getSource() == claimDistributionTestButton)
+     {
+        String valueText = claimDistributionTestValueTextBox.getText().trim();
+        if (Shared.isVoid(valueText))
+        {
+           Window.alert("Please enter test value");
+           return;
+        }
+        double value;
+        try {
+           value = Double.parseDouble(valueText);
+        }
+        catch (NumberFormatException e) {
+           Window.alert("Invalid test value");
+           return;
+        }
+        double probability = claimDistribution.phi(value);
+        claimDistributionTestProbabilityTextBox.setText(doubleToString(probability));
+     }
+     else if (event.getSource() == auditDistributionTestButton)
+     {
+        String valueText = auditDistributionTestValueTextBox.getText().trim();
+        if (Shared.isVoid(valueText))
+        {
+           Window.alert("Please enter test value");
+           return;
+        }
+        double value;
+        try {
+           value = Double.parseDouble(valueText);
+        }
+        catch (NumberFormatException e) {
+           Window.alert("Invalid test value");
+           return;
+        }
+        double probability = auditDistribution.phi(value);
+        auditDistributionTestProbabilityTextBox.setText(doubleToString(probability));
+     }
+     else if (event.getSource() == claimResourcesSetButton)
+     {
+        String claimText = claimResourcesClaimTextBox.getText().trim();
+        if (Shared.isVoid(claimText))
+        {
+           Window.alert("Please enter claim value");
+           return;
+        }
+        double claim;
+        try {
+           claim = Double.parseDouble(claimText);
+        }
+        catch (NumberFormatException e) {
+           Window.alert("Invalid claim value");
+           return;
+        }
+        if (claim < 0.0)
+        {
+           Window.alert("Invalid claim value");
+           return;
+        }
+        claimState = TRANSACTION_STATE.WAITING;
+        claimResourcesGrantTextBox.setText("waiting");
+        disableUI();
+        DelimitedString claimRequest = new DelimitedString(Shared.SET_CLAIM);
+        claimRequest.add(gameCode);
+        claimRequest.add(transactionNumber);
+        claimRequest.add(claim);
+        gameService.requestService(claimRequest.toString(),
+                                   new AsyncCallback<String>()
+                                   {
+                                      public void onFailure(Throwable caught)
+                                      {
+                                         Window.alert("Error sending claim: " + caught.getMessage());
+                                         enableUI();
+                                      }
 
-                                          public void onSuccess(String result)
-                                          {
-                                             if (!Shared.isOK(result))
-                                             {
-                                                if (Shared.isError(result))
-                                                {
-                                                   Window.alert(result);
-                                                }
-                                                else
-                                                {
-                                                   Window.alert("Error sending claim");
-                                                }
-                                             }
-                                             enableUI();
-                                          }
-                                       }
-                                       );
-         }
-         else if (event.getSource() == auditResourcesGrantSetButton)
-         {
-            String grantText = auditResourcesGrantTextBox.getText().trim();
-            if (Shared.isVoid(grantText))
-            {
-               Window.alert("Please enter grant value");
-               return;
-            }
-            double grant;
-            try {
-               grant = Double.parseDouble(grantText);
-            }
-            catch (NumberFormatException e) {
-               Window.alert("Invalid grant value");
-               return;
-            }
-            if (grant < 0.0)
-            {
-               Window.alert("Invalid grant value");
-               return;
-            }
-            double claim;
-            try {
-               claim = Double.parseDouble(auditResourcesClaimTextBox.getText());
-            }
-            catch (NumberFormatException e) {
-               Window.alert("Invalid claim value");
-               return;
-            }
-            if (grant > claim)
-            {
-               Window.alert("Grant cannot be greater than claim");
-               return;
-            }
-            auditState = TRANSACTION_STATE.WAITING;
-            auditResourcesConsensusTextBox.setText("waiting");
-            disableUI();
-            DelimitedString grantRequest = new DelimitedString(Shared.SET_GRANT);
-            grantRequest.add(gameCode);
-            grantRequest.add(transactionNumber);
-            grantRequest.add(grant);
-            grantRequest.add(playerNameTextBox.getText());
-            gameService.requestService(grantRequest.toString(),
-                                       new AsyncCallback<String>()
-                                       {
-                                          public void onFailure(Throwable caught)
-                                          {
-                                             Window.alert("Error sending grant: " + caught.getMessage());
-                                             enableUI();
-                                          }
+                                      public void onSuccess(String result)
+                                      {
+                                         if (!Shared.isOK(result))
+                                         {
+                                            if (Shared.isError(result))
+                                            {
+                                               Window.alert(result);
+                                            }
+                                            else
+                                            {
+                                               Window.alert("Error sending claim");
+                                            }
+                                         }
+                                         enableUI();
+                                      }
+                                   }
+                                   );
+     }
+     else if (event.getSource() == auditResourcesGrantSetButton)
+     {
+        String grantText = auditResourcesGrantTextBox.getText().trim();
+        if (Shared.isVoid(grantText))
+        {
+           Window.alert("Please enter grant value");
+           return;
+        }
+        double grant;
+        try {
+           grant = Double.parseDouble(grantText);
+        }
+        catch (NumberFormatException e) {
+           Window.alert("Invalid grant value");
+           return;
+        }
+        if (grant < 0.0)
+        {
+           Window.alert("Invalid grant value");
+           return;
+        }
+        double claim;
+        try {
+           claim = Double.parseDouble(auditResourcesClaimTextBox.getText());
+        }
+        catch (NumberFormatException e) {
+           Window.alert("Invalid claim value");
+           return;
+        }
+        if (grant > claim)
+        {
+           Window.alert("Grant cannot be greater than claim");
+           return;
+        }
+        auditState = TRANSACTION_STATE.WAITING;
+        auditResourcesConsensusTextBox.setText("waiting");
+        disableUI();
+        DelimitedString grantRequest = new DelimitedString(Shared.SET_GRANT);
+        grantRequest.add(gameCode);
+        grantRequest.add(transactionNumber);
+        grantRequest.add(grant);
+        grantRequest.add(playerNameTextBox.getText());
+        gameService.requestService(grantRequest.toString(),
+                                   new AsyncCallback<String>()
+                                   {
+                                      public void onFailure(Throwable caught)
+                                      {
+                                         Window.alert("Error sending grant: " + caught.getMessage());
+                                         enableUI();
+                                      }
 
-                                          public void onSuccess(String result)
-                                          {
-                                             if (!Shared.isOK(result))
-                                             {
-                                                if (Shared.isError(result))
-                                                {
-                                                   Window.alert(result);
-                                                }
-                                                else
-                                                {
-                                                   Window.alert("Error sending grant");
-                                                }
-                                             }
-                                             enableUI();
-                                          }
-                                       }
-                                       );
-         }
-         else if (event.getSource() == claimResourcesDonateButton)
-         {
-            String donateText = claimResourcesDonateTextBox.getText().trim();
-            if (Shared.isVoid(donateText))
-            {
-               Window.alert("Please enter donation value");
-               return;
-            }
-            double donation;
-            try {
-               donation = Double.parseDouble(donateText);
-            }
-            catch (NumberFormatException e) {
-               Window.alert("Invalid donation value");
-               return;
-            }
-            if (donation < 0.0)
-            {
-               Window.alert("Invalid donation value");
-               return;
-            }
-            String beneficiary = claimResourcesDonateBeneficiaryTextBox.getText().trim();
-            if (Shared.isVoid(beneficiary))
-            {
-               Window.alert("Please enter beneficiary value");
-               return;
-            }
-            if (beneficiary.equals(playerNameTextBox.getText()))
-            {
-               Window.alert("Cannot donate to self");
-               return;
-            }
-            disableUI();
-            DelimitedString donationRequest = new DelimitedString(Shared.SET_DONATION);
-            donationRequest.add(gameCode);
-            donationRequest.add(transactionNumber);
-            donationRequest.add(donation);
-            donationRequest.add(beneficiary);
-            gameService.requestService(donationRequest.toString(),
-                                       new AsyncCallback<String>()
-                                       {
-                                          public void onFailure(Throwable caught)
-                                          {
-                                             Window.alert("Error sending donation: " + caught.getMessage());
-                                             enableUI();
-                                          }
+                                      public void onSuccess(String result)
+                                      {
+                                         if (!Shared.isOK(result))
+                                         {
+                                            if (Shared.isError(result))
+                                            {
+                                               Window.alert(result);
+                                            }
+                                            else
+                                            {
+                                               Window.alert("Error sending grant");
+                                            }
+                                         }
+                                         enableUI();
+                                      }
+                                   }
+                                   );
+     }
+     else if (event.getSource() == claimResourcesDonateButton)
+     {
+        String donateText = claimResourcesDonateTextBox.getText().trim();
+        if (Shared.isVoid(donateText))
+        {
+           Window.alert("Please enter donation value");
+           return;
+        }
+        double donation;
+        try {
+           donation = Double.parseDouble(donateText);
+        }
+        catch (NumberFormatException e) {
+           Window.alert("Invalid donation value");
+           return;
+        }
+        if (donation < 0.0)
+        {
+           Window.alert("Invalid donation value");
+           return;
+        }
+        String beneficiary = claimResourcesDonateBeneficiaryTextBox.getText().trim();
+        if (Shared.isVoid(beneficiary))
+        {
+           Window.alert("Please enter beneficiary value");
+           return;
+        }
+        if (beneficiary.equals(playerNameTextBox.getText()))
+        {
+           Window.alert("Cannot donate to self");
+           return;
+        }
+        disableUI();
+        DelimitedString donationRequest = new DelimitedString(Shared.SET_DONATION);
+        donationRequest.add(gameCode);
+        donationRequest.add(transactionNumber);
+        donationRequest.add(donation);
+        donationRequest.add(beneficiary);
+        gameService.requestService(donationRequest.toString(),
+                                   new AsyncCallback<String>()
+                                   {
+                                      public void onFailure(Throwable caught)
+                                      {
+                                         Window.alert("Error sending donation: " + caught.getMessage());
+                                         enableUI();
+                                      }
 
-                                          public void onSuccess(String result)
-                                          {
-                                             if (!Shared.isOK(result))
-                                             {
-                                                if (Shared.isError(result))
-                                                {
-                                                   Window.alert(result);
-                                                }
-                                                else
-                                                {
-                                                   Window.alert("Error sending donation");
-                                                }
-                                             }
-                                             else
-                                             {
-                                                claimResourcesDonateTextBox.setText("");
-                                                claimResourcesDonateBeneficiaryTextBox.setText("");
-                                             }
-                                             enableUI();
-                                          }
-                                       }
-                                       );
-         }
-         else if ((event.getSource() == claimFinishButton) || (event.getSource() == auditFinishButton))
-         {
-            if (event.getSource() == claimFinishButton)
-            {
-               claimState = TRANSACTION_STATE.WAITING;
-            }
-            else
-            {
-               auditState = TRANSACTION_STATE.WAITING;
-            }
-            disableUI();
-            DelimitedString finishRequest = new DelimitedString(Shared.FINISH_TRANSACTION);
-            finishRequest.add(gameCode);
-            finishRequest.add(transactionNumber);
-            finishRequest.add(playerNameTextBox.getText());
-            gameService.requestService(finishRequest.toString(),
-                                       new AsyncCallback<String>()
-                                       {
-                                          public void onFailure(Throwable caught)
-                                          {
-                                             Window.alert("Error sending finish: " + caught.getMessage());
-                                             enableUI();
-                                          }
+                                      public void onSuccess(String result)
+                                      {
+                                         if (!Shared.isOK(result))
+                                         {
+                                            if (Shared.isError(result))
+                                            {
+                                               Window.alert(result);
+                                            }
+                                            else
+                                            {
+                                               Window.alert("Error sending donation");
+                                            }
+                                         }
+                                         else
+                                         {
+                                            claimResourcesDonateTextBox.setText("");
+                                            claimResourcesDonateBeneficiaryTextBox.setText("");
+                                         }
+                                         enableUI();
+                                      }
+                                   }
+                                   );
+     }
+     else if ((event.getSource() == claimFinishButton) || (event.getSource() == auditFinishButton))
+     {
+        if (event.getSource() == claimFinishButton)
+        {
+           claimState = TRANSACTION_STATE.WAITING;
+        }
+        else
+        {
+           auditState = TRANSACTION_STATE.WAITING;
+        }
+        disableUI();
+        DelimitedString finishRequest = new DelimitedString(Shared.FINISH_TRANSACTION);
+        finishRequest.add(gameCode);
+        finishRequest.add(transactionNumber);
+        finishRequest.add(playerNameTextBox.getText());
+        gameService.requestService(finishRequest.toString(),
+                                   new AsyncCallback<String>()
+                                   {
+                                      public void onFailure(Throwable caught)
+                                      {
+                                         Window.alert("Error sending finish: " + caught.getMessage());
+                                         enableUI();
+                                      }
 
-                                          public void onSuccess(String result)
-                                          {
-                                             if (!Shared.isOK(result))
-                                             {
-                                                if (Shared.isError(result))
-                                                {
-                                                   Window.alert(result);
-                                                }
-                                                else
-                                                {
-                                                   Window.alert("Error sending finish");
-                                                }
-                                             }
-                                             enableUI();
-                                          }
-                                       }
-                                       );
-         }
-      }
+                                      public void onSuccess(String result)
+                                      {
+                                         if (!Shared.isOK(result))
+                                         {
+                                            if (Shared.isError(result))
+                                            {
+                                               Window.alert(result);
+                                            }
+                                            else
+                                            {
+                                               Window.alert("Error sending finish");
+                                            }
+                                         }
+                                         enableUI();
+                                      }
+                                   }
+                                   );
+     }
    }
 
    private void clearHomeResources()
@@ -1645,17 +1659,5 @@ public class Player extends JFrame implements ActionListener, ItemListener
       {
       }
    }
-*/
-
-	@Override
-	public void itemStateChanged(ItemEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	@Override
-	public void actionPerformed(ActionEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
+   */
 }
