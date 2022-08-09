@@ -28,6 +28,8 @@ public class Shared
    public static final String PLAYER_GET_MESSAGES  = "player_get_messages";    
    public static final String PLAYER_CHAT_MESSAGE  = "player_chat_message";   
    public static final String PLAYER_CLEAR_MESSAGES= "player_clear_messages";
+   public static final String CLAIMANT_CHAT_MESSAGE= "claimant_chat_message";  
+   public static final String AUDITOR_CHAT_MESSAGE = "auditor_chat_message";   
    public static final String START_CLAIM          = "start_claim";
    public static final String START_AUDIT          = "start_audit";
    public static final String SET_CLAIM            = "set_claim";

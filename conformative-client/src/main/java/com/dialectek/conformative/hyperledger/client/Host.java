@@ -840,11 +840,34 @@ public class Host extends JFrame implements ActionListener, ItemListener
                JOptionPane.showMessageDialog(this, "Please create game!");
                return;
             }
+            String playerName = null;
+            if (chatText.contains("/"))
+            {
+            	int n = chatText.indexOf("/");
+            	playerName = chatText.substring(0, n);
+            	int i,j;
+            	for (i = 1, j = playersListBox.getItemCount(); i < j; i++)
+            	{
+            		if (playerName.equals(playersListBox.getItemAt(i)))
+            		{
+            			chatText = chatText.substring(n + 1);
+            			break;
+            		}
+            	} 
+            	if (i >= j)
+            	{
+            		playerName = null;
+            	}
+            }
             disableUI();
             try
             {
                DelimitedString request = new DelimitedString(Shared.HOST_CHAT_MESSAGE);
                request.add(gameCode);
+               if (playerName != null)
+               {
+            	   request.add(playerName);
+               }
                request.add(chatText);
    			   byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
    			   if (response != null && Shared.isOK(new String(response, StandardCharsets.UTF_8)))
@@ -1277,16 +1300,12 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	        {
 	           DelimitedString request = new DelimitedString(Shared.UPDATE_GAME);
 	           request.add(gameCode);
-	           request.add(gameStateListBox.getSelectedIndex());	        	
+	           request.add(nextState);	        	
 			   byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
 			   if (response != null && Shared.isOK(new String(response, StandardCharsets.UTF_8)))
 			   {
-                   nextState = gameStateListBox.getSelectedIndex();
-                   if (nextState != gameState)
-                   {
-                      gameState = nextState;
-                      resetTransaction();
-                   }			   
+                   gameState = nextState;
+                   resetTransaction();		   
 			   } else {
 				   if (response != null)
 				   {
@@ -1415,7 +1434,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
 		   if (response != null && Shared.isOK(new String(response, StandardCharsets.UTF_8)))
 		   {
                String[] args = new DelimitedString(new String(response, StandardCharsets.UTF_8)).parse();
-               if (args.length != 3)
+               if (args.length != 4)
                {
                   JOptionPane.showMessageDialog(this, "Error getting player resources");
                }
@@ -1899,16 +1918,18 @@ public class Host extends JFrame implements ActionListener, ItemListener
                     int n = Integer.parseInt(args[i]);
                     i++;
                     playersListBox.removeAll();
+                    playersListBox.addItem(Shared.ALL_PLAYERS);
                     for (int j = 0; j < n; j++)
                     {
                     	playersListBox.addItem(args[i + j]);
-                    } 
+                    }
+                    // TODO: process transaction.
    	   			}
    	   		}
    		}
    		catch(Exception e)
    		{
-   			JOptionPane.showMessageDialog(this, "Cannot sync game");
+   			JOptionPane.showMessageDialog(this, "Cannot sync game: " + e.getMessage());
    		}
    		enableUI();
    }
@@ -1980,11 +2001,10 @@ public class Host extends JFrame implements ActionListener, ItemListener
     	 }
     	 n += (c + 1);
     	 String operation = args[0];
-    	 String gameCode = args[1];
-	     if (operation.equals(Shared.JOIN_GAME) && (args.length == 3))
+	     if (operation.equals(Shared.JOIN_GAME) && (args.length == 2))
 	     {
 	            // Player joining game.
-	            String playerName = args[2];
+	            String playerName = args[1];
 	            int    i          = 1;
 	            for ( ; i < playersListBox.getItemCount(); i++)
 	            {
@@ -1997,10 +2017,10 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	            playersJoinedTextBox.setText("" + (playersListBox.getItemCount() - 1));
 	            updatePlayerResources();        
 	     }
-	     else if (operation.equals(Shared.QUIT_GAME) && (args.length == 3))
+	     else if (operation.equals(Shared.QUIT_GAME) && (args.length == 2))
 	     {
 	        // Player quitting game.
-	        String playerName = args[2];
+	        String playerName = args[1];
 	        for (int i = 1; i < playersListBox.getItemCount(); i++)
 	        {
               if ((playersListBox.getItemAt(i)).equals(playerName))
@@ -2012,11 +2032,11 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	        playersJoinedTextBox.setText("" + (playersListBox.getItemCount() - 1));
 	        updatePlayerResources();
 	     }
-	     else if (operation.equals(Shared.CHAT_MESSAGE) && (args.length == 4))
+	     else if (operation.equals(Shared.CHAT_MESSAGE) && (args.length == 3))
 	     {
 	        // Chat from player.
-	        String playerName = args[2];
-	        String chatText   = args[3];
+	        String playerName = args[1];
+	        String chatText   = args[2];
 	        playerChatTextArea.setText(playerChatTextArea.getText() +
 	                                   playerName + ": " + chatText + "\n");
 	     }

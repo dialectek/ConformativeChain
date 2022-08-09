@@ -13,6 +13,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Pattern;
@@ -151,7 +153,10 @@ public class Player extends JFrame implements ActionListener
 
    // Game state.
    private int gameState;
-
+   
+   // Player state.
+   private boolean playerState;
+   
    // Transaction state.
    public enum TRANSACTION_STATE
    {
@@ -507,9 +512,10 @@ public class Player extends JFrame implements ActionListener
       enableUI();
       
       // Initialize state.
-      gameState         = 0;      
       playerName        = "";
-      gameCode          = "";
+      gameCode          = "";      
+      gameState         = 0;
+      playerState       = false;
       claimState        = TRANSACTION_STATE.INACTIVE;
       auditState        = TRANSACTION_STATE.INACTIVE;
       transactionNumber = -1;
@@ -621,7 +627,7 @@ public class Player extends JFrame implements ActionListener
         disableUI();
         if (gameState == Shared.JOINING)
         {
-            if (playerJoinQuitButton.getLabel().equals("Join"))
+            if (!playerState)
             {
 	           // Join.
 	           try
@@ -685,7 +691,12 @@ public class Player extends JFrame implements ActionListener
 	           }       			   
 	        }
         } else {
-        	JOptionPane.showMessageDialog(this, "Cannot quit game after running");        	
+        	if (gameState == 0)
+        	{
+        		JOptionPane.showMessageDialog(this, "Game not found");        		
+        	} else {
+        		JOptionPane.showMessageDialog(this, "Cannot quit game after running"); 
+        	}
         }
         enableUI();
      }
@@ -709,52 +720,41 @@ public class Player extends JFrame implements ActionListener
            JOptionPane.showMessageDialog(this, "Invalid character: " + DelimitedString.DELIMITER);
            return;
         }
-        if (channel == null)
+        if (gameState == 0)
         {
            JOptionPane.showMessageDialog(this, "Please join game!");
            return;
         }
         disableUI();
-        DelimitedString chatRequest = new DelimitedString(Shared.HOST_CHAT);
-        chatRequest.add(gameCode);
-        chatRequest.add(playerName);
-        chatRequest.add(chatText);
-        gameService.requestService(chatRequest.toString(),
-                                   new AsyncCallback<String>()
-                                   {
-                                      public void onFailure(Throwable caught)
-                                      {
-                                         JOptionPane.showMessageDialog(this, "Error sending chat: " + caught.getMessage());
-                                         enableUI();
-                                      }
-
-                                      public void onSuccess(String result)
-                                      {
-                                         if (!Shared.isOK(result))
-                                         {
-                                            if (Shared.isError(result))
-                                            {
-                                               JOptionPane.showMessageDialog(this, result);
-                                            }
-                                            else
-                                            {
-                                               JOptionPane.showMessageDialog(this, "Error sending chat");
-                                            }
-                                         }
-                                         else
-                                         {
-                                            hostChatTextArea.setText(hostChatTextArea.getText() +
-                                                                     playerName + ": " +
-                                                                     hostChatTextBox.getText() + "\n");
-                                            hostChatTextBox.setText("");
-                                         }
-                                         enableUI();
-                                      }
-                                   }
-                                   );
+	    try
+	    {	        
+	        DelimitedString request = new DelimitedString(Shared.PLAYER_CHAT_MESSAGE);
+	        request.add(gameCode);
+	        request.add(playerName);
+	        request.add(chatText);
+		    byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
+		    if (response != null && Shared.isOK(new String(response, StandardCharsets.UTF_8)))
+		    {
+	            hostChatTextArea.setText(hostChatTextArea.getText() +
+	                    playerName + ": " +
+	                    hostChatTextBox.getText() + "\n");
+	            hostChatTextBox.setText("");
+		    } else {
+			   if (response != null)
+			   {
+				   JOptionPane.showMessageDialog(this, "Error sending chat: " + new String(response, StandardCharsets.UTF_8));
+			   } else {
+				   JOptionPane.showMessageDialog(this, "Error sending chat");	   					   
+			   }	   				   
+		    }
+        } catch (Exception e)
+        {
+     	   JOptionPane.showMessageDialog(this, "Error sending chat: " + e.getMessage());	   					     	               
+        } 
+	    enableUI();
      }
 
-     // Send chat to auditors.
+     // Send claimant chat to auditors.
      else if (event.getSource() == auditorChatSendButton)
      {
         String chatText = auditorChatTextBox.getText();
@@ -762,62 +762,51 @@ public class Player extends JFrame implements ActionListener
         {
            return;
         }
-        if (channel == null)
-        {
-           JOptionPane.showMessageDialog(this, "Please create game!");
-           return;
-        }
         if (chatText.contains(DelimitedString.DELIMITER))
         {
            JOptionPane.showMessageDialog(this, "Invalid character: " + DelimitedString.DELIMITER);
            return;
         }
-        if (channel == null)
+        if (gameState == 0)
         {
            JOptionPane.showMessageDialog(this, "Please join game!");
            return;
         }
+        if (transactionNumber == -1)
+        {
+           JOptionPane.showMessageDialog(this, "Invalid transaction");
+           return;
+        }        
         disableUI();
-        DelimitedString chatRequest = new DelimitedString(Shared.AUDITOR_CHAT);
-        chatRequest.add(gameCode);
-        chatRequest.add(transactionNumber);
-        chatRequest.add(chatText);
-        gameService.requestService(chatRequest.toString(),
-                                   new AsyncCallback<String>()
-                                   {
-                                      public void onFailure(Throwable caught)
-                                      {
-                                         JOptionPane.showMessageDialog(this, "Error sending chat: " + caught.getMessage());
-                                         enableUI();
-                                      }
-
-                                      public void onSuccess(String result)
-                                      {
-                                         if (!Shared.isOK(result))
-                                         {
-                                            if (Shared.isError(result))
-                                            {
-                                               JOptionPane.showMessageDialog(this, result);
-                                            }
-                                            else
-                                            {
-                                               JOptionPane.showMessageDialog(this, "Error sending chat");
-                                            }
-                                         }
-                                         else
-                                         {
-                                            auditorChatTextArea.setText(auditorChatTextArea.getText() +
-                                                                        "claimant: " +
-                                                                        auditorChatTextBox.getText() + "\n");
-                                            auditorChatTextBox.setText("");
-                                         }
-                                         enableUI();
-                                      }
-                                   }
-                                   );
+	    try
+	    {	        
+	        DelimitedString request = new DelimitedString(Shared.CLAIMANT_CHAT_MESSAGE);
+	        request.add(gameCode);
+	        request.add(transactionNumber);
+	        request.add(chatText);
+		    byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
+		    if (response != null && Shared.isOK(new String(response, StandardCharsets.UTF_8)))
+		    {
+                auditorChatTextArea.setText(auditorChatTextArea.getText() +
+                        "claimant (" + transactionNumber + "): " +
+                        auditorChatTextBox.getText() + "\n");
+                auditorChatTextBox.setText("");
+		    } else {
+			   if (response != null)
+			   {
+				   JOptionPane.showMessageDialog(this, "Error sending claimant chat: " + new String(response, StandardCharsets.UTF_8));
+			   } else {
+				   JOptionPane.showMessageDialog(this, "Error sending claimant chat");	   					   
+			   }	   				   
+		    }
+        } catch (Exception e)
+        {
+     	   JOptionPane.showMessageDialog(this, "Error sending claimant chat: " + e.getMessage());	   					     	               
+        } 
+	    enableUI();
      }
 
-     // Send chat to claimant.
+     // Send auditor chat to claimant.
      else if (event.getSource() == claimantChatSendButton)
      {
         String chatText = claimantChatTextBox.getText();
@@ -825,59 +814,48 @@ public class Player extends JFrame implements ActionListener
         {
            return;
         }
-        if (channel == null)
-        {
-           JOptionPane.showMessageDialog(this, "Please create game!");
-           return;
-        }
         if (chatText.contains(DelimitedString.DELIMITER))
         {
            JOptionPane.showMessageDialog(this, "Invalid character: " + DelimitedString.DELIMITER);
            return;
         }
-        if (channel == null)
+        if (gameState == 0)
         {
            JOptionPane.showMessageDialog(this, "Please join game!");
            return;
         }
+        if (transactionNumber == -1)
+        {
+           JOptionPane.showMessageDialog(this, "Invalid transaction");
+           return;
+        }              
         disableUI();
-        DelimitedString chatRequest = new DelimitedString(Shared.CLAIMANT_CHAT);
-        chatRequest.add(gameCode);
-        chatRequest.add(transactionNumber);
-        chatRequest.add(chatText);
-        gameService.requestService(chatRequest.toString(),
-                                   new AsyncCallback<String>()
-                                   {
-                                      public void onFailure(Throwable caught)
-                                      {
-                                         JOptionPane.showMessageDialog(this, "Error sending chat: " + caught.getMessage());
-                                         enableUI();
-                                      }
-
-                                      public void onSuccess(String result)
-                                      {
-                                         if (!Shared.isOK(result))
-                                         {
-                                            if (Shared.isError(result))
-                                            {
-                                               JOptionPane.showMessageDialog(this, result);
-                                            }
-                                            else
-                                            {
-                                               JOptionPane.showMessageDialog(this, "Error sending chat");
-                                            }
-                                         }
-                                         else
-                                         {
-                                            claimantChatTextArea.setText(claimantChatTextArea.getText() +
-                                                                         "auditor: " +
-                                                                         claimantChatTextBox.getText() + "\n");
-                                            claimantChatTextBox.setText("");
-                                         }
-                                         enableUI();
-                                      }
-                                   }
-                                   );
+	    try
+	    {	        
+	        DelimitedString request = new DelimitedString(Shared.AUDITOR_CHAT_MESSAGE);
+	        request.add(gameCode);
+	        request.add(transactionNumber);
+	        request.add(chatText);
+		    byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
+		    if (response != null && Shared.isOK(new String(response, StandardCharsets.UTF_8)))
+		    {
+                claimantChatTextArea.setText(claimantChatTextArea.getText() +
+                        "auditor (" + transactionNumber + "): " +
+                        claimantChatTextBox.getText() + "\n");
+                claimantChatTextBox.setText("");
+		    } else {
+			   if (response != null)
+			   {
+				   JOptionPane.showMessageDialog(this, "Error sending auditor chat: " + new String(response, StandardCharsets.UTF_8));
+			   } else {
+				   JOptionPane.showMessageDialog(this, "Error sending auditor chat");	   					   
+			   }	   				   
+		    }
+        } catch (Exception e)
+        {
+     	   JOptionPane.showMessageDialog(this, "Error sending auditor chat: " + e.getMessage());	   					     	               
+        }         
+	    enableUI();
      }
 
      else if (event.getSource() == claimDistributionTestButton)
@@ -1186,35 +1164,33 @@ public class Player extends JFrame implements ActionListener
       homeResourcesEntitledTextBox.setText(doubleToString(entitled));
    }
 
-
    private String doubleToString(double value)
    {
-      NumberFormat decimalFormat = NumberFormat.getFormat(".##");
-
+      DecimalFormat decimalFormat = new DecimalFormat(".##");
       return(decimalFormat.format(value));
    }
-
 
    // Disable UI.
    private void disableUI()
    {
-      playerNameTextBox.setReadOnly(true);
+	  if (!UIinit) return;	   
+      playerNameTextBox.setEditable(false);
       playerJoinQuitButton.setEnabled(false);
-      gameCodeTextBox.setReadOnly(true);
-      hostChatTextBox.setReadOnly(true);
+      gameCodeTextBox.setEditable(false);
+      hostChatTextBox.setEditable(false);
       hostChatSendButton.setEnabled(false);
-      claimResourcesClaimTextBox.setReadOnly(true);
+      claimResourcesClaimTextBox.setEditable(false);
       claimResourcesSetButton.setEnabled(false);
-      claimResourcesDonateTextBox.setReadOnly(true);
-      claimResourcesDonateBeneficiaryTextBox.setReadOnly(true);
+      claimResourcesDonateTextBox.setEditable(false);
+      claimResourcesDonateBeneficiaryTextBox.setEditable(false);
       claimResourcesDonateButton.setEnabled(false);
       claimFinishButton.setEnabled(false);
-      auditorChatTextBox.setReadOnly(true);
+      auditorChatTextBox.setEditable(false);
       auditorChatSendButton.setEnabled(false);
-      auditResourcesGrantTextBox.setReadOnly(true);
+      auditResourcesGrantTextBox.setEditable(false);
       auditResourcesGrantSetButton.setEnabled(false);
       auditFinishButton.setEnabled(false);
-      claimantChatTextBox.setReadOnly(true);
+      claimantChatTextBox.setEditable(false);
       claimantChatSendButton.setEnabled(false);
    }
 
@@ -1222,110 +1198,111 @@ public class Player extends JFrame implements ActionListener
    // Enable UI.
    private void enableUI()
    {
+	  if (!UIinit) return; 
       playerJoinQuitButton.setEnabled(true);
-      if (channel == null)
+      if (gameState == 0)
       {
-         playerNameTextBox.setReadOnly(false);
-         gameCodeTextBox.setReadOnly(false);
-         hostChatTextBox.setReadOnly(true);
+         playerNameTextBox.setEditable(true);
+         gameCodeTextBox.setEditable(true);
+         hostChatTextBox.setEditable(false);
          hostChatSendButton.setEnabled(false);
-         claimResourcesClaimTextBox.setReadOnly(true);
+         claimResourcesClaimTextBox.setEditable(false);
          claimResourcesSetButton.setEnabled(false);
-         claimResourcesDonateTextBox.setReadOnly(true);
-         claimResourcesDonateBeneficiaryTextBox.setReadOnly(true);
+         claimResourcesDonateTextBox.setEditable(false);
+         claimResourcesDonateBeneficiaryTextBox.setEditable(false);
          claimResourcesDonateButton.setEnabled(false);
          claimFinishButton.setEnabled(false);
-         auditorChatTextBox.setReadOnly(true);
+         auditorChatTextBox.setEditable(false);
          auditorChatSendButton.setEnabled(false);
-         auditResourcesGrantTextBox.setReadOnly(true);
+         auditResourcesGrantTextBox.setEditable(false);
          auditResourcesGrantSetButton.setEnabled(false);
          auditFinishButton.setEnabled(false);
-         claimantChatTextBox.setReadOnly(true);
+         claimantChatTextBox.setEditable(false);
          claimantChatSendButton.setEnabled(false);
       }
       else
       {
-         playerNameTextBox.setReadOnly(true);
-         gameCodeTextBox.setReadOnly(true);
-         hostChatTextBox.setReadOnly(false);
+         playerNameTextBox.setEditable(false);
+         gameCodeTextBox.setEditable(false);
+         hostChatTextBox.setEditable(true);
          hostChatSendButton.setEnabled(true);
          switch (claimState)
          {
          case INACTIVE:
-            claimResourcesClaimTextBox.setReadOnly(true);
+            claimResourcesClaimTextBox.setEditable(false);
             claimResourcesSetButton.setEnabled(false);
-            claimResourcesDonateTextBox.setReadOnly(true);
-            claimResourcesDonateBeneficiaryTextBox.setReadOnly(true);
+            claimResourcesDonateTextBox.setEditable(false);
+            claimResourcesDonateBeneficiaryTextBox.setEditable(false);
             claimResourcesDonateButton.setEnabled(false);
             claimFinishButton.setEnabled(false);
-            auditorChatTextBox.setReadOnly(true);
+            auditorChatTextBox.setEditable(false);
             auditorChatSendButton.setEnabled(false);
             break;
 
          case PENDING:
-            claimResourcesClaimTextBox.setReadOnly(false);
+            claimResourcesClaimTextBox.setEditable(true);
             claimResourcesSetButton.setEnabled(true);
-            claimResourcesDonateTextBox.setReadOnly(true);
-            claimResourcesDonateBeneficiaryTextBox.setReadOnly(true);
+            claimResourcesDonateTextBox.setEditable(false);
+            claimResourcesDonateBeneficiaryTextBox.setEditable(false);
             claimResourcesDonateButton.setEnabled(false);
             claimFinishButton.setEnabled(false);
-            auditorChatTextBox.setReadOnly(true);
+            auditorChatTextBox.setEditable(false);
             auditorChatSendButton.setEnabled(false);
             break;
 
          case WAITING:
-            claimResourcesClaimTextBox.setReadOnly(true);
+            claimResourcesClaimTextBox.setEditable(false);
             claimResourcesSetButton.setEnabled(false);
-            claimResourcesDonateTextBox.setReadOnly(true);
-            claimResourcesDonateBeneficiaryTextBox.setReadOnly(true);
+            claimResourcesDonateTextBox.setEditable(false);
+            claimResourcesDonateBeneficiaryTextBox.setEditable(false);
             claimResourcesDonateButton.setEnabled(false);
             claimFinishButton.setEnabled(false);
-            auditorChatTextBox.setReadOnly(false);
+            auditorChatTextBox.setEditable(true);
             auditorChatSendButton.setEnabled(true);
             break;
 
          case FINISHED:
-            claimResourcesClaimTextBox.setReadOnly(true);
+            claimResourcesClaimTextBox.setEditable(false);
             claimResourcesSetButton.setEnabled(false);
-            claimResourcesDonateTextBox.setReadOnly(false);
-            claimResourcesDonateBeneficiaryTextBox.setReadOnly(false);
+            claimResourcesDonateTextBox.setEditable(true);
+            claimResourcesDonateBeneficiaryTextBox.setEditable(true);
             claimResourcesDonateButton.setEnabled(true);
             claimFinishButton.setEnabled(true);
-            auditorChatTextBox.setReadOnly(false);
+            auditorChatTextBox.setEditable(true);
             auditorChatSendButton.setEnabled(true);
             break;
          }
          switch (auditState)
          {
          case INACTIVE:
-            auditResourcesGrantTextBox.setReadOnly(true);
+            auditResourcesGrantTextBox.setEditable(false);
             auditResourcesGrantSetButton.setEnabled(false);
             auditFinishButton.setEnabled(false);
-            claimantChatTextBox.setReadOnly(true);
+            claimantChatTextBox.setEditable(false);
             claimantChatSendButton.setEnabled(false);
             break;
 
          case PENDING:
-            auditResourcesGrantTextBox.setReadOnly(false);
+            auditResourcesGrantTextBox.setEditable(true);
             auditResourcesGrantSetButton.setEnabled(true);
             auditFinishButton.setEnabled(false);
-            claimantChatTextBox.setReadOnly(false);
+            claimantChatTextBox.setEditable(true);
             claimantChatSendButton.setEnabled(true);
             break;
 
          case WAITING:
-            auditResourcesGrantTextBox.setReadOnly(true);
+            auditResourcesGrantTextBox.setEditable(false);
             auditResourcesGrantSetButton.setEnabled(false);
             auditFinishButton.setEnabled(false);
-            claimantChatTextBox.setReadOnly(false);
+            claimantChatTextBox.setEditable(true);
             claimantChatSendButton.setEnabled(true);
             break;
 
          case FINISHED:
-            auditResourcesGrantTextBox.setReadOnly(true);
+            auditResourcesGrantTextBox.setEditable(false);
             auditResourcesGrantSetButton.setEnabled(false);
             auditFinishButton.setEnabled(true);
-            claimantChatTextBox.setReadOnly(false);
+            claimantChatTextBox.setEditable(true);
             claimantChatSendButton.setEnabled(true);
             break;
          }
@@ -1336,12 +1313,13 @@ public class Player extends JFrame implements ActionListener
    // Synchronize player with network.
    private void syncPlayer()
    {
-	   if (Shared.isVoid(gameCode)) return;
+	   if (Shared.isVoid(gameCode) || Shared.isVoid(playerName)) return;
 	    disableUI(); 
    		try
    		{
-   	       	DelimitedString request = new DelimitedString(Shared.SYNC_GAME);
+   	       	DelimitedString request = new DelimitedString(Shared.SYNC_PLAYER);
    	        request.add(gameCode);
+   	        request.add(playerName);
    			if (transactionNumber != -1)
    			{
    				request.add(transactionNumber);
@@ -1351,9 +1329,9 @@ public class Player extends JFrame implements ActionListener
    	   		{
    	   			if (response == null)
    	   			{  	 
-   	   				JOptionPane.showMessageDialog(this, "Cannot sync game");
+   	   				JOptionPane.showMessageDialog(this, "Cannot sync player");
    	   			} else {
-   	   				JOptionPane.showMessageDialog(this, "Cannot sync game: " + new String(response, StandardCharsets.UTF_8));  	   				
+   	   				JOptionPane.showMessageDialog(this, "Cannot sync player: " + new String(response, StandardCharsets.UTF_8));  	   				
    	   			}
    	   		} else {
    	   			String[] args = new DelimitedString(new String(response, StandardCharsets.UTF_8)).parse();
@@ -1362,30 +1340,33 @@ public class Player extends JFrame implements ActionListener
    	   				gameState = Integer.parseInt(args[1]);
    	   			} catch (Exception e)
    	   			{
-   	   				JOptionPane.showMessageDialog(this, "Error syncing game: " + e.getMessage());
+   	   				JOptionPane.showMessageDialog(this, "Error syncing player: " + e.getMessage());
    	   				gameState = 0;
+   	   				playerState = false;
    	   			}
    	   			if (gameState != 0)
    	   			{
-   	   				int i = 2;
-   	   	            gameResourcesTextBox.setText(args[i]); 
-   	   	            i++;
-   	   	            playerTotalResourceTextBox.setText(args[i]);
-   	   	            i++;
-                    playersJoinedTextBox.setText(args[i]); 
-                    int n = Integer.parseInt(args[i]);
-                    i++;
-                    playersListBox.removeAll();
-                    for (int j = 0; j < n; j++)
-                    {
-                    	playersListBox.addItem(args[i + j]);
-                    } 
+   	   				if (Integer.parseInt(args[2]) == 1)
+   	   				{
+   	   					playerState = true;
+   	   				} else {
+   	   					playerState = false;
+   	   				}
+   	   				if (playerState)
+   	   				{
+	   	   	            // Set player resources.
+	   	   	            double personalResources = Double.parseDouble(args[3]);
+	   	   	            double commonResources   = Double.parseDouble(args[4]);
+	   	   	            double entitledResources = Double.parseDouble(args[5]);
+	   	   	            showHomeResources(personalResources, commonResources, entitledResources);   	   					
+	                    // TODO: process transaction.
+   	   				}
    	   			}
    	   		}
    		}
    		catch(Exception e)
    		{
-   			JOptionPane.showMessageDialog(this, "Cannot sync game");
+   			JOptionPane.showMessageDialog(this, "Cannot sync player: " + e.getMessage());
    		}
    		enableUI();
    }
@@ -1393,11 +1374,12 @@ public class Player extends JFrame implements ActionListener
    // Synchronize player with messages.
    private void syncMessages()
    {
-	    if (Shared.isVoid(gameCode)) return;
+	   if (Shared.isVoid(gameCode) || Shared.isVoid(playerName)) return;
    		try
    		{
-            DelimitedString request = new DelimitedString(Shared.HOST_GET_MESSAGES);
-            request.add(gameCode);     	       	
+            DelimitedString request = new DelimitedString(Shared.PLAYER_GET_MESSAGES);
+            request.add(gameCode);
+            request.add(playerName);
 			byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
    	   		if (response != null)
    	   		{
@@ -1413,6 +1395,7 @@ public class Player extends JFrame implements ActionListener
    	   				}
    	   			} else {
    	   				gameState = 0;
+   	   				playerState = false;
    	   				enableUI();
    	   			}
    	   		}
@@ -1430,6 +1413,7 @@ public class Player extends JFrame implements ActionListener
      if (Shared.isError(messages))
      {
     	 gameState = 0;
+    	 playerState = false;
     	 return;
      }    
      String[] fields = messages.split(DelimitedString.DELIMITER);
@@ -1457,27 +1441,7 @@ public class Player extends JFrame implements ActionListener
     	 }
     	 n += (c + 1);
     	 String operation = args[0];
-    	 String gameCode = args[1];
-         if (operation.equals(Shared.QUIT_GAME) && (args.length == 2))
-         {
-            // Forced quit.
-            disableUI();
-            if (channelSocket != null)
-            {
-               channelSocket.close();
-            }
-            channel = null;
-            playerJoinQuitButton.setText("Join");
-            clearHomeResources();
-            roleTabPanel.selectTab(HOME_TAB);
-            roleTabBar.setTabEnabled(CLAIM_TAB, false);
-            roleTabBar.setTabEnabled(AUDIT_TAB, false);
-            claimState = TRANSACTION_STATE.INACTIVE;
-            auditState = TRANSACTION_STATE.INACTIVE;
-            JOptionPane.showMessageDialog(this, args[1]);
-            enableUI();
-         }
-         else if (operation.equals(Shared.SET_PLAYER_RESOURCES) && (args.length == 4))
+         if (operation.equals(Shared.SET_PLAYER_RESOURCES) && (args.length == 4))
          {
             // Set player resources.
             double personalResources = Double.parseDouble(args[1]);
@@ -1485,51 +1449,28 @@ public class Player extends JFrame implements ActionListener
             double entitledResources = Double.parseDouble(args[3]);
             showHomeResources(personalResources, commonResources, entitledResources);
          }
-         else if (operation.equals(Shared.PLAYER_CHAT) &&
-                  ((args.length == 3) || (args.length == 4)))
+         else if (operation.equals(Shared.CHAT_MESSAGE) && (args.length == 2))
          {
             // Chat from host.
-            if (args.length == 3)
-            {
-               String chatText = args[2];
-               hostChatTextArea.setText(
-                  hostChatTextArea.getText() + "host: " + chatText + "\n");
-            }
-            else
-            {
-               String chatText = args[3];
-               hostChatTextArea.setText(
-                  hostChatTextArea.getText() + "host: " + chatText + "\n");
-            }
+           String chatText = args[1];
+           hostChatTextArea.setText(
+              hostChatTextArea.getText() + "host: " + chatText + "\n");
          }
-         else if (operation.equals(Shared.PLAYER_ALERT) &&
-                  ((args.length == 3) || (args.length == 4)))
-         {
-            // Alert from host.
-            if (args.length == 3)
-            {
-               String alertText = args[2];
-               JOptionPane.showMessageDialog(this, "host: " + alertText);
-            }
-            else
-            {
-               String alertText = args[3];
-               JOptionPane.showMessageDialog(this, "host: " + alertText);
-            }
-         }
-         else if (operation.equals(Shared.CLAIMANT_CHAT) && (args.length == 4))
+         else if (operation.equals(Shared.AUDITOR_CHAT_MESSAGE) && (args.length == 3))
          {
             // Chat from auditor.
-            String chatText = args[3];
-            auditorChatTextArea.setText(
-               auditorChatTextArea.getText() + "auditor: " + chatText + "\n");
+        	String transactionNumber = args[1];
+            String chatText = args[2];
+            claimantChatTextArea.setText(
+               claimantChatTextArea.getText() + "auditor (" + transactionNumber + "): " + chatText + "\n");
          }
-         else if (operation.equals(Shared.AUDITOR_CHAT) && (args.length == 4))
+         else if (operation.equals(Shared.CLAIMANT_CHAT_MESSAGE) && (args.length == 3))
          {
             // Chat from claimant.
-            String chatText = args[3];
-            claimantChatTextArea.setText(
-               claimantChatTextArea.getText() + "claimant: " + chatText + "\n");
+        	String transactionNumber = args[1];
+            String chatText = args[2];
+            auditorChatTextArea.setText(
+               auditorChatTextArea.getText() + "claimant (" + transactionNumber + "): " + chatText + "\n");
          }
          else if (operation.equals(Shared.START_CLAIM) && (args.length == 6))
          {
@@ -1552,8 +1493,8 @@ public class Player extends JFrame implements ActionListener
                claimResourcesEntitledPerPlayerTextBox.setText("");
             }
             claimResourcesEntitledNumPlayersTextBox.setText(numPlayers + "");
-            roleTabBar.setTabEnabled(CLAIM_TAB, true);
-            roleTabPanel.selectTab(CLAIM_TAB);
+            roleTabPanel.setEnabledAt(CLAIM_TAB, true);
+            roleTabPanel.setSelectedIndex(CLAIM_TAB);
             claimState = TRANSACTION_STATE.PENDING;
             enableUI();
          }
@@ -1579,8 +1520,8 @@ public class Player extends JFrame implements ActionListener
                auditResourcesClaimPerPlayerTextBox.setText("");
             }
             auditResourcesClaimNumPlayersTextBox.setText(numPlayers + "");
-            roleTabBar.setTabEnabled(AUDIT_TAB, true);
-            roleTabPanel.selectTab(AUDIT_TAB);
+            roleTabPanel.setEnabledAt(AUDIT_TAB, true);
+            roleTabPanel.setSelectedIndex(AUDIT_TAB);            
             auditState = TRANSACTION_STATE.PENDING;
             enableUI();
          }
@@ -1659,8 +1600,8 @@ public class Player extends JFrame implements ActionListener
                claimDistribution.setSigma(NormalDistribution.DEFAULT_SIGMA);
                claimDistribution.draw();
                auditorChatTextBox.setText("");
-               roleTabPanel.selectTab(HOME_TAB);
-               roleTabBar.setTabEnabled(CLAIM_TAB, false);
+               roleTabPanel.setSelectedIndex(HOME_TAB);
+               roleTabPanel.setEnabledAt(CLAIM_TAB, false);
                claimState = TRANSACTION_STATE.INACTIVE;
             }
             if (auditState != TRANSACTION_STATE.INACTIVE)
@@ -1678,8 +1619,8 @@ public class Player extends JFrame implements ActionListener
                auditDistribution.setSigma(NormalDistribution.DEFAULT_SIGMA);
                auditDistribution.draw();
                claimantChatTextBox.setText("");
-               roleTabPanel.selectTab(HOME_TAB);
-               roleTabBar.setTabEnabled(AUDIT_TAB, false);
+               roleTabPanel.setSelectedIndex(HOME_TAB);
+               roleTabPanel.setEnabledAt(AUDIT_TAB, false);
                auditState = TRANSACTION_STATE.INACTIVE;
             }
             double personalResources = Double.parseDouble(args[2]);
@@ -1708,8 +1649,8 @@ public class Player extends JFrame implements ActionListener
                claimDistribution.setSigma(NormalDistribution.DEFAULT_SIGMA);
                claimDistribution.draw();
                auditorChatTextBox.setText("");
-               roleTabPanel.selectTab(HOME_TAB);
-               roleTabBar.setTabEnabled(CLAIM_TAB, false);
+               roleTabPanel.setSelectedIndex(HOME_TAB);
+               roleTabPanel.setEnabledAt(CLAIM_TAB, false);
                claimState = TRANSACTION_STATE.INACTIVE;
             }
             if (auditState != TRANSACTION_STATE.INACTIVE)
@@ -1727,8 +1668,8 @@ public class Player extends JFrame implements ActionListener
                auditDistribution.setSigma(NormalDistribution.DEFAULT_SIGMA);
                auditDistribution.draw();
                claimantChatTextBox.setText("");
-               roleTabPanel.selectTab(HOME_TAB);
-               roleTabBar.setTabEnabled(AUDIT_TAB, false);
+               roleTabPanel.setSelectedIndex(HOME_TAB);
+               roleTabPanel.setEnabledAt(AUDIT_TAB, false);
                auditState = TRANSACTION_STATE.INACTIVE;
             }
             JOptionPane.showMessageDialog(this, "Transaction aborted!");
