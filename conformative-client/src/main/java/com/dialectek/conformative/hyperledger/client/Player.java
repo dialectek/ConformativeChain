@@ -11,7 +11,6 @@ import java.awt.TextArea;
 import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.Date;
@@ -920,36 +919,27 @@ public class Player extends JFrame implements ActionListener
         claimState = TRANSACTION_STATE.WAITING;
         claimResourcesGrantTextBox.setText("waiting");
         disableUI();
-        DelimitedString claimRequest = new DelimitedString(Shared.SET_CLAIM);
-        claimRequest.add(gameCode);
-        claimRequest.add(transactionNumber);
-        claimRequest.add(claim);
-        gameService.requestService(claimRequest.toString(),
-                                   new AsyncCallback<String>()
-                                   {
-                                      public void onFailure(Throwable caught)
-                                      {
-                                         JOptionPane.showMessageDialog(this, "Error sending claim: " + caught.getMessage());
-                                         enableUI();
-                                      }
-
-                                      public void onSuccess(String result)
-                                      {
-                                         if (!Shared.isOK(result))
-                                         {
-                                            if (Shared.isError(result))
-                                            {
-                                               JOptionPane.showMessageDialog(this, result);
-                                            }
-                                            else
-                                            {
-                                               JOptionPane.showMessageDialog(this, "Error sending claim");
-                                            }
-                                         }
-                                         enableUI();
-                                      }
-                                   }
-                                   );
+	    try
+	    {	        
+	        DelimitedString request = new DelimitedString(Shared.SET_CLAIM);
+	        request.add(gameCode);
+	        request.add(transactionNumber);
+	        request.add(claim);
+		    byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
+		    if (response == null || Shared.isError(new String(response, StandardCharsets.UTF_8)))
+		    {
+			   if (response != null)
+			   {
+				   JOptionPane.showMessageDialog(this, "Error sending claim: " + new String(response, StandardCharsets.UTF_8));
+			   } else {
+				   JOptionPane.showMessageDialog(this, "Error sending claim");	   					   
+			   }	   				   
+		    }
+        } catch (Exception e)
+        {
+     	   JOptionPane.showMessageDialog(this, "Error sending claim: " + e.getMessage());	   					     	               
+        }         
+	    enableUI();        
      }
      else if (event.getSource() == auditResourcesGrantSetButton)
      {
@@ -988,37 +978,28 @@ public class Player extends JFrame implements ActionListener
         auditState = TRANSACTION_STATE.WAITING;
         auditResourcesConsensusTextBox.setText("waiting");
         disableUI();
-        DelimitedString grantRequest = new DelimitedString(Shared.SET_GRANT);
-        grantRequest.add(gameCode);
-        grantRequest.add(transactionNumber);
-        grantRequest.add(grant);
-        grantRequest.add(playerNameTextBox.getText());
-        gameService.requestService(grantRequest.toString(),
-                                   new AsyncCallback<String>()
-                                   {
-                                      public void onFailure(Throwable caught)
-                                      {
-                                         JOptionPane.showMessageDialog(this, "Error sending grant: " + caught.getMessage());
-                                         enableUI();
-                                      }
-
-                                      public void onSuccess(String result)
-                                      {
-                                         if (!Shared.isOK(result))
-                                         {
-                                            if (Shared.isError(result))
-                                            {
-                                               JOptionPane.showMessageDialog(this, result);
-                                            }
-                                            else
-                                            {
-                                               JOptionPane.showMessageDialog(this, "Error sending grant");
-                                            }
-                                         }
-                                         enableUI();
-                                      }
-                                   }
-                                   );
+	    try
+	    {	        
+	        DelimitedString request = new DelimitedString(Shared.SET_GRANT);
+	        request.add(gameCode);
+	        request.add(transactionNumber);
+	        request.add(grant);
+	        request.add(playerNameTextBox.getText());
+		    byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
+		    if (response == null || Shared.isError(new String(response, StandardCharsets.UTF_8)))
+		    {
+			   if (response != null)
+			   {
+				   JOptionPane.showMessageDialog(this, "Error sending grant: " + new String(response, StandardCharsets.UTF_8));
+			   } else {
+				   JOptionPane.showMessageDialog(this, "Error sending grant");	   					   
+			   }	   				   
+		    }
+        } catch (Exception e)
+        {
+     	   JOptionPane.showMessageDialog(this, "Error sending grant: " + e.getMessage());	   					     	               
+        }         
+	    enableUI();             
      }
      else if (event.getSource() == claimResourcesDonateButton)
      {
@@ -1053,42 +1034,31 @@ public class Player extends JFrame implements ActionListener
            return;
         }
         disableUI();
-        DelimitedString donationRequest = new DelimitedString(Shared.SET_DONATION);
-        donationRequest.add(gameCode);
-        donationRequest.add(transactionNumber);
-        donationRequest.add(donation);
-        donationRequest.add(beneficiary);
-        gameService.requestService(donationRequest.toString(),
-                                   new AsyncCallback<String>()
-                                   {
-                                      public void onFailure(Throwable caught)
-                                      {
-                                         JOptionPane.showMessageDialog(this, "Error sending donation: " + caught.getMessage());
-                                         enableUI();
-                                      }
-
-                                      public void onSuccess(String result)
-                                      {
-                                         if (!Shared.isOK(result))
-                                         {
-                                            if (Shared.isError(result))
-                                            {
-                                               JOptionPane.showMessageDialog(this, result);
-                                            }
-                                            else
-                                            {
-                                               JOptionPane.showMessageDialog(this, "Error sending donation");
-                                            }
-                                         }
-                                         else
-                                         {
-                                            claimResourcesDonateTextBox.setText("");
-                                            claimResourcesDonateBeneficiaryTextBox.setText("");
-                                         }
-                                         enableUI();
-                                      }
-                                   }
-                                   );
+	    try
+	    {	        
+	        DelimitedString request = new DelimitedString(Shared.SET_DONATION);
+	        request.add(gameCode);
+	        request.add(transactionNumber);
+	        request.add(donation);
+	        request.add(beneficiary);
+		    byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
+		    if (response != null && Shared.isOK(new String(response, StandardCharsets.UTF_8)))
+		    {
+                claimResourcesDonateTextBox.setText("");
+                claimResourcesDonateBeneficiaryTextBox.setText("");	
+		    } else {
+			   if (response != null)
+			   {
+				   JOptionPane.showMessageDialog(this, "Error sending donation: " + new String(response, StandardCharsets.UTF_8));
+			   } else {
+				   JOptionPane.showMessageDialog(this, "Error sending donation");	   					   
+			   }	   				   
+		    }
+        } catch (Exception e)
+        {
+     	   JOptionPane.showMessageDialog(this, "Error sending donation: " + e.getMessage());	   					     	               
+        }         
+	    enableUI();            
      }
      else if ((event.getSource() == claimFinishButton) || (event.getSource() == auditFinishButton))
      {
@@ -1101,36 +1071,27 @@ public class Player extends JFrame implements ActionListener
            auditState = TRANSACTION_STATE.WAITING;
         }
         disableUI();
-        DelimitedString finishRequest = new DelimitedString(Shared.FINISH_TRANSACTION);
-        finishRequest.add(gameCode);
-        finishRequest.add(transactionNumber);
-        finishRequest.add(playerNameTextBox.getText());
-        gameService.requestService(finishRequest.toString(),
-                                   new AsyncCallback<String>()
-                                   {
-                                      public void onFailure(Throwable caught)
-                                      {
-                                         JOptionPane.showMessageDialog(this, "Error sending finish: " + caught.getMessage());
-                                         enableUI();
-                                      }
-
-                                      public void onSuccess(String result)
-                                      {
-                                         if (!Shared.isOK(result))
-                                         {
-                                            if (Shared.isError(result))
-                                            {
-                                               JOptionPane.showMessageDialog(this, result);
-                                            }
-                                            else
-                                            {
-                                               JOptionPane.showMessageDialog(this, "Error sending finish");
-                                            }
-                                         }
-                                         enableUI();
-                                      }
-                                   }
-                                   );
+	    try
+	    {	        
+	        DelimitedString request = new DelimitedString(Shared.FINISH_TRANSACTION);
+	        request.add(gameCode);
+	        request.add(transactionNumber);
+	        request.add(playerNameTextBox.getText());
+		    byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
+		    if (response == null || Shared.isError(new String(response, StandardCharsets.UTF_8)))
+		    {
+			   if (response != null)
+			   {
+				   JOptionPane.showMessageDialog(this, "Error sending finish: " + new String(response, StandardCharsets.UTF_8));
+			   } else {
+				   JOptionPane.showMessageDialog(this, "Error sending finish");	   					   
+			   }	   				   
+		    }
+        } catch (Exception e)
+        {
+     	   JOptionPane.showMessageDialog(this, "Error sending finish: " + e.getMessage());	   					     	               
+        }         
+	    enableUI();         
      }
    }
 
