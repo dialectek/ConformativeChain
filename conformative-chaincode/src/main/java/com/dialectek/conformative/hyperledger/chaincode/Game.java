@@ -3,40 +3,37 @@
 package com.dialectek.conformative.hyperledger.chaincode;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.regex.Pattern;
-
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
-
 import com.dialectek.conformative.hyperledger.shared.DelimitedString;
 import com.dialectek.conformative.hyperledger.shared.Shared;
 import com.owlike.genson.annotation.JsonProperty;
 
 @DataType()
 public class Game
-{
-	
+{	
    @Property()
-   private final String code;
+   public final String code;
 
    @Property()
-   private final double initialCommonResources;
+   public final double initialCommonResources;
 
    @Property()
-   private double commonResources;
+   public double commonResources;
    
    @Property()
-   private ArrayList<String> playerNames;
+   public String[] playerNames;
    
    @Property()
-   private int state;
+   public int state;
 
    @Property()
-   private int transactionCount;
+   public int transactionCount;
    
    @Property()
-   private ArrayList<String> messages;
+   public String[] messages;
    
    public Game(@JsonProperty("code") final String code, 
            @JsonProperty("initialCommonResources") final double initialCommonResources) throws Exception 
@@ -52,8 +49,8 @@ public class Game
 		  throw new Exception("Invalid initial common resources");
 	  }      
       commonResources             = initialCommonResources;
-      playerNames = new ArrayList<String>();
-      messages = new ArrayList<String>();
+      playerNames = new String[0];
+      messages = new String[0];
       state = Shared.PENDING;
       transactionCount = 0;
    }
@@ -84,12 +81,17 @@ public class Game
 
    public ArrayList<String> getPlayerNames()
    {
-      return(playerNames);
+	  ArrayList<String> results = new ArrayList<String>();
+	  for (String name: playerNames)
+	  {
+		  results.add(name);
+	  }
+      return results;
    }
 
    public void clearPlayerNames()
    {
-      playerNames.clear();
+      playerNames = new String[0];
    }
    
    public boolean addPlayerName(String name)
@@ -113,22 +115,46 @@ public class Game
 	  {
 		  if (s.equals(name)) return false;
 	  }
-	  playerNames.add(name);
-	  Collections.sort(playerNames);
+	  int n = playerNames.length;
+	  String[] tmp = new String[n + 1];
+	  for (int i = 0; i < n; i++)
+	  {
+		  tmp[i] = playerNames[i];
+	  }
+	  tmp[n] = name;
+      playerNames = tmp;
+	  Arrays.sort(playerNames);
 	  return true;
    }
 
    public boolean removePlayerName(String name)
    {
-	  for (String s : playerNames)
+	  int n = playerNames.length;
+	  int i = 0;
+	  for (; i < n; i++)
 	  {
-		  if (s.equals(name))
+		  if (playerNames[i].equals(name))
 		  {
-			  playerNames.remove(s);
-			  return true;
+			  break;
 		  }
 	  }
-	  return false;
+	  if (i < n)
+	  {
+		  String[] tmp = new String[n - 1];
+		  i = 0;
+		  for (int j = 0; i < n; i++)
+		  {
+			  if (!playerNames[i].equals(name))
+			  {
+				  tmp[j] = playerNames[i];
+				  j++;
+			  }
+		  }		  
+		  playerNames = tmp;
+		  return true;
+	  } else {
+		  return false;
+	  }
    }
    
    public int getState()
@@ -159,16 +185,28 @@ public class Game
    
    public void addMessage(String message)
    {
-      messages.add(message);
+	  int n = messages.length;
+	  String[] tmp = new String[n + 1];
+	  for (int i = 0; i < n; i++)
+	  {
+		  tmp[i] = messages[i];
+	  }
+	  tmp[n] = message;
+      messages = tmp;
    }
 
    public ArrayList<String> getMessages()
    {
-      return messages;
+	  ArrayList<String> results = new ArrayList<String>();
+	  for (String message: messages)
+	  {
+		  results.add(message);
+	  }
+      return results;
    }
    
    public void clearMessages()
    {
-      messages.clear();
+      messages = new String[0];
    }           
 }

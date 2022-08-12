@@ -88,7 +88,7 @@ public final class GameService implements ContractInterface
          if ((request.equals(Shared.SYNC_PLAYER) ||
         	  request.equals(Shared.JOIN_GAME) || 
               request.equals(Shared.QUIT_GAME) ||
-              request.equals(Shared.PLAYER_GET_MESSAGES) ||
+              request.equals(Shared.PLAYER_SYNC_MESSAGES) ||
               request.equals(Shared.PLAYER_CHAT_MESSAGE) ||             
               request.equals(Shared.PLAYER_CLEAR_MESSAGES)) &&     		 
              (args.length >= 3))
@@ -104,7 +104,7 @@ public final class GameService implements ContractInterface
 	               player = null;
 	            }
             }
-            if (request.equals(Shared.SYNC_PLAYER) && (args.length == 3) || args.length == 4)
+            if (request.equals(Shared.SYNC_PLAYER) && (args.length == 3 || args.length == 4))
             {
             	// Synchronize player.
             	if (game != null)
@@ -115,7 +115,7 @@ public final class GameService implements ContractInterface
 	                    response.add(game.getState());
 	                    response.add(1);
 	                    response.add(player.getPersonalResources());
-	                    response.add(game.getCommonResources());
+	                    response.add(game.getCommonResources() / (double)players.size());
 	                    response.add(player.getEntitledResources());                     
 	                    if (args.length == 4)
 	                    {
@@ -185,6 +185,42 @@ public final class GameService implements ContractInterface
                     return(response.toString());            		
             	}
             }
+            else if (request.equals(Shared.PLAYER_SYNC_MESSAGES) && (args.length == 3))
+            {
+               // Get status and messages.
+               if (game == null)
+               {
+                	 DelimitedString response = new DelimitedString(Shared.OK);
+                  	 response.add(0);
+                  	 response.add(0);
+                     return(response.toString());            	   
+               } else {
+	               if (player != null)
+	               {
+	            	 DelimitedString response = new DelimitedString(Shared.OK);
+	            	 response.add(game.getState());
+	            	 response.add(1);
+	            	 ArrayList<String> messages = player.getMessages();
+	            	 if (messages.size() > 0)
+	            	 {
+		            	 for (String message : messages)
+		            	 {
+		            		 response.add(message);
+		            		 response.add(Shared.MESSAGE_DELIMITER);
+		            	 } 
+		            	 player.clearMessages();
+		                 String playerJson = genson.serialize(player);
+		                 stub.putStringState(gameCode + DelimitedString.DELIMITER + playerName, playerJson);
+	            	 }
+	                 return(response.toString());
+	               } else {
+	              	 DelimitedString response = new DelimitedString(Shared.OK);
+	              	 response.add(game.getState());
+	              	 response.add(0);
+	                 return(response.toString());            	   
+	               }
+               }
+            }
             else if (game == null)
             {
                 return(Shared.error("game not found: " + gameCode));            	
@@ -208,7 +244,7 @@ public final class GameService implements ContractInterface
 	                     stub.putStringState(gameCode + DelimitedString.DELIMITER + playerName, playerJson);
                     	 DelimitedString response = new DelimitedString(Shared.OK);
                     	 response.add(player.getPersonalResources());
-                    	 response.add(game.getCommonResources());
+                    	 response.add(game.getCommonResources() / (double)game.getPlayerNames().size());
                     	 response.add(player.getEntitledResources());
 	                     return(response.toString());
                 	 } else {
@@ -247,29 +283,6 @@ public final class GameService implements ContractInterface
                   }
                } else {
             	   return(Shared.OK);
-               }
-            }
-            else if (request.equals(Shared.PLAYER_GET_MESSAGES) && (args.length == 3))
-            {
-               // Get player messages.
-               if (player != null)
-               {
-            	 DelimitedString response = new DelimitedString(Shared.OK);
-            	 ArrayList<String> messages = player.getMessages();
-            	 if (messages.size() > 0)
-            	 {
-	            	 for (String message : messages)
-	            	 {
-	            		 response.add(message);
-	            		 response.add(Shared.MESSAGE_DELIMITER);
-	            	 } 
-	            	 player.clearMessages();
-	                 String playerJson = genson.serialize(player);
-	                 stub.putStringState(gameCode + DelimitedString.DELIMITER + playerName, playerJson);
-            	 }
-                 return(response.toString());
-               } else {
-                   return(Shared.error("player not found: " + playerName));            	   
                }
             }
             else if (request.equals(Shared.PLAYER_CHAT_MESSAGE) && (args.length == 4))
@@ -524,7 +537,7 @@ public final class GameService implements ContractInterface
                         {
                            DelimitedString response = new DelimitedString(Shared.OK);
                            response.add(player.getPersonalResources());
-                           response.add(commonResources / players.size());
+                           response.add(commonResources / (double)players.size());
                            response.add(player.getEntitledResources());
                            return(response.toString());
                         }
@@ -537,11 +550,12 @@ public final class GameService implements ContractInterface
                   return(Shared.error("game code not found: " + gameCode));
                }
             }
-            else if (request.equals(Shared.HOST_GET_MESSAGES) && (args.length == 2))
+            else if (request.equals(Shared.HOST_SYNC_MESSAGES) && (args.length == 2))
             { 
             	if (game != null)
             	{
                   	 DelimitedString response = new DelimitedString(Shared.OK);
+                  	 response.add(game.getState());
                 	 ArrayList<String> messages = game.getMessages();
                 	 if (messages.size() > 0)
                 	 {
@@ -556,11 +570,12 @@ public final class GameService implements ContractInterface
                 	 }
                 	 return response.toString();
             	} else {
-             	   return(Shared.error("game code not found: " + gameCode));            		
+                 	 DelimitedString response = new DelimitedString(Shared.OK);
+                 	 response.add(0);
+                	 return response.toString();                 	 
             	}
             }
-            else if (request.equals(Shared.HOST_CHAT_MESSAGE) &&
-                     ((args.length == 3) || (args.length == 4)))
+            else if (request.equals(Shared.HOST_CHAT_MESSAGE) && (args.length == 3 || args.length == 4))
             {
                // Relay message from host to player(s).
                if (game != null)

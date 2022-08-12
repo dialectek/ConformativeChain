@@ -230,20 +230,22 @@ public class Player extends JFrame implements ActionListener
       roleTabPanel.add(homePanel, "Home");
       playerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       homePanel.add(playerPanel);
-      playerNameLabel = newLabel("Name:");      
+      playerNameLabel = newLabel("Player name:");      
       playerPanel.add(playerNameLabel);
       playerNameTextBox = new TextField(30);
       playerNameTextBox.setEditable(false);
+      playerNameTextBox.setText(playerName);
       playerPanel.add(playerNameTextBox);
       playerJoinQuitButton = new Button("Join");
       playerJoinQuitButton.addActionListener(this);
       playerPanel.add(playerJoinQuitButton);
       gameCodePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       homePanel.add(gameCodePanel);
-      gameCodeLabel = newLabel("Code:");
+      gameCodeLabel = newLabel("Game code:  ");
       gameCodePanel.add(gameCodeLabel);
       gameCodeTextBox = new TextField(30);
       gameCodeTextBox.setEditable(false);
+      gameCodeTextBox.setText(gameCode);
       gameCodePanel.add(gameCodeTextBox);
       homeResourcesCaptionPanel = new JPanel();
       homeResourcesCaptionPanel.setBorder(BorderFactory.createTitledBorder("Resources"));
@@ -589,40 +591,6 @@ public class Player extends JFrame implements ActionListener
      // Join/quit game.
      if (event.getSource() == playerJoinQuitButton)
      {
-        playerName = playerNameTextBox.getText();
-        if (Shared.isVoid(playerName))
-        {
-           JOptionPane.showMessageDialog(this, "Please enter name");
-           playerName = "";
-           return;
-        }
-        if (playerName.contains(DelimitedString.DELIMITER))
-        {
-           JOptionPane.showMessageDialog(this, "Invalid name character: " + DelimitedString.DELIMITER);
-           playerName = "";
-           return;
-        }
-        if (playerName.equals(Shared.ALL_PLAYERS))
-        {
-           JOptionPane.showMessageDialog(this, "Invalid name");
-           playerName = "";
-           return;
-        }
-        playerNameTextBox.setText(playerName);
-        gameCode = gameCodeTextBox.getText();
-        if (Shared.isVoid(gameCode))
-        {
-           JOptionPane.showMessageDialog(this, "Please enter game code");
-           gameCode = "";
-           return;
-        }
-        if (gameCode.contains(DelimitedString.DELIMITER))
-        {
-           JOptionPane.showMessageDialog(this, "Invalid game code character: " + DelimitedString.DELIMITER);
-           gameCode = "";
-           return;
-        }
-        gameCodeTextBox.setText(gameCode);
         disableUI();
         if (gameState == Shared.JOINING)
         {
@@ -637,6 +605,7 @@ public class Player extends JFrame implements ActionListener
 	   			   byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
 	   			   if (response != null && Shared.isOK(new String(response, StandardCharsets.UTF_8)))
 	   			   {
+	   				   playerState = true;
 	                   playerJoinQuitButton.setLabel("Quit");
 	                   String[] args = new String(response, StandardCharsets.UTF_8).split(DelimitedString.DELIMITER);
 	                   String personalResources = args[1];
@@ -668,6 +637,7 @@ public class Player extends JFrame implements ActionListener
 	   			   byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
 	   			   if (response != null && Shared.isOK(new String(response, StandardCharsets.UTF_8)))
 	   			   {
+	   				   playerState = false;
 	                   playerJoinQuitButton.setLabel("Join");
                        clearHomeResources();
                        roleTabPanel.setSelectedIndex(HOME_TAB);
@@ -1135,9 +1105,7 @@ public class Player extends JFrame implements ActionListener
    private void disableUI()
    {
 	  if (!UIinit) return;	   
-      playerNameTextBox.setEditable(false);
       playerJoinQuitButton.setEnabled(false);
-      gameCodeTextBox.setEditable(false);
       hostChatTextBox.setEditable(false);
       hostChatSendButton.setEnabled(false);
       claimResourcesClaimTextBox.setEditable(false);
@@ -1161,10 +1129,15 @@ public class Player extends JFrame implements ActionListener
    {
 	  if (!UIinit) return; 
       playerJoinQuitButton.setEnabled(true);
-      if (gameState == 0)
+      if (gameState == 0 || !playerState)
       {
-         playerNameTextBox.setEditable(true);
-         gameCodeTextBox.setEditable(true);
+          playerJoinQuitButton.setLabel("Join");
+          clearHomeResources();
+          roleTabPanel.setSelectedIndex(HOME_TAB);
+          roleTabPanel.setEnabledAt(CLAIM_TAB, false);
+          roleTabPanel.setEnabledAt(AUDIT_TAB, false);
+          claimState = TRANSACTION_STATE.INACTIVE;
+          auditState = TRANSACTION_STATE.INACTIVE;
          hostChatTextBox.setEditable(false);
          hostChatSendButton.setEnabled(false);
          claimResourcesClaimTextBox.setEditable(false);
@@ -1183,8 +1156,7 @@ public class Player extends JFrame implements ActionListener
       }
       else
       {
-         playerNameTextBox.setEditable(false);
-         gameCodeTextBox.setEditable(false);
+         playerJoinQuitButton.setLabel("Quit");	  
          hostChatTextBox.setEditable(true);
          hostChatSendButton.setEnabled(true);
          switch (claimState)
@@ -1332,27 +1304,48 @@ public class Player extends JFrame implements ActionListener
    		enableUI();
    }
    
-   // Synchronize player with messages.
+   // Synchronize player with status and messages.
    private void syncMessages()
    {
 	   if (Shared.isVoid(gameCode) || Shared.isVoid(playerName)) return;
    		try
    		{
-            DelimitedString request = new DelimitedString(Shared.PLAYER_GET_MESSAGES);
+            DelimitedString request = new DelimitedString(Shared.PLAYER_SYNC_MESSAGES);
             request.add(gameCode);
             request.add(playerName);
 			byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
    	   		if (response != null)
    	   		{
-   	   			String messages= new String(response, StandardCharsets.UTF_8);
+   	   			String messages = new String(response, StandardCharsets.UTF_8);
    	   			if (Shared.isOK(messages))
    	   			{
-   	   				String[] args = new DelimitedString(messages).parse();
-   	   				if (args.length > 1)
+   	   				String[] args = new DelimitedString(messages).parse();   	   				
+   	   				if (args.length >= 3)
    	   				{
-   	    	   			disableUI();
-   	    	   			update(messages);
-   	    	   			enableUI();   	   					
+   	   					int g = Integer.parseInt(args[1]);
+   	   					boolean p = (Integer.parseInt(args[2]) == 1);
+   	   					boolean enable = false;
+   	   					if (g != gameState || p != playerState) enable = true;
+   	   					gameState = g;
+   	   					playerState = p;
+   	   					if (gameState == 0 || !playerState)
+   	   					{
+   	   						if (enable) enableUI();
+   	   					} else {
+		   	   				if (args.length > 3)
+		   	   				{
+		   	    	   			disableUI();
+		   	    	   			update(messages);
+		   	    	   			enableUI();   	   					
+		   	   				} else {
+		   	   					if (enable) enableUI();
+		   	   				}
+   	   					}
+   	   				} else {
+   	   					JOptionPane.showMessageDialog(this, "Invalid sync messages: " + new String(response, StandardCharsets.UTF_8));
+   	   	   				gameState = 0;
+   	   	   				playerState = false;
+   	   	   				enableUI();  	   					
    	   				}
    	   			} else {
    	   				gameState = 0;
@@ -1378,11 +1371,11 @@ public class Player extends JFrame implements ActionListener
     	 return;
      }    
      String[] fields = messages.split(DelimitedString.DELIMITER);
-     if (fields == null || fields.length == 1)
+     if (fields == null || fields.length <= 3)
      {
         return;
      }     
-     for (int n = 1; n < fields.length; )
+     for (int n = 3; n < fields.length; )
      {
     	 int c = 0;
     	 for (int i = n; i < fields.length; i++)

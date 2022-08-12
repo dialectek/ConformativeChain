@@ -258,6 +258,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
       gameStateLabel = newLabel("State:");
       gameStatePanel.add(gameStateLabel);
       gameStateListBox = new JComboBox<String>();
+      gameStateListBox.setOpaque(true);
       gameStateListBox.setEnabled(false);
       gameStateListBox.addItemListener(this);
       gameStateListBox.addItem("<state>");
@@ -281,6 +282,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
       playersJoinedTextBox.setText("0");
       playersJoinedPanel.add(playersJoinedTextBox); 
       playersListBox = new JComboBox<String>();
+      playersListBox.setOpaque(true);
       playersListBox.addItemListener(this);
       playersListBox.addItem(Shared.ALL_PLAYERS);      
       playersJoinedPanel.add(playersListBox);
@@ -355,6 +357,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
       transactionParticipantsClaimantPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       transactionParticipantsClaimantCaptionPanel.add(transactionParticipantsClaimantPanel);
       transactionParticipantsClaimantCandidateListBox = new JComboBox<String>();
+      transactionParticipantsClaimantCandidateListBox.setOpaque(true);
       transactionParticipantsClaimantCandidateListBox.addItem("<player name>");
       transactionParticipantsClaimantCandidateListBox.addItemListener(this);
       transactionParticipantsClaimantPanel.add(transactionParticipantsClaimantCandidateListBox);
@@ -371,12 +374,14 @@ public class Host extends JFrame implements ActionListener, ItemListener
       transactionParticipantsAuditorPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       transactionParticipantsAuditorCaptionPanel.add(transactionParticipantsAuditorPanel);
       transactionParticipantsAuditorCandidateListBox = new JComboBox<String>();
+      transactionParticipantsAuditorCandidateListBox.setOpaque(true);
       transactionParticipantsAuditorCandidateListBox.addItem("<player name>");      
       transactionParticipantsAuditorCandidateListBox.addItemListener(this);
       transactionParticipantsAuditorPanel.add(transactionParticipantsAuditorCandidateListBox);
       transactionParticipantsAuditorLabel = newLabel("<-select->");
       transactionParticipantsAuditorPanel.add(transactionParticipantsAuditorLabel);
       transactionParticipantsAuditorListBox = new JComboBox<String>();
+      transactionParticipantsAuditorListBox.setOpaque(true);
       transactionParticipantsAuditorListBox.addItem("<player name>");      
       transactionParticipantsAuditorListBox.addItemListener(this);
       transactionParticipantsAuditorPanel.add(transactionParticipantsAuditorListBox);
@@ -458,11 +463,13 @@ public class Host extends JFrame implements ActionListener, ItemListener
       transactionGrantAuditorWorkingLabel = newLabel("Auditing:");
       transactionGrantAuditorPanel.add(transactionGrantAuditorWorkingLabel);
       transactionGrantAuditorWorkingListBox = new JComboBox<String>();
+      transactionGrantAuditorWorkingListBox.setOpaque(true);
       transactionGrantAuditorWorkingListBox.addItem("<player name>");      
       transactionGrantAuditorPanel.add(transactionGrantAuditorWorkingListBox);
       transactionGrantAuditorCompletedLabel = newLabel("Completed:");
       transactionGrantAuditorPanel.add(transactionGrantAuditorCompletedLabel);
       transactionGrantAuditorCompletedListBox = new JComboBox<String>();
+      transactionGrantAuditorCompletedListBox.setOpaque(true);
       transactionGrantAuditorCompletedListBox.addItem("<player name>");        
       transactionGrantAuditorCompletedListBox.addItemListener(this);
       transactionGrantAuditorPanel.add(transactionGrantAuditorCompletedListBox);
@@ -511,6 +518,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
       transactionPenaltyAuditorLabel = newLabel("Auditor:");
       transactionPenaltyAuditorPanel.add(transactionPenaltyAuditorLabel);
       transactionPenaltyAuditorListBox = new JComboBox<String>();
+      transactionPenaltyAuditorListBox.setOpaque(true);
       transactionPenaltyAuditorListBox.addItem("<player name>");
       transactionPenaltyAuditorListBox.addItemListener(this);
       transactionPenaltyAuditorPanel.add(transactionPenaltyAuditorListBox);
@@ -533,11 +541,13 @@ public class Host extends JFrame implements ActionListener, ItemListener
       transactionFinishPendingParticipantsLabel = newLabel("Participant:");
       transactionFinishPanel.add(transactionFinishPendingParticipantsLabel);
       transactionFinishPendingParticipantsListBox = new JComboBox<String>();
+      transactionFinishPendingParticipantsListBox.setOpaque(true);
       transactionFinishPendingParticipantsListBox.addItem("<player name>");
       transactionFinishPanel.add(transactionFinishPendingParticipantsListBox);
       transactionFinishedLabel = newLabel("finished->");
       transactionFinishPanel.add(transactionFinishedLabel);
       transactionFinishedParticipantsListBox = new JComboBox<String>();
+      transactionFinishedParticipantsListBox.setOpaque(true);
       transactionFinishedParticipantsListBox.addItem("<player name>");      
       transactionFinishPanel.add(transactionFinishedParticipantsListBox);
       transactionCompletionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -1600,6 +1610,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
    {
 	  if (!UIinit) return;
       gameCreateDeleteButton.setEnabled(true);
+	  gameStateListBox.setSelectedIndex(gameState);
       if (gameState == 0)
       {
          gameCodeTextBox.setEditable(false);
@@ -1907,6 +1918,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
    	   				JOptionPane.showMessageDialog(this, "Error syncing game: " + e.getMessage());
    	   				gameState = 0;
    	   			}
+   	   			gameStateListBox.setSelectedIndex(gameState);
    	   			if (gameState != 0)
    	   			{
    	   				int i = 2;
@@ -1918,7 +1930,6 @@ public class Host extends JFrame implements ActionListener, ItemListener
                     int n = Integer.parseInt(args[i]);
                     i++;
                     playersListBox.removeAll();
-                    playersListBox.addItem(Shared.ALL_PLAYERS);
                     for (int j = 0; j < n; j++)
                     {
                     	playersListBox.addItem(args[i + j]);
@@ -1940,20 +1951,33 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	    if (Shared.isVoid(gameCode)) return;
    		try
    		{
-            DelimitedString request = new DelimitedString(Shared.HOST_GET_MESSAGES);
+            DelimitedString request = new DelimitedString(Shared.HOST_SYNC_MESSAGES);
             request.add(gameCode);     	       	
 			byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
    	   		if (response != null)
    	   		{
-   	   			String messages= new String(response, StandardCharsets.UTF_8);
+   	   			String messages = new String(response, StandardCharsets.UTF_8);  	   			
    	   			if (Shared.isOK(messages))
    	   			{
-   	   				String[] args = new DelimitedString(messages).parse();
-   	   				if (args.length > 1)
+   	   				String[] args = new DelimitedString(messages).parse();   	   				
+   	   				if (args.length >= 2)
    	   				{
-   	    	   			disableUI();
-   	    	   			update(messages);
-   	    	   			enableUI();   	   					
+   	   					int g = Integer.parseInt(args[1]);
+   	   					boolean enable = false;
+   	   					if (g != gameState) enable = true;
+   	   					gameState = g;
+	   	   				if (gameState > 0 && args.length > 2)
+	   	   				{
+	   	    	   			disableUI();
+	   	    	   			update(messages);
+	   	    	   			enableUI();   	   					
+	   	   				} else {
+	   	   					if (enable) enableUI();
+	   	   				}
+   	   				} else {
+   	   					JOptionPane.showMessageDialog(this, "Invalid sync messages: " + new String(response, StandardCharsets.UTF_8));
+   	   	   				gameState = 0;
+   	   	   				enableUI();  	   					
    	   				}
    	   			} else {
    	   				gameState = 0;
@@ -1981,7 +2005,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
      {
         return;
      }     
-     for (int n = 1; n < fields.length; )
+     for (int n = 2; n < fields.length; )
      {
     	 int c = 0;
     	 for (int i = n; i < fields.length; i++)

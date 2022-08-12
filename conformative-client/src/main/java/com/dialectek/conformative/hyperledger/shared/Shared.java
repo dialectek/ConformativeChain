@@ -22,10 +22,10 @@ public class Shared
    public static final String SET_PLAYER_RESOURCES = "set_player_resources";
    public static final String CHAT_MESSAGE         = "chat_message";
    public static final String MESSAGE_DELIMITER    = "message_delimiter";      
-   public static final String HOST_GET_MESSAGES    = "host_get_messages";   
+   public static final String HOST_SYNC_MESSAGES   = "host_sync_messages";   
    public static final String HOST_CHAT_MESSAGE    = "host_chat_message";
    public static final String HOST_CLEAR_MESSAGES  = "host_clear_messages";
-   public static final String PLAYER_GET_MESSAGES  = "player_get_messages";    
+   public static final String PLAYER_SYNC_MESSAGES = "player_sync_messages";  
    public static final String PLAYER_CHAT_MESSAGE  = "player_chat_message";   
    public static final String PLAYER_CLEAR_MESSAGES= "player_clear_messages";
    public static final String CLAIMANT_CHAT_MESSAGE= "claimant_chat_message";  

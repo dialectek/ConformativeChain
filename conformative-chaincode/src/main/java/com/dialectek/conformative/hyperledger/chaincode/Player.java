@@ -12,19 +12,19 @@ import com.owlike.genson.annotation.JsonProperty;
 public class Player
 {  
    @Property()
-   private final String name;
+   public final String name;
 
    @Property()
-   private final String gameCode;
+   public final String gameCode;
 
    @Property()
-   private double personalResources;
+   public double personalResources;
 
    @Property()
-   private double entitledResources;
+   public double entitledResources;
    
    @Property()   
-   ArrayList<String> messages;
+   public String[] messages;
 
    public Player(@JsonProperty("name") final String name,
            @JsonProperty("gameCode") final String gameCode) 
@@ -33,7 +33,7 @@ public class Player
       this.gameCode     = gameCode;
       personalResources = 0.0;
       entitledResources = 0.0;
-      messages = new ArrayList<String>();
+      messages = new String[0];
    }
 
    public String getName()
@@ -73,16 +73,28 @@ public class Player
    
    public void addMessage(String message)
    {
-      messages.add(message);
+	  int n = messages.length;
+	  String[] tmp = new String[n + 1];
+	  for (int i = 0; i < n; i++)
+	  {
+		  tmp[i] = messages[i];
+	  }
+	  tmp[n] = message;
+      messages = tmp;
    }
 
    public ArrayList<String> getMessages()
    {
-      return messages;
+	  ArrayList<String> results = new ArrayList<String>();
+	  for (String message: messages)
+	  {
+		  results.add(message);
+	  }
+      return results;
    }
    
    public void clearMessages()
    {
-      messages.clear();
-   }  
+      messages = new String[0];
+   }           
 }
