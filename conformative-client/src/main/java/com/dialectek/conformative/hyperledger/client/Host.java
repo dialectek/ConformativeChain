@@ -791,6 +791,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	                   {
 	                      playersListBox.removeAll();
 	                      playersListBox.insertItemAt(Shared.ALL_PLAYERS, 0);
+   	                   	  clearPlayerResources();	                      
 	                   }
 	                   else
 	                   {
@@ -800,15 +801,15 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	                         {
 	                            if (removePlayer.equals(playersListBox.getItemAt(j)))
 	                            {
-	                               playersListBox.removeItem(j);
+	                               playersListBox.removeItemAt(j);
+	        	                   playersJoinedTextBox.setText("" + (playersListBox.getItemCount() - 1));
+	        	                   clearPlayerResources();
 	                               break;
 	                            }
 	                         }
 	                         catch (IndexOutOfBoundsException e) {}
 	                      }
 	                   }
-	                   clearPlayerResources();
-	                   playersJoinedTextBox.setText("" + (playersListBox.getItemCount() - 1));
 	   			   } else {
 	   				   if (response != null)
 	   				   {
@@ -1354,7 +1355,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
             if ((i > 0) && (i < transactionParticipantsAuditorCandidateListBox.getItemCount()))
             {
                String name = transactionParticipantsAuditorCandidateListBox.getItemAt(i);
-               transactionParticipantsAuditorCandidateListBox.removeItem(i);
+               transactionParticipantsAuditorCandidateListBox.removeItemAt(i);
                transactionParticipantsAuditorCandidateListBox.setSelectedIndex(0);
                for (i = 1; i < transactionParticipantsAuditorListBox.getItemCount(); i++)
                {
@@ -1373,7 +1374,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
             if ((i > 0) && (i < transactionParticipantsAuditorListBox.getItemCount()))
             {
                String name = transactionParticipantsAuditorListBox.getItemAt(i);
-               transactionParticipantsAuditorListBox.removeItem(i);
+               transactionParticipantsAuditorListBox.removeItemAt(i);
                transactionParticipantsAuditorListBox.setSelectedIndex(0);
                for (i = 1; i < transactionParticipantsAuditorCandidateListBox.getItemCount(); i++)
                {
@@ -1956,7 +1957,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
 			byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
    	   		if (response != null)
    	   		{
-   	   			String messages = new String(response, StandardCharsets.UTF_8);  	   			
+   	   			String messages = new String(response, StandardCharsets.UTF_8);
    	   			if (Shared.isOK(messages))
    	   			{
    	   				String[] args = new DelimitedString(messages).parse();   	   				
@@ -2049,12 +2050,12 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	        {
               if ((playersListBox.getItemAt(i)).equals(playerName))
               {
-                 playersListBox.removeItem(i);
+                 playersListBox.removeItemAt(i);
+     	         playersJoinedTextBox.setText("" + (playersListBox.getItemCount() - 1));
+    	         updatePlayerResources();                 
                  break;
               }
 	        }
-	        playersJoinedTextBox.setText("" + (playersListBox.getItemCount() - 1));
-	        updatePlayerResources();
 	     }
 	     else if (operation.equals(Shared.CHAT_MESSAGE) && (args.length == 3))
 	     {
@@ -2141,7 +2142,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	        {
 	           if (auditorName.equals(transactionGrantAuditorWorkingListBox.getItemAt(i)))
 	           {
-	              transactionGrantAuditorWorkingListBox.removeItem(i);
+	              transactionGrantAuditorWorkingListBox.removeItemAt(i);
 	              transactionGrantAuditorWorkingListBox.setSelectedIndex(0);
 	              break;
 	           }
@@ -2199,7 +2200,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	        {
 	           if (playerName.equals(transactionFinishPendingParticipantsListBox.getItemAt(i)))
 	           {
-	              transactionFinishPendingParticipantsListBox.removeItem(i);
+	              transactionFinishPendingParticipantsListBox.removeItemAt(i);
 	              transactionFinishPendingParticipantsListBox.setSelectedIndex(0);
 	              break;
 	           }

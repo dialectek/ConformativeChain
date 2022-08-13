@@ -607,11 +607,6 @@ public class Player extends JFrame implements ActionListener
 	   			   {
 	   				   playerState = true;
 	                   playerJoinQuitButton.setLabel("Quit");
-	                   String[] args = new String(response, StandardCharsets.UTF_8).split(DelimitedString.DELIMITER);
-	                   String personalResources = args[1];
-	                   String commonResources = args[2];
-	                   String entitledResources = args[3];
-	                   showHomeResources(personalResources, commonResources, entitledResources);
 	                   JOptionPane.showMessageDialog(this, "Welcome!");
 	   			   } else {
 	   				   if (response != null)

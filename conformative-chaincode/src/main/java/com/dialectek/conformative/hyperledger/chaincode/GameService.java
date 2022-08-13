@@ -239,14 +239,20 @@ public final class GameService implements ContractInterface
                 		 game.addMessage(message.toString());
 	                     String gameJson = genson.serialize(game);
 	                     stub.putStringState(gameCode, gameJson);
-	                     player = new Player(playerName, gameCode);
-	                     String playerJson = genson.serialize(player);
-	                     stub.putStringState(gameCode + DelimitedString.DELIMITER + playerName, playerJson);
-                    	 DelimitedString response = new DelimitedString(Shared.OK);
-                    	 response.add(player.getPersonalResources());
-                    	 response.add(game.getCommonResources() / (double)game.getPlayerNames().size());
-                    	 response.add(player.getEntitledResources());
-	                     return(response.toString());
+	                     players.add(new Player(playerName, gameCode));
+	                     double          commonResources = game.getCommonResources() / (double)(players.size());
+	                     for (Player p : players)
+	                     {
+	                        DelimitedString resourceMessage = new DelimitedString(Shared.SET_PLAYER_RESOURCES);
+	                        resourceMessage.add(p.getPersonalResources());
+	                        resourceMessage.add(commonResources);
+	                        resourceMessage.add(p.getEntitledResources());                	  
+	                        String      name = p.getName();
+	                        p.addMessage(resourceMessage.toString());
+	                        String playerJson = genson.serialize(p);
+	                        stub.putStringState(gameCode + DelimitedString.DELIMITER + name, playerJson);
+	                     }          
+	                     return(Shared.OK);
                 	 } else {
                          return(Shared.error("invalid player name: " + playerName));               		 
                 	 }
@@ -275,6 +281,19 @@ public final class GameService implements ContractInterface
                      String gameJson = genson.serialize(game);
                      stub.putStringState(gameCode, gameJson);
                      stub.delState(gameCode + DelimitedString.DELIMITER + playerName);
+                     double          commonResources = game.getCommonResources() / (double)(players.size());
+                     for (Player p : players)
+                     {
+                    	if (p == player) continue;
+                        DelimitedString resourceMessage = new DelimitedString(Shared.SET_PLAYER_RESOURCES);
+                        resourceMessage.add(p.getPersonalResources());
+                        resourceMessage.add(commonResources);
+                        resourceMessage.add(p.getEntitledResources());                	  
+                        String      name = p.getName();
+                        p.addMessage(resourceMessage.toString());
+                        String playerJson = genson.serialize(p);
+                        stub.putStringState(gameCode + DelimitedString.DELIMITER + name, playerJson);
+                     }                             
                      return(Shared.OK);
                   }
                   else
@@ -492,7 +511,25 @@ public final class GameService implements ContractInterface
                     	game.addPlayerName(name);
                      }
                      String gameJson = genson.serialize(game);
-                     stub.putStringState(gameCode, gameJson);  
+                     stub.putStringState(gameCode, gameJson);
+                     playerNames = game.getPlayerNames();
+                     double          commonResources = game.getCommonResources() / (double)(playerNames.size());                     
+                	 for (String name : playerNames) 
+                	 {
+                	      String playerJSON = stub.getStringState(gameCode + DelimitedString.DELIMITER + name);
+                	      if (Shared.isVoid(playerJSON)) 
+                	      {
+                		      return Shared.error("cannot find player: " + name); 
+                	      } 
+                	      Player player = genson.deserialize(playerJSON, Player.class);
+                          DelimitedString resourceMessage = new DelimitedString(Shared.SET_PLAYER_RESOURCES);
+                          resourceMessage.add(player.getPersonalResources());
+                          resourceMessage.add(commonResources);
+                          resourceMessage.add(player.getEntitledResources());                	  
+                          player.addMessage(resourceMessage.toString());
+                          String playerJson = genson.serialize(player);
+                          stub.putStringState(gameCode + DelimitedString.DELIMITER + name, playerJson);
+                	 }                            
                      return(Shared.OK);
                   }
                   else
