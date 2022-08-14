@@ -561,8 +561,6 @@ public class Host extends JFrame implements ActionListener, ItemListener
       roleTabPanel.setSelectedIndex(0);
       add(roleTabPanel);
       for (int i = 0; i <= FINISH_TAB; i++) transactionTabPanel.setEnabledAt(i, false);                  
-      UIinit = true;
-      enableUI();
       
       // Initialize.
       gameState         = 0;
@@ -574,6 +572,10 @@ public class Host extends JFrame implements ActionListener, ItemListener
 
       // Synchronize game with network.
       syncGame();
+      
+      // Enable user interface.
+      UIinit = true;      
+      enableUI();
 
       // Start timer.
       TimerTask task = new TimerTask() 
@@ -689,10 +691,17 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	   			   byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
 	   			   if (response != null && Shared.isOK(new String(response, StandardCharsets.UTF_8)))
 	   			   {
-	                   gameCreateDeleteButton.setLabel("Delete");
+	                   gameCreateDeleteButton.setLabel("Delete");	                   
 	                   gameState = Shared.PENDING;
-	                   gameStateListBox.setSelectedIndex(Shared.PENDING);
+                       gameStateListBox.removeItemListener(this);
+                       gameStateListBox.setSelectedIndex(Shared.PENDING);
+                       gameStateListBox.addItemListener(this);
+                       playersJoinedTextBox.setText("0");
+                       playersListBox.removeAllItems();
+                       playersListBox.insertItemAt(Shared.ALL_PLAYERS, 0); 
+                       playersListBox.setSelectedIndex(0);
 	                   showPlayerResources(0.0, resources);
+	                   resetTransaction();
 	                   JOptionPane.showMessageDialog(this, "Game created");
 	   			   } else {
 	   				   if (response != null)
@@ -730,8 +739,9 @@ public class Host extends JFrame implements ActionListener, ItemListener
                        gameStateListBox.removeItemListener(this);
                        gameStateListBox.setSelectedIndex(0);
                        gameStateListBox.addItemListener(this);
-                       playersListBox.removeAll();
-                       playersListBox.insertItemAt(Shared.ALL_PLAYERS, 0);
+                       playersJoinedTextBox.setText("0");
+                       playersListBox.removeAllItems();
+                       playersListBox.insertItemAt(Shared.ALL_PLAYERS, 0);                      
                        clearPlayerResources();
                        resetTransaction();
                        JOptionPane.showMessageDialog(this, "Game deleted");
@@ -789,7 +799,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	   			   {
 	                   if (removePlayer.equals(Shared.ALL_PLAYERS))
 	                   {
-	                      playersListBox.removeAll();
+	                      playersListBox.removeAllItems();
 	                      playersListBox.insertItemAt(Shared.ALL_PLAYERS, 0);
    	                   	  clearPlayerResources();	                      
 	                   }
@@ -1512,9 +1522,9 @@ public class Host extends JFrame implements ActionListener, ItemListener
       {
          transactionState = TRANSACTION_STATE.INACTIVE;
          transactionTabPanel.setEnabledAt(PARTICIPANTS_TAB, true);
-         transactionParticipantsClaimantCandidateListBox.removeAll();
+         transactionParticipantsClaimantCandidateListBox.removeAllItems();
          transactionParticipantsClaimantTextBox.setText("");
-         transactionParticipantsAuditorCandidateListBox.removeAll();
+         transactionParticipantsAuditorCandidateListBox.removeAllItems();
          transactionParticipantsClaimantCandidateListBox.insertItemAt("<player>", 0);
          transactionParticipantsAuditorCandidateListBox.insertItemAt("<player>", 0);
          for (int i = 1; i < playersListBox.getItemCount(); i++)
@@ -1525,17 +1535,17 @@ public class Host extends JFrame implements ActionListener, ItemListener
          }
          transactionParticipantsClaimantCandidateListBox.setSelectedIndex(0);
          transactionParticipantsAuditorCandidateListBox.setSelectedIndex(0);
-         transactionParticipantsAuditorListBox.removeAll();
+         transactionParticipantsAuditorListBox.removeAllItems();
          transactionParticipantsAuditorListBox.insertItemAt("<player>", 0);
       }
       else
       {
          transactionState = TRANSACTION_STATE.UNAVAILABLE;
          transactionTabPanel.setEnabledAt(PARTICIPANTS_TAB, false);
-         transactionParticipantsClaimantCandidateListBox.removeAll();
+         transactionParticipantsClaimantCandidateListBox.removeAllItems();
          transactionParticipantsClaimantTextBox.setText("");
-         transactionParticipantsAuditorCandidateListBox.removeAll();
-         transactionParticipantsAuditorListBox.removeAll();
+         transactionParticipantsAuditorCandidateListBox.removeAllItems();
+         transactionParticipantsAuditorListBox.removeAllItems();
       }
       transactionTabPanel.setEnabledAt(CLAIM_TAB, false);
       if (transactionClaimDistribution != null)
@@ -1554,19 +1564,19 @@ public class Host extends JFrame implements ActionListener, ItemListener
       transactionClaimEntitlementTextBox.setText("");
       transactionClaimAmountTextBox.setText("");
       transactionTabPanel.setEnabledAt(GRANT_TAB, false);
-      transactionGrantAuditorWorkingListBox.removeAll();
-      transactionGrantAuditorCompletedListBox.removeAll();
+      transactionGrantAuditorWorkingListBox.removeAllItems();
+      transactionGrantAuditorCompletedListBox.removeAllItems();
       transactionGrantAuditorAmountTextBox.setText("");
       transactionGrantClaimantTextBox.setText("");
       transactionTabPanel.setEnabledAt(PENALTY_TAB, false);
       transactionPenaltyClaimantParameterTextBox.setText(claimantPenaltyParameter + "");
       transactionPenaltyAuditorParameterTextBox.setText(auditorPenaltyParameter + "");
-      transactionPenaltyAuditorListBox.removeAll();
+      transactionPenaltyAuditorListBox.removeAllItems();
       transactionPenaltyAuditorAmountTextBox.setText("");
       transactionPenaltyClaimantTextBox.setText("");
       transactionTabPanel.setEnabledAt(FINISH_TAB, false);
-      transactionFinishPendingParticipantsListBox.removeAll();
-      transactionFinishedParticipantsListBox.removeAll();
+      transactionFinishPendingParticipantsListBox.removeAllItems();
+      transactionFinishedParticipantsListBox.removeAllItems();
       enableUI();
    }
 
@@ -1930,7 +1940,8 @@ public class Host extends JFrame implements ActionListener, ItemListener
                     playersJoinedTextBox.setText(args[i]); 
                     int n = Integer.parseInt(args[i]);
                     i++;
-                    playersListBox.removeAll();
+                    playersListBox.removeAllItems();
+                    playersListBox.addItem(Shared.ALL_PLAYERS); 
                     for (int j = 0; j < n; j++)
                     {
                     	playersListBox.addItem(args[i + j]);
@@ -1958,6 +1969,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
    	   		if (response != null)
    	   		{
    	   			String messages = new String(response, StandardCharsets.UTF_8);
+   	   			System.out.println("host messages: " + messages); // flibber
    	   			if (Shared.isOK(messages))
    	   			{
    	   				String[] args = new DelimitedString(messages).parse();   	   				
@@ -2030,17 +2042,26 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	     {
 	            // Player joining game.
 	            String playerName = args[1];
+	            boolean found = false;
 	            int    i          = 1;
 	            for ( ; i < playersListBox.getItemCount(); i++)
 	            {
+	               if (playerName.equals(playersListBox.getItemAt(i)))
+	               {
+	            	   found = true;
+	            	   break;
+	               }
 	               if (playerName.compareTo(playersListBox.getItemAt(i)) < 0)
 	               {
 	                  break;
 	               }
 	            }
-	            playersListBox.insertItemAt(playerName, i);
-	            playersJoinedTextBox.setText("" + (playersListBox.getItemCount() - 1));
-	            updatePlayerResources();        
+	            if (!found)
+	            {
+		            playersListBox.insertItemAt(playerName, i);
+		            playersJoinedTextBox.setText("" + (playersListBox.getItemCount() - 1));
+		            updatePlayerResources(); 
+	            }
 	     }
 	     else if (operation.equals(Shared.QUIT_GAME) && (args.length == 2))
 	     {

@@ -281,7 +281,7 @@ public final class GameService implements ContractInterface
                      String gameJson = genson.serialize(game);
                      stub.putStringState(gameCode, gameJson);
                      stub.delState(gameCode + DelimitedString.DELIMITER + playerName);
-                     double          commonResources = game.getCommonResources() / (double)(players.size());
+                     double          commonResources = game.getCommonResources() / (double)(players.size() - 1);
                      for (Player p : players)
                      {
                     	if (p == player) continue;

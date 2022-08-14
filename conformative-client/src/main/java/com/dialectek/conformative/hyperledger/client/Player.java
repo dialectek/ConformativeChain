@@ -509,8 +509,6 @@ public class Player extends JFrame implements ActionListener
       add(roleTabPanel);
       roleTabPanel.setEnabledAt(CLAIM_TAB, false);
       roleTabPanel.setEnabledAt(AUDIT_TAB, false);      
-      UIinit = true;
-      enableUI();
       
       // Initialize state.
       playerName        = "";
@@ -523,7 +521,11 @@ public class Player extends JFrame implements ActionListener
 
       // Synchronize player with network.
       syncPlayer();
-
+      
+      // Enable user interface.
+      UIinit = true;
+      enableUI();
+      
       // Start timer.
       TimerTask task = new TimerTask() 
       {
@@ -659,7 +661,20 @@ public class Player extends JFrame implements ActionListener
         	{
         		JOptionPane.showMessageDialog(this, "Game not found");        		
         	} else {
-        		JOptionPane.showMessageDialog(this, "Cannot quit game after running"); 
+        		if (gameState == Shared.PENDING)
+        		{
+        			if (!playerState)
+        			{
+                		JOptionPane.showMessageDialog(this, "Game currently not accepting players");         				       				
+        			}
+        		} else {
+        			if (playerState)
+        			{
+                		JOptionPane.showMessageDialog(this, "Cannot quit game after running");         				
+        			} else {
+                		JOptionPane.showMessageDialog(this, "Cannot join game after running");         				
+        			}
+        		}
         	}
         }
         enableUI();
@@ -1312,6 +1327,7 @@ public class Player extends JFrame implements ActionListener
    	   		if (response != null)
    	   		{
    	   			String messages = new String(response, StandardCharsets.UTF_8);
+   	   			System.out.println("player " + playerName + " messages: " + messages); // flibber
    	   			if (Shared.isOK(messages))
    	   			{
    	   				String[] args = new DelimitedString(messages).parse();   	   				
