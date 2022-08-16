@@ -140,7 +140,7 @@ public class Player extends JFrame implements ActionListener
    private TextField          claimantChatTextBox;
    private Button             claimantChatSendButton;
    private Font               labelFont;
-   private boolean UIinit = false;
+   private boolean UIlocked = true;
    
    private static final int HOME_TAB  = 0;
    private static final int CLAIM_TAB = 1;
@@ -523,7 +523,7 @@ public class Player extends JFrame implements ActionListener
       syncPlayer();
       
       // Enable user interface.
-      UIinit = true;
+      UIlocked = false;
       enableUI();
       
       // Start timer.
@@ -588,7 +588,7 @@ public class Player extends JFrame implements ActionListener
    // Button handler.
    public void actionPerformed(ActionEvent event)
    {
-	  if (!UIinit) return;
+	  if (UIlocked) return;
 	  
      // Join/quit game.
      if (event.getSource() == playerJoinQuitButton)
@@ -1083,18 +1083,6 @@ public class Player extends JFrame implements ActionListener
       homeResourcesEntitledTextBox.setText("");
    }
 
-
-   private void showHomeResources(String personal, String common, String entitled)
-   {
-      double actual = Double.parseDouble(personal) + Double.parseDouble(common);
-
-      homeResourcesActualTextBox.setText(doubleToString(actual));
-      homeResourcesPersonalTextBox.setText(personal);
-      homeResourcesCommonTextBox.setText(common);
-      homeResourcesEntitledTextBox.setText(entitled);
-   }
-
-
    private void showHomeResources(double personal, double common, double entitled)
    {
       double actual = personal + common;
@@ -1107,14 +1095,14 @@ public class Player extends JFrame implements ActionListener
 
    private String doubleToString(double value)
    {
-      DecimalFormat decimalFormat = new DecimalFormat(".##");
+      DecimalFormat decimalFormat = new DecimalFormat("#.##");
       return(decimalFormat.format(value));
    }
 
    // Disable UI.
    private void disableUI()
    {
-	  if (!UIinit) return;	   
+	  if (UIlocked) return;	   
       playerJoinQuitButton.setEnabled(false);
       hostChatTextBox.setEditable(false);
       hostChatSendButton.setEnabled(false);
@@ -1137,7 +1125,7 @@ public class Player extends JFrame implements ActionListener
    // Enable UI.
    private void enableUI()
    {
-	  if (!UIinit) return; 
+	  if (UIlocked) return; 
       playerJoinQuitButton.setEnabled(true);
       if (gameState == 0 || !playerState)
       {

@@ -344,7 +344,17 @@ public final class GameService implements ContractInterface
                      DelimitedString response = new DelimitedString(Shared.OK);
                      response.add(game.getState());
                      response.add(game.getInitialCommonResources());
-                     response.add(game.getCommonResources());                    
+                     double totalPersonalResources = 0.0;
+                     double totalEntitledResources = 0.0;
+                     for (int i = 0; i < players.size(); i++)
+                     {
+                        Player player = players.get(i);
+                        totalPersonalResources += player.getPersonalResources();
+                        totalEntitledResources += player.getEntitledResources();
+                     } 
+                     response.add(totalPersonalResources);
+                     response.add(game.getCommonResources());                     
+                     response.add(totalEntitledResources);                     
                      ArrayList<String> playerNames = game.getPlayerNames();
                      response.add(playerNames.size());
                      for (String name : playerNames)

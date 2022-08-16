@@ -76,11 +76,13 @@ public class Host extends JFrame implements ActionListener, ItemListener
    private JComboBox<String>  transactionParticipantsClaimantCandidateListBox;
    private Label              transactionParticipantsClaimantLabel;
    private TextField          transactionParticipantsClaimantTextBox;
+   private Button             transactionParticipantsClaimantResetButton;
    private JPanel             transactionParticipantsAuditorCaptionPanel;
    private JPanel             transactionParticipantsAuditorPanel;
    private JComboBox<String>  transactionParticipantsAuditorCandidateListBox;
    private Label              transactionParticipantsAuditorLabel;
    private JComboBox<String>  transactionParticipantsAuditorListBox;
+   private Button             transactionParticipantsAuditorsResetButton;
    private JPanel             transactionParticipantsSetButtonPanel;   
    private Button             transactionParticipantsSetButton;
    private JPanel             transactionClaimCaptionPanel;
@@ -145,7 +147,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
    private Button             transactionCommitButton;
    private Button             transactionAbortButton;
    private Font               labelFont;
-   private boolean UIinit = false;
+   private boolean UIlocked = true;
 
    // Game code.
    private String gameCode;
@@ -284,7 +286,8 @@ public class Host extends JFrame implements ActionListener, ItemListener
       playersListBox = new JComboBox<String>();
       playersListBox.setOpaque(true);
       playersListBox.addItemListener(this);
-      playersListBox.addItem(Shared.ALL_PLAYERS);      
+      playersListBox.addItem(Shared.ALL_PLAYERS); 
+      playersListBox.setSelectedIndex(0);
       playersJoinedPanel.add(playersListBox);
       playerRemoveButton = new Button("Remove");
       playerRemoveButton.addActionListener(this);      
@@ -367,6 +370,9 @@ public class Host extends JFrame implements ActionListener, ItemListener
       transactionParticipantsClaimantTextBox.setText("<player name>");
       transactionParticipantsClaimantTextBox.setEditable(false);
       transactionParticipantsClaimantPanel.add(transactionParticipantsClaimantTextBox);
+      transactionParticipantsClaimantResetButton = new Button("Reset");
+      transactionParticipantsClaimantPanel.add(transactionParticipantsClaimantResetButton);
+      transactionParticipantsClaimantResetButton.addActionListener(this);       
       transactionParticipantsAuditorCaptionPanel = new JPanel();
       transactionParticipantsAuditorCaptionPanel.setBorder(BorderFactory.createTitledBorder("Auditors"));
       transactionParticipantsAuditorCaptionPanel.setLayout(new BoxLayout(transactionParticipantsAuditorCaptionPanel, BoxLayout.Y_AXIS));           
@@ -385,6 +391,9 @@ public class Host extends JFrame implements ActionListener, ItemListener
       transactionParticipantsAuditorListBox.addItem("<player name>");      
       transactionParticipantsAuditorListBox.addItemListener(this);
       transactionParticipantsAuditorPanel.add(transactionParticipantsAuditorListBox);
+      transactionParticipantsAuditorsResetButton = new Button("Reset");
+      transactionParticipantsAuditorPanel.add(transactionParticipantsAuditorsResetButton);
+      transactionParticipantsAuditorsResetButton.addActionListener(this);      
       transactionParticipantsSetButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       transactionParticipantsPanel.add(transactionParticipantsSetButtonPanel);      
       transactionParticipantsSetButton = new Button("Set");
@@ -574,7 +583,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
       syncGame();
       
       // Enable user interface.
-      UIinit = true;      
+      UIlocked = false;      
       enableUI();
 
       // Start timer.
@@ -640,7 +649,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	// Button handler.
 	public void actionPerformed(ActionEvent event) 
 	{
-		 if (!UIinit) return;
+		 if (UIlocked) return;
 		  
          // Create/delete game.
          if (event.getSource() == gameCreateDeleteButton)
@@ -697,9 +706,11 @@ public class Host extends JFrame implements ActionListener, ItemListener
                        gameStateListBox.setSelectedIndex(Shared.PENDING);
                        gameStateListBox.addItemListener(this);
                        playersJoinedTextBox.setText("0");
+                       playersListBox.removeItemListener(this);
                        playersListBox.removeAllItems();
                        playersListBox.insertItemAt(Shared.ALL_PLAYERS, 0); 
                        playersListBox.setSelectedIndex(0);
+                       playersListBox.addItemListener(this);
 	                   showPlayerResources(0.0, resources);
 	                   resetTransaction();
 	                   JOptionPane.showMessageDialog(this, "Game created");
@@ -740,8 +751,11 @@ public class Host extends JFrame implements ActionListener, ItemListener
                        gameStateListBox.setSelectedIndex(0);
                        gameStateListBox.addItemListener(this);
                        playersJoinedTextBox.setText("0");
+                       playersListBox.removeItemListener(this);
                        playersListBox.removeAllItems();
-                       playersListBox.insertItemAt(Shared.ALL_PLAYERS, 0);                      
+                       playersListBox.insertItemAt(Shared.ALL_PLAYERS, 0); 
+	                   playersListBox.setSelectedIndex(0);
+	                   playersListBox.addItemListener(this);
                        clearPlayerResources();
                        resetTransaction();
                        JOptionPane.showMessageDialog(this, "Game deleted");
@@ -798,9 +812,13 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	   			   if (response != null && Shared.isOK(new String(response, StandardCharsets.UTF_8)))
 	   			   {
 	                   if (removePlayer.equals(Shared.ALL_PLAYERS))
-	                   {
+	                   {	                	   
+	                	  playersListBox.removeItemListener(this);
 	                      playersListBox.removeAllItems();
 	                      playersListBox.insertItemAt(Shared.ALL_PLAYERS, 0);
+	                      playersListBox.setSelectedIndex(0);
+	                      playersListBox.addItemListener(this);
+	  	                  playersJoinedTextBox.setText("0");	                      
    	                   	  clearPlayerResources();	                      
 	                   }
 	                   else
@@ -811,8 +829,11 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	                         {
 	                            if (removePlayer.equals(playersListBox.getItemAt(j)))
 	                            {
+	      	                	   playersListBox.removeItemListener(this);	                            	
 	                               playersListBox.removeItemAt(j);
-	        	                   playersJoinedTextBox.setText("" + (playersListBox.getItemCount() - 1));
+	     	                       playersListBox.setSelectedIndex(0);
+	    	                       playersListBox.addItemListener(this); 
+	        	                   playersJoinedTextBox.setText("" + (playersListBox.getItemCount() - 1));	    	                       
 	        	                   clearPlayerResources();
 	                               break;
 	                            }
@@ -911,7 +932,44 @@ public class Host extends JFrame implements ActionListener, ItemListener
             }
             enableUI();              
          }
-
+         
+         // Reset transaction claimant candidates.
+         else if (event.getSource() == transactionParticipantsClaimantResetButton)
+         {
+        	 transactionParticipantsClaimantCandidateListBox.removeItemListener(this);
+             transactionParticipantsClaimantCandidateListBox.removeAllItems();
+             transactionParticipantsClaimantTextBox.setText("");
+             transactionParticipantsClaimantCandidateListBox.insertItemAt("<player>", 0);
+             for (int i = 1; i < playersListBox.getItemCount(); i++)
+             {
+                String name = playersListBox.getItemAt(i);
+                transactionParticipantsClaimantCandidateListBox.insertItemAt(name, i);
+             }
+             transactionParticipantsClaimantCandidateListBox.setSelectedIndex(0);
+        	 transactionParticipantsClaimantCandidateListBox.addItemListener(this);            
+         }
+         
+         // Reset transaction auditor candidates.
+         else if (event.getSource() == transactionParticipantsAuditorsResetButton)
+         {
+        	 transactionParticipantsAuditorCandidateListBox.removeItemListener(this);         	 
+             transactionParticipantsAuditorCandidateListBox.removeAllItems();
+             transactionParticipantsAuditorCandidateListBox.insertItemAt("<player>", 0);
+             for (int i = 1; i < playersListBox.getItemCount(); i++)
+             {
+                String name = playersListBox.getItemAt(i);
+                transactionParticipantsAuditorCandidateListBox.insertItemAt(name, i);
+             }
+             transactionParticipantsAuditorCandidateListBox.setSelectedIndex(0);
+             transactionParticipantsAuditorCandidateListBox.addItemListener(this); 
+             transactionParticipantsAuditorListBox.removeItemListener(this);              
+             transactionParticipantsAuditorListBox.removeAllItems();
+             transactionParticipantsAuditorListBox.insertItemAt("<player>", 0);
+             transactionParticipantsAuditorListBox.setSelectedIndex(0);
+             transactionParticipantsAuditorListBox.addItemListener(this); 
+             transactionParticipantsAuditorListBox.addItemListener(this);             
+         }
+         
          // Set transaction participants.
          else if (event.getSource() == transactionParticipantsSetButton)
          {
@@ -1244,12 +1302,10 @@ public class Host extends JFrame implements ActionListener, ItemListener
             {
             case UNAVAILABLE:
             case INACTIVE:
-               resetTransaction();
-               return;
-
             case CLAIM_DISTRIBUTION:
             case CLAIM_ENTITLEMENT:
                resetTransaction();
+               transactionTabPanel.setSelectedIndex(0); 
                return;
 
             default:
@@ -1284,6 +1340,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
          	   JOptionPane.showMessageDialog(this, "Error aborting transaction: " + e.getMessage());	   					     	               
             } 
             resetTransaction();
+            transactionTabPanel.setSelectedIndex(0);            
          }
    }
 
@@ -1291,7 +1348,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
    @Override
    public void itemStateChanged(ItemEvent event) 
    {
-	   if (!UIinit) return;
+	   if (UIlocked) return;
 	   
        if (event.getStateChange() == ItemEvent.SELECTED) 
        {
@@ -1305,14 +1362,18 @@ public class Host extends JFrame implements ActionListener, ItemListener
             }
             if (nextState != (gameState + 1))
             {
+               gameStateListBox.removeItemListener(this);
                gameStateListBox.setSelectedIndex(gameState);
+               gameStateListBox.addItemListener(this);
                JOptionPane.showMessageDialog(this, "Invalid state transition");
                return;
             }
             if ((transactionState != TRANSACTION_STATE.UNAVAILABLE) &&
                 (transactionState != TRANSACTION_STATE.INACTIVE))
             {
+               gameStateListBox.removeItemListener(this);
                gameStateListBox.setSelectedIndex(gameState);
+               gameStateListBox.addItemListener(this);
                JOptionPane.showMessageDialog(this, "Please finish transaction");
                return;
             }
@@ -1339,7 +1400,9 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	        {
 				  JOptionPane.showMessageDialog(this, "Error updating transaction: " + e.getMessage());	        	
 	        }
+	        gameStateListBox.removeItemListener(this);
             gameStateListBox.setSelectedIndex(gameState);
+            gameStateListBox.addItemListener(this);
             enableUI();
          }
 
@@ -1352,21 +1415,28 @@ public class Host extends JFrame implements ActionListener, ItemListener
          // Select transaction participants.
          else if (event.getSource() == transactionParticipantsClaimantCandidateListBox)
          {
+        	transactionParticipantsClaimantCandidateListBox.removeItemListener(this);
             int i = transactionParticipantsClaimantCandidateListBox.getSelectedIndex();
             if ((i > 0) && (i < transactionParticipantsClaimantCandidateListBox.getItemCount()))
             {
                String name = transactionParticipantsClaimantCandidateListBox.getItemAt(i);
                transactionParticipantsClaimantTextBox.setText(name);
+            } else if (i == 0)
+            {
+            	transactionParticipantsClaimantTextBox.setText("");
             }
+            transactionParticipantsClaimantCandidateListBox.setSelectedIndex(0);
+           	transactionParticipantsClaimantCandidateListBox.addItemListener(this);           
          }
          else if (event.getSource() == transactionParticipantsAuditorCandidateListBox)
          {
+        	transactionParticipantsAuditorCandidateListBox.removeItemListener(this);
+        	transactionParticipantsAuditorListBox.removeItemListener(this);
             int i = transactionParticipantsAuditorCandidateListBox.getSelectedIndex();
             if ((i > 0) && (i < transactionParticipantsAuditorCandidateListBox.getItemCount()))
             {
                String name = transactionParticipantsAuditorCandidateListBox.getItemAt(i);
                transactionParticipantsAuditorCandidateListBox.removeItemAt(i);
-               transactionParticipantsAuditorCandidateListBox.setSelectedIndex(0);
                for (i = 1; i < transactionParticipantsAuditorListBox.getItemCount(); i++)
                {
                   if (name.compareTo(transactionParticipantsAuditorListBox.getItemAt(i)) < 0)
@@ -1375,17 +1445,21 @@ public class Host extends JFrame implements ActionListener, ItemListener
                   }
                }
                transactionParticipantsAuditorListBox.insertItemAt(name, i);
-               transactionParticipantsAuditorListBox.setSelectedIndex(0);
             }
+            transactionParticipantsAuditorCandidateListBox.setSelectedIndex(0);            
+            transactionParticipantsAuditorListBox.setSelectedIndex(0); 
+        	transactionParticipantsAuditorCandidateListBox.addItemListener(this);
+        	transactionParticipantsAuditorListBox.addItemListener(this);           
          }
          else if (event.getSource() == transactionParticipantsAuditorListBox)
          {
+         	transactionParticipantsAuditorCandidateListBox.removeItemListener(this);
+         	transactionParticipantsAuditorListBox.removeItemListener(this);        	 
             int i = transactionParticipantsAuditorListBox.getSelectedIndex();
             if ((i > 0) && (i < transactionParticipantsAuditorListBox.getItemCount()))
             {
                String name = transactionParticipantsAuditorListBox.getItemAt(i);
                transactionParticipantsAuditorListBox.removeItemAt(i);
-               transactionParticipantsAuditorListBox.setSelectedIndex(0);
                for (i = 1; i < transactionParticipantsAuditorCandidateListBox.getItemCount(); i++)
                {
                   if (name.compareTo(transactionParticipantsAuditorCandidateListBox.getItemAt(i)) < 0)
@@ -1394,8 +1468,11 @@ public class Host extends JFrame implements ActionListener, ItemListener
                   }
                }
                transactionParticipantsAuditorCandidateListBox.insertItemAt(name, i);
-               transactionParticipantsAuditorCandidateListBox.setSelectedIndex(0);
             }
+            transactionParticipantsAuditorCandidateListBox.setSelectedIndex(0);            
+            transactionParticipantsAuditorListBox.setSelectedIndex(0); 
+        	transactionParticipantsAuditorCandidateListBox.addItemListener(this);
+        	transactionParticipantsAuditorListBox.addItemListener(this);               
          }
          else if (event.getSource() == transactionGrantAuditorCompletedListBox)
          {
@@ -1509,7 +1586,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
 
    private String doubleToString(double value)
    {
-      DecimalFormat decimalFormat = new DecimalFormat(".##");
+      DecimalFormat decimalFormat = new DecimalFormat("#.##");
       return(decimalFormat.format(value));
    }
 
@@ -1517,6 +1594,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
    // Reset transaction.
    private void resetTransaction()
    {
+	  UIlocked = true;
 	  transactionNumber = -1;
       if (gameState == Shared.RUNNING)
       {
@@ -1537,6 +1615,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
          transactionParticipantsAuditorCandidateListBox.setSelectedIndex(0);
          transactionParticipantsAuditorListBox.removeAllItems();
          transactionParticipantsAuditorListBox.insertItemAt("<player>", 0);
+         transactionParticipantsAuditorListBox.setSelectedIndex(0);         
       }
       else
       {
@@ -1577,6 +1656,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
       transactionTabPanel.setEnabledAt(FINISH_TAB, false);
       transactionFinishPendingParticipantsListBox.removeAllItems();
       transactionFinishedParticipantsListBox.removeAllItems();
+      UIlocked = false;
       enableUI();
    }
 
@@ -1584,7 +1664,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
    // Disable UI.
    private void disableUI()
    {
-	  if (!UIinit) return;
+	  if (UIlocked) return;
       gameCodeTextBox.setEditable(false);
       gameResourcesTextBox.setEditable(false);
       gameCreateDeleteButton.setEnabled(false);
@@ -1596,6 +1676,8 @@ public class Host extends JFrame implements ActionListener, ItemListener
       transactionParticipantsClaimantCandidateListBox.setEnabled(false);
       transactionParticipantsAuditorCandidateListBox.setEnabled(false);
       transactionParticipantsAuditorListBox.setEnabled(false);
+      transactionParticipantsClaimantResetButton.setEnabled(false);
+      transactionParticipantsAuditorsResetButton.setEnabled(false);      
       transactionParticipantsSetButton.setEnabled(false);
       transactionClaimDistributionMeanTextBox.setEditable(false);
       transactionClaimDistributionSigmaTextBox.setEditable(false);
@@ -1619,9 +1701,11 @@ public class Host extends JFrame implements ActionListener, ItemListener
    // Enable UI.
    private void enableUI()
    {
-	  if (!UIinit) return;
+	  if (UIlocked) return;
       gameCreateDeleteButton.setEnabled(true);
+      gameStateListBox.removeItemListener(this);
 	  gameStateListBox.setSelectedIndex(gameState);
+	  gameStateListBox.addItemListener(this);
       if (gameState == 0)
       {
          gameCodeTextBox.setEditable(false);
@@ -1635,6 +1719,8 @@ public class Host extends JFrame implements ActionListener, ItemListener
          transactionParticipantsClaimantCandidateListBox.setEnabled(false);
          transactionParticipantsAuditorCandidateListBox.setEnabled(false);
          transactionParticipantsAuditorListBox.setEnabled(false);
+         transactionParticipantsClaimantResetButton.setEnabled(false);
+         transactionParticipantsAuditorsResetButton.setEnabled(false);          
          transactionParticipantsSetButton.setEnabled(false);
          transactionClaimDistributionMeanTextBox.setEditable(false);
          transactionClaimDistributionSigmaTextBox.setEditable(false);
@@ -1668,6 +1754,8 @@ public class Host extends JFrame implements ActionListener, ItemListener
             transactionParticipantsClaimantCandidateListBox.setEnabled(false);
             transactionParticipantsAuditorCandidateListBox.setEnabled(false);
             transactionParticipantsAuditorListBox.setEnabled(false);
+            transactionParticipantsClaimantResetButton.setEnabled(false);
+            transactionParticipantsAuditorsResetButton.setEnabled(false);             
             transactionParticipantsSetButton.setEnabled(false);
             transactionClaimDistributionMeanTextBox.setEditable(false);
             transactionClaimDistributionSigmaTextBox.setEditable(false);
@@ -1691,6 +1779,8 @@ public class Host extends JFrame implements ActionListener, ItemListener
             transactionParticipantsClaimantCandidateListBox.setEnabled(true);
             transactionParticipantsAuditorCandidateListBox.setEnabled(true);
             transactionParticipantsAuditorListBox.setEnabled(true);
+            transactionParticipantsClaimantResetButton.setEnabled(true);
+            transactionParticipantsAuditorsResetButton.setEnabled(true);             
             transactionParticipantsSetButton.setEnabled(true);
             transactionClaimDistributionMeanTextBox.setEditable(false);
             transactionClaimDistributionSigmaTextBox.setEditable(false);
@@ -1711,9 +1801,11 @@ public class Host extends JFrame implements ActionListener, ItemListener
             break;
 
          case CLAIM_DISTRIBUTION:
-            transactionParticipantsClaimantCandidateListBox.setEnabled(true);
-            transactionParticipantsAuditorCandidateListBox.setEnabled(true);
-            transactionParticipantsAuditorListBox.setEnabled(true);
+            transactionParticipantsClaimantCandidateListBox.setEnabled(false);
+            transactionParticipantsAuditorCandidateListBox.setEnabled(false);
+            transactionParticipantsAuditorListBox.setEnabled(false);
+            transactionParticipantsClaimantResetButton.setEnabled(false);
+            transactionParticipantsAuditorsResetButton.setEnabled(false);            
             transactionParticipantsSetButton.setEnabled(false);
             transactionClaimDistributionMeanTextBox.setEditable(true);
             transactionClaimDistributionSigmaTextBox.setEditable(true);
@@ -1734,9 +1826,11 @@ public class Host extends JFrame implements ActionListener, ItemListener
             break;
 
          case CLAIM_ENTITLEMENT:
-            transactionParticipantsClaimantCandidateListBox.setEnabled(true);
-            transactionParticipantsAuditorCandidateListBox.setEnabled(true);
-            transactionParticipantsAuditorListBox.setEnabled(true);
+            transactionParticipantsClaimantCandidateListBox.setEnabled(false);
+            transactionParticipantsAuditorCandidateListBox.setEnabled(false);
+            transactionParticipantsAuditorListBox.setEnabled(false);
+            transactionParticipantsClaimantResetButton.setEnabled(false);
+            transactionParticipantsAuditorsResetButton.setEnabled(false);             
             transactionParticipantsSetButton.setEnabled(false);
             transactionClaimDistributionMeanTextBox.setEditable(false);
             transactionClaimDistributionSigmaTextBox.setEditable(false);
@@ -1757,9 +1851,11 @@ public class Host extends JFrame implements ActionListener, ItemListener
             break;
 
          case CLAIM_WAIT:
-            transactionParticipantsClaimantCandidateListBox.setEnabled(true);
-            transactionParticipantsAuditorCandidateListBox.setEnabled(true);
-            transactionParticipantsAuditorListBox.setEnabled(true);
+            transactionParticipantsClaimantCandidateListBox.setEnabled(false);
+            transactionParticipantsAuditorCandidateListBox.setEnabled(false);
+            transactionParticipantsAuditorListBox.setEnabled(false);
+            transactionParticipantsClaimantResetButton.setEnabled(false);
+            transactionParticipantsAuditorsResetButton.setEnabled(false);             
             transactionParticipantsSetButton.setEnabled(false);
             transactionClaimDistributionMeanTextBox.setEditable(false);
             transactionClaimDistributionSigmaTextBox.setEditable(false);
@@ -1780,9 +1876,11 @@ public class Host extends JFrame implements ActionListener, ItemListener
             break;
 
          case GRANT_WAIT:
-            transactionParticipantsClaimantCandidateListBox.setEnabled(true);
-            transactionParticipantsAuditorCandidateListBox.setEnabled(true);
-            transactionParticipantsAuditorListBox.setEnabled(true);
+            transactionParticipantsClaimantCandidateListBox.setEnabled(false);
+            transactionParticipantsAuditorCandidateListBox.setEnabled(false);
+            transactionParticipantsAuditorListBox.setEnabled(false);
+            transactionParticipantsClaimantResetButton.setEnabled(false);
+            transactionParticipantsAuditorsResetButton.setEnabled(false);            
             transactionParticipantsSetButton.setEnabled(false);
             transactionClaimDistributionMeanTextBox.setEditable(false);
             transactionClaimDistributionSigmaTextBox.setEditable(false);
@@ -1803,9 +1901,11 @@ public class Host extends JFrame implements ActionListener, ItemListener
             break;
 
          case PENALTY_PARAMETERS:
-            transactionParticipantsClaimantCandidateListBox.setEnabled(true);
-            transactionParticipantsAuditorCandidateListBox.setEnabled(true);
-            transactionParticipantsAuditorListBox.setEnabled(true);
+            transactionParticipantsClaimantCandidateListBox.setEnabled(false);
+            transactionParticipantsAuditorCandidateListBox.setEnabled(false);
+            transactionParticipantsAuditorListBox.setEnabled(false);
+            transactionParticipantsClaimantResetButton.setEnabled(false);
+            transactionParticipantsAuditorsResetButton.setEnabled(false);             
             transactionParticipantsSetButton.setEnabled(false);
             transactionClaimDistributionMeanTextBox.setEditable(false);
             transactionClaimDistributionSigmaTextBox.setEditable(false);
@@ -1826,9 +1926,11 @@ public class Host extends JFrame implements ActionListener, ItemListener
             break;
 
          case PENALTY_WAIT:
-            transactionParticipantsClaimantCandidateListBox.setEnabled(true);
-            transactionParticipantsAuditorCandidateListBox.setEnabled(true);
-            transactionParticipantsAuditorListBox.setEnabled(true);
+            transactionParticipantsClaimantCandidateListBox.setEnabled(false);
+            transactionParticipantsAuditorCandidateListBox.setEnabled(false);
+            transactionParticipantsAuditorListBox.setEnabled(false);
+            transactionParticipantsClaimantResetButton.setEnabled(false);
+            transactionParticipantsAuditorsResetButton.setEnabled(false);             
             transactionParticipantsSetButton.setEnabled(false);
             transactionClaimDistributionMeanTextBox.setEditable(false);
             transactionClaimDistributionSigmaTextBox.setEditable(false);
@@ -1849,9 +1951,11 @@ public class Host extends JFrame implements ActionListener, ItemListener
             break;
 
          case FINISH_WAIT:
-            transactionParticipantsClaimantCandidateListBox.setEnabled(true);
-            transactionParticipantsAuditorCandidateListBox.setEnabled(true);
-            transactionParticipantsAuditorListBox.setEnabled(true);
+            transactionParticipantsClaimantCandidateListBox.setEnabled(false);
+            transactionParticipantsAuditorCandidateListBox.setEnabled(false);
+            transactionParticipantsAuditorListBox.setEnabled(false);
+            transactionParticipantsClaimantResetButton.setEnabled(false);
+            transactionParticipantsAuditorsResetButton.setEnabled(false);             
             transactionParticipantsSetButton.setEnabled(false);
             transactionClaimDistributionMeanTextBox.setEditable(false);
             transactionClaimDistributionSigmaTextBox.setEditable(false);
@@ -1872,9 +1976,11 @@ public class Host extends JFrame implements ActionListener, ItemListener
             break;
 
          case FINISHED:
-            transactionParticipantsClaimantCandidateListBox.setEnabled(true);
-            transactionParticipantsAuditorCandidateListBox.setEnabled(true);
-            transactionParticipantsAuditorListBox.setEnabled(true);
+            transactionParticipantsClaimantCandidateListBox.setEnabled(false);
+            transactionParticipantsAuditorCandidateListBox.setEnabled(false);
+            transactionParticipantsAuditorListBox.setEnabled(false);
+            transactionParticipantsClaimantResetButton.setEnabled(false);
+            transactionParticipantsAuditorsResetButton.setEnabled(false);             
             transactionParticipantsSetButton.setEnabled(false);
             transactionClaimDistributionMeanTextBox.setEditable(false);
             transactionClaimDistributionSigmaTextBox.setEditable(false);
@@ -1929,24 +2035,30 @@ public class Host extends JFrame implements ActionListener, ItemListener
    	   				JOptionPane.showMessageDialog(this, "Error syncing game: " + e.getMessage());
    	   				gameState = 0;
    	   			}
+   	   			gameStateListBox.removeItemListener(this);
    	   			gameStateListBox.setSelectedIndex(gameState);
+   	   			gameStateListBox.addItemListener(this);
    	   			if (gameState != 0)
    	   			{
    	   				int i = 2;
    	   	            gameResourcesTextBox.setText(args[i]); 
    	   	            i++;
-   	   	            playerTotalResourceTextBox.setText(args[i]);
-   	   	            i++;
+   	   	            showPlayerResources(args[i], args[i + 1]);
+   	   	            i += 3;
                     playersJoinedTextBox.setText(args[i]); 
                     int n = Integer.parseInt(args[i]);
                     i++;
+                    playersListBox.removeItemListener(this);
                     playersListBox.removeAllItems();
                     playersListBox.addItem(Shared.ALL_PLAYERS); 
                     for (int j = 0; j < n; j++)
                     {
                     	playersListBox.addItem(args[i + j]);
                     }
+                    playersListBox.setSelectedIndex(0);
+                    playersListBox.addItemListener(this); 
                     // TODO: process transaction.
+                    resetTransaction();
    	   			}
    	   		}
    		}
@@ -1977,8 +2089,15 @@ public class Host extends JFrame implements ActionListener, ItemListener
    	   				{
    	   					int g = Integer.parseInt(args[1]);
    	   					boolean enable = false;
-   	   					if (g != gameState) enable = true;
-   	   					gameState = g;
+   	   					if (g != gameState) 
+   	   					{
+   	   						enable = true;
+   	   						gameState = g;
+   	   						if (gameState == Shared.RUNNING) 
+   	   						{
+   	   							resetTransaction();
+   	   						}
+   	   					}
 	   	   				if (gameState > 0 && args.length > 2)
 	   	   				{
 	   	    	   			disableUI();
@@ -2058,7 +2177,10 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	            }
 	            if (!found)
 	            {
+	            	playersListBox.removeItemListener(this); 
 		            playersListBox.insertItemAt(playerName, i);
+		            playersListBox.setSelectedIndex(0);
+		            playersListBox.addItemListener(this); 
 		            playersJoinedTextBox.setText("" + (playersListBox.getItemCount() - 1));
 		            updatePlayerResources(); 
 	            }
@@ -2071,7 +2193,10 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	        {
               if ((playersListBox.getItemAt(i)).equals(playerName))
               {
+            	 playersListBox.removeItemListener(this);  
                  playersListBox.removeItemAt(i);
+                 playersListBox.setSelectedIndex(0);                 
+                 playersListBox.addItemListener(this); 
      	         playersJoinedTextBox.setText("" + (playersListBox.getItemCount() - 1));
     	         updatePlayerResources();                 
                  break;
