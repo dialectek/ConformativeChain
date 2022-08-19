@@ -56,6 +56,14 @@ public class NormalDistribution
 
    public void setMean(double mean)
    {
+	  if (this.mean != mean)
+	  {
+		  if (graphics != null)
+		  {
+			  graphics.setColor(Color.WHITE);
+			  graphics.clearRect(0,  0, CANVAS_WIDTH, CANVAS_HEIGHT);		  
+		  }
+	  }
       this.mean = mean;
    }
 
@@ -68,6 +76,14 @@ public class NormalDistribution
 
    public void setSigma(double sigma)
    {
+	  if (this.sigma != sigma)
+	  {
+		  if (graphics != null)
+		  {
+			  graphics.setColor(Color.WHITE);
+			  graphics.clearRect(0,  0, CANVAS_WIDTH, CANVAS_HEIGHT);		  
+		  }
+	  }	   	   
       this.sigma = sigma;
    }
 

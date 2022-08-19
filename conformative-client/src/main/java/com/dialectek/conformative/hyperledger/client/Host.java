@@ -17,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import javax.swing.BorderFactory;
@@ -95,6 +96,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
    private TextField          transactionClaimDistributionMeanTextBox;
    private Label              transactionClaimDistributionSigmaLabel;
    private TextField          transactionClaimDistributionSigmaTextBox;
+   private Button             transactionClaimDistributionParameterTestButton;
    private Button             transactionClaimDistributionParameterSetButton;
    private JPanel             transactionClaimDistributionTestPanel;   
    private Label              transactionClaimDistributionTestValueLabel;
@@ -384,11 +386,11 @@ public class Host extends JFrame implements ActionListener, ItemListener
       transactionParticipantsAuditorCandidateListBox.addItem("<player name>");      
       transactionParticipantsAuditorCandidateListBox.addItemListener(this);
       transactionParticipantsAuditorPanel.add(transactionParticipantsAuditorCandidateListBox);
-      transactionParticipantsAuditorLabel = newLabel("<-select->");
+      transactionParticipantsAuditorLabel = newLabel("select->");
       transactionParticipantsAuditorPanel.add(transactionParticipantsAuditorLabel);
       transactionParticipantsAuditorListBox = new JComboBox<String>();
       transactionParticipantsAuditorListBox.setOpaque(true);
-      transactionParticipantsAuditorListBox.addItem("<player name>");      
+      transactionParticipantsAuditorListBox.addItem("<player name>"); 
       transactionParticipantsAuditorListBox.addItemListener(this);
       transactionParticipantsAuditorPanel.add(transactionParticipantsAuditorListBox);
       transactionParticipantsAuditorsResetButton = new Button("Reset");
@@ -427,6 +429,9 @@ public class Host extends JFrame implements ActionListener, ItemListener
       sigma = NormalDistribution.DEFAULT_SIGMA;
       transactionClaimDistributionSigmaTextBox.setText(sigma + "");
       transactionClaimDistributionPanel.add(transactionClaimDistributionSigmaTextBox);
+      transactionClaimDistributionParameterTestButton = new Button("Test");
+      transactionClaimDistributionPanel.add(transactionClaimDistributionParameterTestButton);
+      transactionClaimDistributionParameterTestButton.addActionListener(this); 
       transactionClaimDistributionParameterSetButton = new Button("Set");
       transactionClaimDistributionPanel.add(transactionClaimDistributionParameterSetButton);
       transactionClaimDistributionParameterSetButton.addActionListener(this);      
@@ -599,6 +604,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
         	  }
               animateWaitTextBox(transactionClaimAmountTextBox);
               animateWaitTextBox(transactionGrantClaimantTextBox);
+              transactionClaimDistribution.draw();
           }
       };
       timer = new Timer("Timer");
@@ -962,12 +968,11 @@ public class Host extends JFrame implements ActionListener, ItemListener
              }
              transactionParticipantsAuditorCandidateListBox.setSelectedIndex(0);
              transactionParticipantsAuditorCandidateListBox.addItemListener(this); 
-             transactionParticipantsAuditorListBox.removeItemListener(this);              
+             transactionParticipantsAuditorListBox.removeItemListener(this); 
              transactionParticipantsAuditorListBox.removeAllItems();
              transactionParticipantsAuditorListBox.insertItemAt("<player>", 0);
              transactionParticipantsAuditorListBox.setSelectedIndex(0);
              transactionParticipantsAuditorListBox.addItemListener(this); 
-             transactionParticipantsAuditorListBox.addItemListener(this);             
          }
          
          // Set transaction participants.
@@ -994,11 +999,13 @@ public class Host extends JFrame implements ActionListener, ItemListener
             }
             transactionState = TRANSACTION_STATE.CLAIM_DISTRIBUTION;
             transactionTabPanel.setEnabledAt(CLAIM_TAB, true);
+            transactionTabPanel.setSelectedIndex(CLAIM_TAB);
             enableUI();
          }
          
-         // Set entitlement probability distribution parameters.
-         else if (event.getSource() == transactionClaimDistributionParameterSetButton)
+         // Test/set entitlement probability distribution parameters.
+         else if (event.getSource() == transactionClaimDistributionParameterTestButton ||
+        		  event.getSource() == transactionClaimDistributionParameterSetButton)
          {
             String meanText = transactionClaimDistributionMeanTextBox.getText().trim();
             if (Shared.isVoid(meanText))
@@ -1041,7 +1048,10 @@ public class Host extends JFrame implements ActionListener, ItemListener
             transactionClaimDistribution.setMean(mean);
             transactionClaimDistribution.setSigma(sigma);
             transactionClaimDistribution.draw();
-            transactionState = TRANSACTION_STATE.CLAIM_ENTITLEMENT;
+            if (event.getSource() == transactionClaimDistributionParameterSetButton)
+            {
+               transactionState = TRANSACTION_STATE.CLAIM_ENTITLEMENT;
+            }  
             enableUI();
          }
 
@@ -1064,6 +1074,51 @@ public class Host extends JFrame implements ActionListener, ItemListener
             }
             double probability = transactionClaimDistribution.phi(value);
             transactionClaimDistributionTestProbabilityTextBox.setText(doubleToString(probability));
+         
+            
+            
+            
+            String meanText = transactionClaimDistributionMeanTextBox.getText().trim();
+            if (Shared.isVoid(meanText))
+            {
+               JOptionPane.showMessageDialog(this, "Please enter mean");
+               return;
+            }
+            String sigmaText = transactionClaimDistributionSigmaTextBox.getText().trim();
+            if (Shared.isVoid(sigmaText))
+            {
+               JOptionPane.showMessageDialog(this, "Please enter sigma");
+               return;
+            }
+            double mean;
+            try {
+               mean = Double.parseDouble(meanText);
+            }
+            catch (NumberFormatException e) {
+               JOptionPane.showMessageDialog(this, "Invalid mean");
+               return;
+            }
+            if (mean <= 0.0)
+            {
+               JOptionPane.showMessageDialog(this, "Invalid mean");
+               return;
+            }
+            double sigma;
+            try {
+               sigma = Double.parseDouble(sigmaText);
+            }
+            catch (NumberFormatException e) {
+               JOptionPane.showMessageDialog(this, "Invalid sigma");
+               return;
+            }
+            if (sigma <= 0.0)
+            {
+               JOptionPane.showMessageDialog(this, "Invalid sigma");
+               return;
+            }            
+            Normal n = new Normal(mean, sigma, new Random());
+            System.out.println("cdf=" + n.cdf(value));
+            System.out.println("pdf=" + n.pdf(value));            
          }
 
          // Generate a value from the entitlement probability distribution.
@@ -1176,6 +1231,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
             }
             transactionState = TRANSACTION_STATE.FINISH_WAIT;
             transactionTabPanel.setEnabledAt(FINISH_TAB, true);
+            transactionTabPanel.setSelectedIndex(FINISH_TAB);            
             disableUI();
             double claim   = Double.parseDouble(transactionClaimAmountTextBox.getText());
             double grant   = Double.parseDouble(transactionGrantClaimantTextBox.getText());
@@ -1216,7 +1272,11 @@ public class Host extends JFrame implements ActionListener, ItemListener
             {
          	   JOptionPane.showMessageDialog(this, "Error setting penalties: " + e.getMessage());	   					     	               
             }
-            enableUI();                 
+            playersListBox.removeItemListener(this);
+            playersListBox.setSelectedIndex(0);
+            playersListBox.addItemListener(this);            
+            enableUI();             
+            updatePlayerResources();               
          }
 
          // Commit transaction.
@@ -1305,7 +1365,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
             case CLAIM_DISTRIBUTION:
             case CLAIM_ENTITLEMENT:
                resetTransaction();
-               transactionTabPanel.setSelectedIndex(0); 
+               transactionTabPanel.setSelectedIndex(PARTICIPANTS_TAB);
                return;
 
             default:
@@ -1340,7 +1400,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
          	   JOptionPane.showMessageDialog(this, "Error aborting transaction: " + e.getMessage());	   					     	               
             } 
             resetTransaction();
-            transactionTabPanel.setSelectedIndex(0);            
+            transactionTabPanel.setSelectedIndex(PARTICIPANTS_TAB);            
          }
    }
 
@@ -1431,7 +1491,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
          else if (event.getSource() == transactionParticipantsAuditorCandidateListBox)
          {
         	transactionParticipantsAuditorCandidateListBox.removeItemListener(this);
-        	transactionParticipantsAuditorListBox.removeItemListener(this);
+        	transactionParticipantsAuditorListBox.removeItemListener(this);        	
             int i = transactionParticipantsAuditorCandidateListBox.getSelectedIndex();
             if ((i > 0) && (i < transactionParticipantsAuditorCandidateListBox.getItemCount()))
             {
@@ -1449,30 +1509,13 @@ public class Host extends JFrame implements ActionListener, ItemListener
             transactionParticipantsAuditorCandidateListBox.setSelectedIndex(0);            
             transactionParticipantsAuditorListBox.setSelectedIndex(0); 
         	transactionParticipantsAuditorCandidateListBox.addItemListener(this);
-        	transactionParticipantsAuditorListBox.addItemListener(this);           
+        	transactionParticipantsAuditorListBox.addItemListener(this);        	
          }
          else if (event.getSource() == transactionParticipantsAuditorListBox)
          {
-         	transactionParticipantsAuditorCandidateListBox.removeItemListener(this);
-         	transactionParticipantsAuditorListBox.removeItemListener(this);        	 
-            int i = transactionParticipantsAuditorListBox.getSelectedIndex();
-            if ((i > 0) && (i < transactionParticipantsAuditorListBox.getItemCount()))
-            {
-               String name = transactionParticipantsAuditorListBox.getItemAt(i);
-               transactionParticipantsAuditorListBox.removeItemAt(i);
-               for (i = 1; i < transactionParticipantsAuditorCandidateListBox.getItemCount(); i++)
-               {
-                  if (name.compareTo(transactionParticipantsAuditorCandidateListBox.getItemAt(i)) < 0)
-                  {
-                     break;
-                  }
-               }
-               transactionParticipantsAuditorCandidateListBox.insertItemAt(name, i);
-            }
-            transactionParticipantsAuditorCandidateListBox.setSelectedIndex(0);            
+         	transactionParticipantsAuditorListBox.removeItemListener(this);         	 
             transactionParticipantsAuditorListBox.setSelectedIndex(0); 
-        	transactionParticipantsAuditorCandidateListBox.addItemListener(this);
-        	transactionParticipantsAuditorListBox.addItemListener(this);               
+         	transactionParticipantsAuditorListBox.addItemListener(this);           	 
          }
          else if (event.getSource() == transactionGrantAuditorCompletedListBox)
          {
@@ -1566,11 +1609,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
 
    private void showPlayerResources(String personal, String common)
    {
-      double total = Double.parseDouble(personal) + Double.parseDouble(common);
-
-      playerTotalResourceTextBox.setText(doubleToString(total));
-      playerPersonalResourceTextBox.setText(personal);
-      playerCommonResourceTextBox.setText(common);
+	  showPlayerResources(Double.parseDouble(personal), Double.parseDouble(common));
    }
 
 
@@ -1626,6 +1665,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
          transactionParticipantsAuditorCandidateListBox.removeAllItems();
          transactionParticipantsAuditorListBox.removeAllItems();
       }
+      transactionTabPanel.setSelectedIndex(PARTICIPANTS_TAB);      
       transactionTabPanel.setEnabledAt(CLAIM_TAB, false);
       if (transactionClaimDistribution != null)
       {
@@ -1681,6 +1721,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
       transactionParticipantsSetButton.setEnabled(false);
       transactionClaimDistributionMeanTextBox.setEditable(false);
       transactionClaimDistributionSigmaTextBox.setEditable(false);
+      transactionClaimDistributionParameterTestButton.setEnabled(false);
       transactionClaimDistributionParameterSetButton.setEnabled(false);
       transactionClaimEntitlementTextBox.setEditable(false);
       transactionClaimEntitlementGenerateButton.setEnabled(false);
@@ -1724,6 +1765,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
          transactionParticipantsSetButton.setEnabled(false);
          transactionClaimDistributionMeanTextBox.setEditable(false);
          transactionClaimDistributionSigmaTextBox.setEditable(false);
+         transactionClaimDistributionParameterTestButton.setEnabled(false);
          transactionClaimDistributionParameterSetButton.setEnabled(false);
          transactionClaimEntitlementTextBox.setEditable(false);
          transactionClaimEntitlementGenerateButton.setEnabled(false);
@@ -1759,6 +1801,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
             transactionParticipantsSetButton.setEnabled(false);
             transactionClaimDistributionMeanTextBox.setEditable(false);
             transactionClaimDistributionSigmaTextBox.setEditable(false);
+            transactionClaimDistributionParameterTestButton.setEnabled(false);
             transactionClaimDistributionParameterSetButton.setEnabled(false);
             transactionClaimEntitlementTextBox.setEditable(false);
             transactionClaimEntitlementGenerateButton.setEnabled(false);
@@ -1784,6 +1827,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
             transactionParticipantsSetButton.setEnabled(true);
             transactionClaimDistributionMeanTextBox.setEditable(false);
             transactionClaimDistributionSigmaTextBox.setEditable(false);
+            transactionClaimDistributionParameterTestButton.setEnabled(false);
             transactionClaimDistributionParameterSetButton.setEnabled(false);
             transactionClaimEntitlementTextBox.setEditable(false);
             transactionClaimEntitlementGenerateButton.setEnabled(false);
@@ -1803,12 +1847,13 @@ public class Host extends JFrame implements ActionListener, ItemListener
          case CLAIM_DISTRIBUTION:
             transactionParticipantsClaimantCandidateListBox.setEnabled(false);
             transactionParticipantsAuditorCandidateListBox.setEnabled(false);
-            transactionParticipantsAuditorListBox.setEnabled(false);
+            transactionParticipantsAuditorListBox.setEnabled(true);
             transactionParticipantsClaimantResetButton.setEnabled(false);
             transactionParticipantsAuditorsResetButton.setEnabled(false);            
             transactionParticipantsSetButton.setEnabled(false);
             transactionClaimDistributionMeanTextBox.setEditable(true);
             transactionClaimDistributionSigmaTextBox.setEditable(true);
+            transactionClaimDistributionParameterTestButton.setEnabled(true);
             transactionClaimDistributionParameterSetButton.setEnabled(true);
             transactionClaimEntitlementTextBox.setEditable(false);
             transactionClaimEntitlementGenerateButton.setEnabled(false);
@@ -1828,12 +1873,13 @@ public class Host extends JFrame implements ActionListener, ItemListener
          case CLAIM_ENTITLEMENT:
             transactionParticipantsClaimantCandidateListBox.setEnabled(false);
             transactionParticipantsAuditorCandidateListBox.setEnabled(false);
-            transactionParticipantsAuditorListBox.setEnabled(false);
+            transactionParticipantsAuditorListBox.setEnabled(true);
             transactionParticipantsClaimantResetButton.setEnabled(false);
             transactionParticipantsAuditorsResetButton.setEnabled(false);             
             transactionParticipantsSetButton.setEnabled(false);
             transactionClaimDistributionMeanTextBox.setEditable(false);
             transactionClaimDistributionSigmaTextBox.setEditable(false);
+            transactionClaimDistributionParameterTestButton.setEnabled(false);
             transactionClaimDistributionParameterSetButton.setEnabled(false);
             transactionClaimEntitlementTextBox.setEditable(true);
             transactionClaimEntitlementGenerateButton.setEnabled(true);
@@ -1853,12 +1899,13 @@ public class Host extends JFrame implements ActionListener, ItemListener
          case CLAIM_WAIT:
             transactionParticipantsClaimantCandidateListBox.setEnabled(false);
             transactionParticipantsAuditorCandidateListBox.setEnabled(false);
-            transactionParticipantsAuditorListBox.setEnabled(false);
+            transactionParticipantsAuditorListBox.setEnabled(true);
             transactionParticipantsClaimantResetButton.setEnabled(false);
             transactionParticipantsAuditorsResetButton.setEnabled(false);             
             transactionParticipantsSetButton.setEnabled(false);
             transactionClaimDistributionMeanTextBox.setEditable(false);
             transactionClaimDistributionSigmaTextBox.setEditable(false);
+            transactionClaimDistributionParameterTestButton.setEnabled(false);
             transactionClaimDistributionParameterSetButton.setEnabled(false);
             transactionClaimEntitlementTextBox.setEditable(false);
             transactionClaimEntitlementGenerateButton.setEnabled(false);
@@ -1878,12 +1925,13 @@ public class Host extends JFrame implements ActionListener, ItemListener
          case GRANT_WAIT:
             transactionParticipantsClaimantCandidateListBox.setEnabled(false);
             transactionParticipantsAuditorCandidateListBox.setEnabled(false);
-            transactionParticipantsAuditorListBox.setEnabled(false);
+            transactionParticipantsAuditorListBox.setEnabled(true);
             transactionParticipantsClaimantResetButton.setEnabled(false);
             transactionParticipantsAuditorsResetButton.setEnabled(false);            
             transactionParticipantsSetButton.setEnabled(false);
             transactionClaimDistributionMeanTextBox.setEditable(false);
             transactionClaimDistributionSigmaTextBox.setEditable(false);
+            transactionClaimDistributionParameterTestButton.setEnabled(false);
             transactionClaimDistributionParameterSetButton.setEnabled(false);
             transactionClaimEntitlementTextBox.setEditable(false);
             transactionClaimEntitlementGenerateButton.setEnabled(false);
@@ -1903,12 +1951,13 @@ public class Host extends JFrame implements ActionListener, ItemListener
          case PENALTY_PARAMETERS:
             transactionParticipantsClaimantCandidateListBox.setEnabled(false);
             transactionParticipantsAuditorCandidateListBox.setEnabled(false);
-            transactionParticipantsAuditorListBox.setEnabled(false);
+            transactionParticipantsAuditorListBox.setEnabled(true);
             transactionParticipantsClaimantResetButton.setEnabled(false);
             transactionParticipantsAuditorsResetButton.setEnabled(false);             
             transactionParticipantsSetButton.setEnabled(false);
             transactionClaimDistributionMeanTextBox.setEditable(false);
             transactionClaimDistributionSigmaTextBox.setEditable(false);
+            transactionClaimDistributionParameterTestButton.setEnabled(false);
             transactionClaimDistributionParameterSetButton.setEnabled(false);
             transactionClaimEntitlementTextBox.setEditable(false);
             transactionClaimEntitlementGenerateButton.setEnabled(false);
@@ -1928,12 +1977,13 @@ public class Host extends JFrame implements ActionListener, ItemListener
          case PENALTY_WAIT:
             transactionParticipantsClaimantCandidateListBox.setEnabled(false);
             transactionParticipantsAuditorCandidateListBox.setEnabled(false);
-            transactionParticipantsAuditorListBox.setEnabled(false);
+            transactionParticipantsAuditorListBox.setEnabled(true);
             transactionParticipantsClaimantResetButton.setEnabled(false);
             transactionParticipantsAuditorsResetButton.setEnabled(false);             
             transactionParticipantsSetButton.setEnabled(false);
             transactionClaimDistributionMeanTextBox.setEditable(false);
             transactionClaimDistributionSigmaTextBox.setEditable(false);
+            transactionClaimDistributionParameterTestButton.setEnabled(false);
             transactionClaimDistributionParameterSetButton.setEnabled(false);
             transactionClaimEntitlementTextBox.setEditable(false);
             transactionClaimEntitlementGenerateButton.setEnabled(false);
@@ -1953,12 +2003,13 @@ public class Host extends JFrame implements ActionListener, ItemListener
          case FINISH_WAIT:
             transactionParticipantsClaimantCandidateListBox.setEnabled(false);
             transactionParticipantsAuditorCandidateListBox.setEnabled(false);
-            transactionParticipantsAuditorListBox.setEnabled(false);
+            transactionParticipantsAuditorListBox.setEnabled(true);
             transactionParticipantsClaimantResetButton.setEnabled(false);
             transactionParticipantsAuditorsResetButton.setEnabled(false);             
             transactionParticipantsSetButton.setEnabled(false);
             transactionClaimDistributionMeanTextBox.setEditable(false);
             transactionClaimDistributionSigmaTextBox.setEditable(false);
+            transactionClaimDistributionParameterTestButton.setEnabled(false);
             transactionClaimDistributionParameterSetButton.setEnabled(false);
             transactionClaimEntitlementTextBox.setEditable(false);
             transactionClaimEntitlementGenerateButton.setEnabled(false);
@@ -1978,12 +2029,13 @@ public class Host extends JFrame implements ActionListener, ItemListener
          case FINISHED:
             transactionParticipantsClaimantCandidateListBox.setEnabled(false);
             transactionParticipantsAuditorCandidateListBox.setEnabled(false);
-            transactionParticipantsAuditorListBox.setEnabled(false);
+            transactionParticipantsAuditorListBox.setEnabled(true);
             transactionParticipantsClaimantResetButton.setEnabled(false);
             transactionParticipantsAuditorsResetButton.setEnabled(false);             
             transactionParticipantsSetButton.setEnabled(false);
             transactionClaimDistributionMeanTextBox.setEditable(false);
             transactionClaimDistributionSigmaTextBox.setEditable(false);
+            transactionClaimDistributionParameterTestButton.setEnabled(false);
             transactionClaimDistributionParameterSetButton.setEnabled(false);
             transactionClaimEntitlementTextBox.setEditable(false);
             transactionClaimEntitlementGenerateButton.setEnabled(false);
@@ -2219,6 +2271,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	        transactionClaimAmountTextBox.setText(claim + "");
 	        transactionState = TRANSACTION_STATE.GRANT_WAIT;
 	        transactionTabPanel.setEnabledAt(GRANT_TAB, true);
+            transactionTabPanel.setSelectedIndex(GRANT_TAB);	        
 	        auditorNames.clear();
 	        auditorGrants.clear();
 	        auditorPenalties.clear();
@@ -2230,6 +2283,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	           transactionGrantClaimantTextBox.setText(claim + "");
 	           transactionState = TRANSACTION_STATE.PENALTY_PARAMETERS;
 	           transactionTabPanel.setEnabledAt(PENALTY_TAB, true);
+	           transactionTabPanel.setSelectedIndex(PENALTY_TAB);	           
 	        }
 	        else
 	        {
@@ -2305,6 +2359,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	           transactionGrantClaimantTextBox.setText(grant + "");
 	           transactionState = TRANSACTION_STATE.PENALTY_PARAMETERS;
 	           transactionTabPanel.setEnabledAt(PENALTY_TAB, true);
+	           transactionTabPanel.setSelectedIndex(PENALTY_TAB);
 	           DelimitedString request = new DelimitedString(Shared.SET_GRANT);
 	           request.add(gameCode);
 	           request.add(transactionNumber);

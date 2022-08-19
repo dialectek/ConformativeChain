@@ -948,7 +948,7 @@ public final class GameService implements ContractInterface
 	      	            if (auditor == null)
 	      	            {
 	      	                return(Shared.error("auditor not found: " + auditorName));            	   
-	      	            }                                     
+	      	            }
                         transaction.addAuditorName(auditorName);
                         DelimitedString auditorMessage = new DelimitedString(Shared.START_AUDIT);
                         auditorMessage.add(number);
@@ -1072,7 +1072,7 @@ public final class GameService implements ContractInterface
                   grantMessage.add(grant);
                   claimant.addMessage(grantMessage.toString());
                   String claimantJson = genson.serialize(claimant);
-                  stub.putStringState(gameCode + DelimitedString.DELIMITER + claimantName, claimantJson);                                
+                  stub.putStringState(gameCode + DelimitedString.DELIMITER + claimantName, claimantJson); 
                   ArrayList<String> auditorNames = transaction.getAuditorNames();                  
                   for (int i = 0; i < auditorNames.size(); i++)
                   {

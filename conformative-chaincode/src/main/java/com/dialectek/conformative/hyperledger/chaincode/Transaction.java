@@ -3,6 +3,7 @@
 package com.dialectek.conformative.hyperledger.chaincode;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import org.hyperledger.fabric.contract.annotation.DataType;
 import org.hyperledger.fabric.contract.annotation.Property;
 import com.owlike.genson.annotation.JsonProperty;
@@ -11,46 +12,46 @@ import com.owlike.genson.annotation.JsonProperty;
 public class Transaction
 {
    @Property()
-   private final int number;
+   public final int number;
    
    @Property()
-   private final String gameCode;
+   public final String gameCode;
 
    @Property()
-   private String claimantName;
+   public String claimantName;
 
    @Property()
-   private double mean;
+   public double mean;
 
    @Property()
-   private double sigma;
+   public double sigma;
 
    @Property()
-   private double entitlement;
+   public double entitlement;
 
    @Property()
-   private double claim;
+   public double claim;
 
    @Property()
-   private ArrayList<String> auditorNames;
+   public String[] auditorNames;
 
    @Property()
-   private ArrayList<Double> auditorGrants;
+   public double[] auditorGrants;
 
    @Property()
-   private double claimantGrant;
+   public double claimantGrant;
 
    @Property()
-   private ArrayList<Double> auditorPenalties;
+   public double[] auditorPenalties;
 
    @Property()
-   private double claimantPenalty;
+   public double claimantPenalty;
 
    @Property()
-   private ArrayList<String> beneficiaries;
+   public String[] beneficiaries;
 
    @Property()
-   private ArrayList<Double> donations;
+   public double[] donations;
    
    public Transaction(@JsonProperty("number") final int number, 
 		   @JsonProperty("gameCode") final String gameCode)
@@ -61,13 +62,13 @@ public class Transaction
       mean             = sigma = 0.0;
       entitlement      = 0.0;
       claim            = 0.0;
-      auditorNames     = new ArrayList<String>();
-      auditorGrants    = new ArrayList<Double>();
+      auditorNames     = new String[0];
+      auditorGrants    = new double[0];
       claimantGrant    = 0.0;
-      auditorPenalties = new ArrayList<Double>();
+      auditorPenalties = new double[0];
       claimantPenalty  = 0.0;
-      beneficiaries    = new ArrayList<String>();
-      donations        = new ArrayList<Double>();
+      beneficiaries    = new String[0];
+      donations        = new double[0];
    }
 
 
@@ -142,34 +143,45 @@ public class Transaction
       this.claim = claim;
    }
 
-
    public ArrayList<String> getAuditorNames()
    {
-      return(auditorNames);
+	  ArrayList<String> results = new ArrayList<String>();
+	  for (String name: auditorNames)
+	  {
+		  results.add(name);
+	  }
+      return results;
    }
-
 
    public void addAuditorName(String auditorName)
    {
-      auditorNames.add(auditorName);
-      auditorGrants.add(new Double(0.0));
-      auditorPenalties.add(new Double(0.0));
+	  auditorNames = Arrays.copyOf(auditorNames, auditorNames.length + 1);
+	  auditorNames[auditorNames.length - 1] = auditorName;
+	  auditorGrants = Arrays.copyOf(auditorGrants, auditorGrants.length + 1);
+	  auditorGrants[auditorGrants.length - 1] = 0.0;	  
+	  auditorPenalties = Arrays.copyOf(auditorPenalties, auditorPenalties.length + 1);
+	  auditorPenalties[auditorPenalties.length - 1] = 0.0;	
    }
 
 
    public ArrayList<Double> getAuditorGrants()
    {
-      return(auditorGrants);
+	  ArrayList<Double> results = new ArrayList<Double>();
+	  for (Double grant: auditorGrants)
+	  {
+		  results.add(grant);
+	  }
+      return results;	   
    }
 
 
    public void addAuditorGrant(String auditorName, double grant)
    {
-      for (int i = 0; i < auditorNames.size(); i++)
+      for (int i = 0; i < auditorNames.length; i++)
       {
-         if (auditorName.equals(auditorNames.get(i)))
+         if (auditorName.equals(auditorNames[i]))
          {
-            auditorGrants.set(i, new Double(grant));
+            auditorGrants[i] = grant;
             break;
          }
       }
@@ -190,17 +202,22 @@ public class Transaction
 
    public ArrayList<Double> getAuditorPenalties()
    {
-      return(auditorPenalties);
+	  ArrayList<Double> results = new ArrayList<Double>();
+	  for (Double penalty: auditorPenalties)
+	  {
+		  results.add(penalty);
+	  }
+      return results;	   	   
    }
 
 
    public void addAuditorPenalty(String auditorName, double penalty)
    {
-      for (int i = 0; i < auditorNames.size(); i++)
+      for (int i = 0; i < auditorNames.length; i++)
       {
-         if (auditorName.equals(auditorNames.get(i)))
+         if (auditorName.equals(auditorNames[i]))
          {
-            auditorPenalties.set(i, new Double(penalty));
+            auditorPenalties[i] = penalty;
             break;
          }
       }
@@ -221,19 +238,31 @@ public class Transaction
 
    public ArrayList<String> getBeneficiaries()
    {
-      return(beneficiaries);
+	  ArrayList<String> results = new ArrayList<String>();
+	  for (String name: beneficiaries)
+	  {
+		  results.add(name);
+	  }
+      return results;	   
    }
 
 
    public ArrayList<Double> getDonations()
    {
-      return(donations);
+	  ArrayList<Double> results = new ArrayList<Double>();
+	  for (Double donation: donations)
+	  {
+		  results.add(donation);
+	  }
+      return results;	   
    }
 
 
    public void addDonation(String beneficiary, double donation)
    {
-      beneficiaries.add(beneficiary);
-      donations.add(new Double(donation));
+      beneficiaries = Arrays.copyOf(beneficiaries, beneficiaries.length + 1);
+      beneficiaries[beneficiaries.length - 1] = beneficiary;
+      donations = Arrays.copyOf(donations, donations.length + 1);
+      donations[donations.length - 1] = donation;	      
    }
 }

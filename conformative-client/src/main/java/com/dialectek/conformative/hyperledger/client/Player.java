@@ -541,6 +541,8 @@ public class Player extends JFrame implements ActionListener
               animateWaitTextBox(claimResourcesPenaltyTextBox);
               animateWaitTextBox(auditResourcesConsensusTextBox);
               animateWaitTextBox(auditResourcesPenaltyTextBox);
+              claimDistribution.draw();
+              auditDistribution.draw();
           }
       };
       timer = new Timer("Timer");
