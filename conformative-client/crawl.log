@@ -3315,3 +3315,123 @@ ERROR	2022-08-18 23:45:15,154	1	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-Ev
 ERROR	2022-08-18 23:45:42,740	27587	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Bob","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Bob' is already registered"}
 ],"messages":[],"success":false}
 ERROR	2022-08-18 23:45:42,740	27587	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@3dff2392
+ERROR	2022-08-19 15:39:45,258	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Alice","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Alice' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-19 15:39:45,299	41	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@3d6a0ddc
+ERROR	2022-08-19 15:40:36,976	51718	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Bob","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Bob' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-19 15:40:36,976	51718	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@54e114e2
+ERROR	2022-08-19 15:50:19,949	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Alice","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Alice' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-19 15:50:19,950	1	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@173ece0e
+ERROR	2022-08-19 15:50:32,499	12550	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Bob","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Bob' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-19 15:50:32,500	12551	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@77a66c19
+ERROR	2022-08-19 16:00:08,765	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Alice","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Alice' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-19 16:00:08,765	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@3a65f040
+ERROR	2022-08-19 16:24:23,380	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Alice","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Alice' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-19 16:24:23,423	43	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@251c9f06
+ERROR	2022-08-19 16:34:03,138	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Alice","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Alice' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-19 16:34:03,139	1	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@35212928
+ERROR	2022-08-19 16:41:05,264	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Alice","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Alice' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-19 16:41:05,264	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@14849a98
+ERROR	2022-08-19 16:45:16,233	1	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Alice","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Alice' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-19 16:45:16,233	1	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@77bbf11
+ERROR	2022-08-19 20:22:11,932	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Alice","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Alice' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-19 20:22:11,984	52	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@2807c837
+ERROR	2022-08-19 21:42:36,950	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Alice","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Alice' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-19 21:42:36,951	1	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@4817ff71
+ERROR	2022-08-19 22:04:40,056	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Alice","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Alice' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-19 22:04:40,057	1	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@70c81efa
+ERROR	2022-08-19 22:21:04,529	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Alice","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Alice' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-19 22:21:04,529	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@11460891
+ERROR	2022-08-19 22:27:50,121	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Alice","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Alice' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-19 22:27:50,122	1	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@31572ef3
+ERROR	2022-08-19 22:36:06,358	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Alice","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Alice' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-19 22:36:06,358	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@49f05dea
+ERROR	2022-08-19 22:36:24,380	18022	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Bob","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Bob' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-19 22:36:24,380	18022	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@291a85a7
+ERROR	2022-08-19 22:58:25,386	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Alice","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Alice' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-19 22:58:25,386	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@5baefe85
+ERROR	2022-08-19 22:58:40,577	15191	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Bob","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Bob' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-19 22:58:40,577	15191	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@629836a
+ERROR	2022-08-19 23:37:58,407	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Alice","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Alice' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-19 23:37:58,407	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@1b02b66e
+ERROR	2022-08-19 23:55:57,151	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Alice","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Alice' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-19 23:55:57,152	1	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@42e9fcee
+ERROR	2022-08-20 12:22:07,839	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Alice","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Alice' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-20 12:22:07,883	44	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@385f2fe3
+ERROR	2022-08-20 12:22:27,192	19353	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Bob","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Bob' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-20 12:22:27,192	19353	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@30ae5c11
+ERROR	2022-08-20 12:36:19,160	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Alice","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Alice' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-20 12:36:19,161	1	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@1102b224
+ERROR	2022-08-20 12:36:30,885	11725	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Bob","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Bob' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-20 12:36:30,885	11725	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@542587e4
+ERROR	2022-08-20 16:03:55,828	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Alice","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Alice' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-20 16:03:55,847	19	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@7ec39957
+ERROR	2022-08-20 16:04:13,673	17845	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Bob","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Bob' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-20 16:04:13,673	17845	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@6b110565
+ERROR	2022-08-20 16:06:47,290	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Alice","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Alice' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-20 16:06:47,290	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@48d922fe
+ERROR	2022-08-20 16:13:40,776	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Alice","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Alice' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-20 16:13:40,776	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@3234b5ff
+ERROR	2022-08-20 16:17:23,250	222474	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Bob","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Bob' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-20 16:17:23,250	222474	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@e9c6d05
+ERROR	2022-08-20 16:28:27,233	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Alice","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Alice' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-20 16:28:27,233	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@7aa51c09
+ERROR	2022-08-20 17:09:27,761	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Alice","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Alice' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-20 17:09:27,762	1	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@142d6975
+ERROR	2022-08-20 17:14:00,595	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Bob","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Bob' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-20 17:14:00,596	1	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@3f6832de
+ERROR	2022-08-20 17:14:56,523	55928	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Alice","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Alice' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-20 17:14:56,524	55929	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@718d160
+ERROR	2022-08-20 20:24:46,984	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Alice","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Alice' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-20 20:24:47,029	45	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@4f533912
+ERROR	2022-08-20 20:37:43,688	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Alice","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Alice' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-20 20:37:43,689	1	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@ca26ebf
+ERROR	2022-08-20 21:01:38,327	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Alice","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Alice' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-20 21:01:38,327	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@64f9c1f3
+ERROR	2022-08-20 21:05:18,832	220505	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Bob","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Bob' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-20 21:05:18,833	220506	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@33c218ea
+ERROR	2022-08-20 21:19:05,522	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Alice","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Alice' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-20 21:19:05,522	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@10b355
+ERROR	2022-08-20 21:21:29,189	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Alice","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Alice' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-20 21:21:29,190	1	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@6507d8cf
+ERROR	2022-08-20 21:23:09,745	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Alice","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Alice' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-20 21:23:09,747	2	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@7044b059

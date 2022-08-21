@@ -2,13 +2,10 @@
 
 package com.dialectek.conformative.hyperledger.client;
 
-import java.awt.Button;
 import java.awt.Canvas;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.Label;
-import java.awt.TextArea;
-import java.awt.TextField;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -22,11 +19,17 @@ import java.util.Timer;
 import java.util.TimerTask;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+
 import com.dialectek.conformative.hyperledger.shared.DelimitedString;
 import com.dialectek.conformative.hyperledger.shared.Shared;
 
@@ -38,36 +41,38 @@ public class Host extends JFrame implements ActionListener, ItemListener
    private JPanel             homePanel;
    private JPanel             gameCaptionPanel;
    private JPanel             gameCodePanel;   
-   private Label              gameCodeLabel;
-   private TextField          gameCodeTextBox;
-   private Label              gameResourcesLabel;
-   private TextField          gameResourcesTextBox;
-   private Button             gameCreateDeleteButton;
+   private JLabel              gameCodeLabel;
+   private JTextField          gameCodeTextBox;
+   private JLabel              gameResourcesLabel;
+   private JTextField          gameResourcesTextBox;
+   private JButton             gameCreateDeleteButton;
    private JPanel             gameStatePanel;   
-   private Label              gameStateLabel;
+   private JLabel              gameStateLabel;
    private JComboBox<String>  gameStateListBox;
    private JPanel             playersCaptionPanel;
    private JPanel             playersJoinedPanel;
-   private Label              playersJoinedLabel;
-   private TextField          playersJoinedTextBox;
+   private JLabel              playersJoinedLabel;
+   private JTextField          playersJoinedTextBox;
    private JComboBox<String>  playersListBox;
-   private Button             playerRemoveButton;
+   private JButton             playerRemoveButton;
    private JPanel             playerResourceCaptionPanel;
-   private Label              playerTotalResourceLabel;
-   private TextField          playerTotalResourceTextBox;
-   private Label              playerPersonalResourceLabel;
-   private TextField          playerPersonalResourceTextBox;
-   private Label              playerCommonResourceLabel;
-   private TextField          playerCommonResourceTextBox;
+   private JLabel              playerTotalResourceLabel;
+   private JTextField          playerTotalResourceTextBox;
+   private JLabel              playerPersonalResourceLabel;
+   private JTextField          playerPersonalResourceTextBox;
+   private JLabel              playerCommonResourceLabel;
+   private JTextField          playerCommonResourceTextBox;
    private JPanel             playerChatCaptionPanel;
-   private TextArea           playerChatTextArea;
+   private JTextArea           playerChatTextArea;
+   private JScrollPane         playerChatScrollPane;
    private JPanel             playerChatClearPanel;
-   private Button             playerChatClearButton;
-   private TextField          playerChatTextBox;
+   private JButton             playerChatClearButton;
+   private JTextField          playerChatTextBox;
    private JPanel             playerChatSendPanel;
-   private Button             playerChatSendButton;
+   private JButton             playerChatSendButton;
    private JPanel             transactionHistoryCaptionPanel;
-   private TextArea           transactionHistoryTextArea;
+   private JTextArea           transactionHistoryTextArea;
+   private JScrollPane         transactionHistoryScrollPane;
    private JPanel             transactionPanel;
    private JTabbedPane        transactionTabPanel;   
    private JPanel             transactionParticipantsCaptionPanel;
@@ -75,80 +80,80 @@ public class Host extends JFrame implements ActionListener, ItemListener
    private JPanel             transactionParticipantsClaimantCaptionPanel;
    private JPanel             transactionParticipantsClaimantPanel;
    private JComboBox<String>  transactionParticipantsClaimantCandidateListBox;
-   private Label              transactionParticipantsClaimantLabel;
-   private TextField          transactionParticipantsClaimantTextBox;
-   private Button             transactionParticipantsClaimantResetButton;
+   private JLabel              transactionParticipantsClaimantLabel;
+   private JTextField          transactionParticipantsClaimantTextBox;
+   private JButton             transactionParticipantsClaimantResetButton;
    private JPanel             transactionParticipantsAuditorCaptionPanel;
    private JPanel             transactionParticipantsAuditorPanel;
    private JComboBox<String>  transactionParticipantsAuditorCandidateListBox;
-   private Label              transactionParticipantsAuditorLabel;
+   private JLabel              transactionParticipantsAuditorLabel;
    private JComboBox<String>  transactionParticipantsAuditorListBox;
-   private Button             transactionParticipantsAuditorsResetButton;
+   private JButton             transactionParticipantsAuditorsResetButton;
    private JPanel             transactionParticipantsSetButtonPanel;   
-   private Button             transactionParticipantsSetButton;
+   private JButton             transactionParticipantsSetButton;
    private JPanel             transactionClaimCaptionPanel;
    private JPanel             transactionClaimPanel;
    private JPanel             transactionClaimDistributionCaptionPanel;
    private JPanel             transactionClaimDistributionPanel;
    private Canvas             transactionClaimDistributionCanvas;
    private NormalDistribution transactionClaimDistribution;
-   private Label              transactionClaimDistributionMeanLabel;
-   private TextField          transactionClaimDistributionMeanTextBox;
-   private Label              transactionClaimDistributionSigmaLabel;
-   private TextField          transactionClaimDistributionSigmaTextBox;
-   private Button             transactionClaimDistributionParameterTestButton;
-   private Button             transactionClaimDistributionParameterSetButton;
+   private JLabel              transactionClaimDistributionMeanLabel;
+   private JTextField          transactionClaimDistributionMeanTextBox;
+   private JLabel              transactionClaimDistributionSigmaLabel;
+   private JTextField          transactionClaimDistributionSigmaTextBox;
+   private JButton             transactionClaimDistributionParameterTestButton;
+   private JButton             transactionClaimDistributionParameterSetButton;
    private JPanel             transactionClaimDistributionTestPanel;   
-   private Label              transactionClaimDistributionTestValueLabel;
-   private TextField          transactionClaimDistributionTestValueTextBox;
-   private Button             transactionClaimDistributionTestButton;
-   private TextField          transactionClaimDistributionTestProbabilityTextBox;
+   private JLabel              transactionClaimDistributionTestValueLabel;
+   private JTextField          transactionClaimDistributionTestValueTextBox;
+   private JButton             transactionClaimDistributionTestButton;
+   private JTextField          transactionClaimDistributionTestProbabilityTextBox;
    private JPanel             transactionClaimEntitlementPanel;   
-   private Label              transactionClaimEntitlementLabel;
-   private TextField          transactionClaimEntitlementTextBox;
-   private Button             transactionClaimEntitlementGenerateButton;
-   private Button             transactionClaimEntitlementSetButton;
+   private JLabel              transactionClaimEntitlementLabel;
+   private JTextField          transactionClaimEntitlementTextBox;
+   private JButton             transactionClaimEntitlementGenerateButton;
+   private JButton             transactionClaimEntitlementSetButton;
    private JPanel             transactionClaimAmountPanel;
-   private Label              transactionClaimAmountLabel;
-   private TextField          transactionClaimAmountTextBox;
+   private JLabel              transactionClaimAmountLabel;
+   private JTextField          transactionClaimAmountTextBox;
    private JPanel             transactionGrantCaptionPanel;
    private JPanel             transactionGrantPanel;
    private JPanel             transactionGrantAuditorPanel;
-   private Label              transactionGrantAuditorWorkingLabel;
+   private JLabel              transactionGrantAuditorWorkingLabel;
    private JComboBox<String>  transactionGrantAuditorWorkingListBox;
-   private Label              transactionGrantAuditorCompletedLabel;
+   private JLabel              transactionGrantAuditorCompletedLabel;
    private JComboBox<String>  transactionGrantAuditorCompletedListBox;
-   private Label              transactionGrantAuditorAmountLabel;
-   private TextField          transactionGrantAuditorAmountTextBox;
+   private JLabel              transactionGrantAuditorAmountLabel;
+   private JTextField          transactionGrantAuditorAmountTextBox;
    private JPanel             transactionGrantClaimantPanel;
-   private Label              transactionGrantClaimantLabel;
-   private TextField          transactionGrantClaimantTextBox;
+   private JLabel              transactionGrantClaimantLabel;
+   private JTextField          transactionGrantClaimantTextBox;
    private JPanel             transactionPenaltyCaptionPanel;
    private JPanel             transactionPenaltyPanel;
    private JPanel             transactionPenaltyParameterCaptionPanel;
    private JPanel             transactionPenaltyClaimantParameterPanel;
-   private Label              transactionPenaltyClaimantParameterLabel;
-   private TextField          transactionPenaltyClaimantParameterTextBox;
-   private Label              transactionPenaltyAuditorParameterLabel;
-   private TextField          transactionPenaltyAuditorParameterTextBox;
-   private Button             transactionPenaltySetButton;
+   private JLabel              transactionPenaltyClaimantParameterLabel;
+   private JTextField          transactionPenaltyClaimantParameterTextBox;
+   private JLabel              transactionPenaltyAuditorParameterLabel;
+   private JTextField          transactionPenaltyAuditorParameterTextBox;
+   private JButton             transactionPenaltySetButton;
    private JPanel             transactionPenaltyAuditorPanel;
-   private Label              transactionPenaltyAuditorLabel;
+   private JLabel              transactionPenaltyAuditorLabel;
    private JComboBox<String>  transactionPenaltyAuditorListBox;
-   private Label              transactionPenaltyAuditorAmountLabel;
-   private TextField          transactionPenaltyAuditorAmountTextBox;
-   private Label              transactionPenaltyClaimantLabel;
-   private TextField          transactionPenaltyClaimantTextBox;
+   private JLabel              transactionPenaltyAuditorAmountLabel;
+   private JTextField          transactionPenaltyAuditorAmountTextBox;
+   private JLabel              transactionPenaltyClaimantLabel;
+   private JTextField          transactionPenaltyClaimantTextBox;
    private JPanel             transactionFinishCaptionPanel;
    private JPanel             transactionFinishPanel;
-   private Label              transactionFinishPendingParticipantsLabel;
+   private JLabel              transactionFinishPendingParticipantsLabel;
    private JComboBox<String>  transactionFinishPendingParticipantsListBox;
-   private Label              transactionFinishedLabel;
+   private JLabel              transactionFinishedLabel;
    private JComboBox<String>  transactionFinishedParticipantsListBox;
    private JPanel             transactionCompletionPanel;
-   private Button             transactionCommitButton;
-   private Button             transactionAbortButton;
-   private Font               labelFont;
+   private JButton             transactionCommitButton;
+   private JButton             transactionAbortButton;
+   private Font               textFont;
    private boolean UIlocked = true;
 
    // Game code.
@@ -211,7 +216,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
    private int syncCounter = 0;
 
    // Constructor.
-   public Host(String gameCode, int transactionNumber) throws Exception
+   public Host(String gameCode) throws Exception
    {
 	  this.gameCode = gameCode;
 	  if (Shared.isVoid(gameCode))
@@ -219,18 +224,13 @@ public class Host extends JFrame implements ActionListener, ItemListener
           JOptionPane.showMessageDialog(this, "Invalid game code: " + gameCode);
           throw new Exception("Invalid game code");
 	  }
-	  this.transactionNumber = transactionNumber;
-	  if (transactionNumber < -1)
-	  {
-          JOptionPane.showMessageDialog(this, "Invalid transaction number: " + transactionNumber);
-          throw new Exception("Invalid transaction number");
-	  }
+	  transactionNumber = -1;
 	  
       // Title.
       setTitle("Conformative Game Host");
       
-      // Set fixed-width font for labels.
- 	  labelFont = new Font(Font.MONOSPACED, Font.PLAIN, 12);      
+      // Set fixed-width font for text.
+ 	  textFont = new Font(Font.MONOSPACED, Font.PLAIN, 12);      
 
       // Role tabs.
       roleTabPanel = new JTabbedPane();
@@ -247,21 +247,21 @@ public class Host extends JFrame implements ActionListener, ItemListener
       gameCaptionPanel.add(gameCodePanel);
       gameCodeLabel = newLabel("Code: ");
       gameCodePanel.add(gameCodeLabel);
-      gameCodeTextBox = new TextField(30);
+      gameCodeTextBox = newTextField(30);
       gameCodeTextBox.setText(gameCode);
       gameCodePanel.add(gameCodeTextBox);
       gameResourcesLabel = newLabel("Resources:");
       gameCodePanel.add(gameResourcesLabel);
-      gameResourcesTextBox = new TextField(10);
+      gameResourcesTextBox = newTextField(10);
       gameCodePanel.add(gameResourcesTextBox);
-      gameCreateDeleteButton = new Button("Create");
+      gameCreateDeleteButton = newButton("Create");
       gameCreateDeleteButton.addActionListener(this);
       gameCodePanel.add(gameCreateDeleteButton);
       gameStatePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       gameCaptionPanel.add(gameStatePanel);
       gameStateLabel = newLabel("State:");
       gameStatePanel.add(gameStateLabel);
-      gameStateListBox = new JComboBox<String>();
+      gameStateListBox = newComboBox();
       gameStateListBox.setOpaque(true);
       gameStateListBox.setEnabled(false);
       gameStateListBox.addItemListener(this);
@@ -281,17 +281,17 @@ public class Host extends JFrame implements ActionListener, ItemListener
       playersJoinedLabel = newLabel("Joined:");
       playersJoinedLabel.setSize(50, playersJoinedLabel.getSize().height);      
       playersJoinedPanel.add(playersJoinedLabel);
-      playersJoinedTextBox = new TextField(10);   
+      playersJoinedTextBox = newTextField(10);   
       playersJoinedTextBox.setEnabled(false);
       playersJoinedTextBox.setText("0");
       playersJoinedPanel.add(playersJoinedTextBox); 
-      playersListBox = new JComboBox<String>();
+      playersListBox = newComboBox();
       playersListBox.setOpaque(true);
       playersListBox.addItemListener(this);
       playersListBox.addItem(Shared.ALL_PLAYERS); 
       playersListBox.setSelectedIndex(0);
       playersJoinedPanel.add(playersListBox);
-      playerRemoveButton = new Button("Remove");
+      playerRemoveButton = newButton("Remove");
       playerRemoveButton.addActionListener(this);      
       playersJoinedPanel.add(playerRemoveButton);
       playerResourceCaptionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -300,48 +300,50 @@ public class Host extends JFrame implements ActionListener, ItemListener
       playerTotalResourceLabel = newLabel("Total:");
       playerResourceCaptionPanel.add(playerTotalResourceLabel);      
       playerTotalResourceLabel.setSize(10, playerTotalResourceLabel.getSize().height);
-      playerTotalResourceTextBox = new TextField(10);
+      playerTotalResourceTextBox = newTextField(10);
       playerTotalResourceTextBox.setEditable(false);
       playerResourceCaptionPanel.add(playerTotalResourceTextBox);
       playerPersonalResourceLabel = newLabel(" = Personal:");
       playerResourceCaptionPanel.add(playerPersonalResourceLabel);
       playerPersonalResourceLabel.setSize(10, playerPersonalResourceLabel.getSize().height);
-      playerPersonalResourceTextBox = new TextField(10);
+      playerPersonalResourceTextBox = newTextField(10);
       playerPersonalResourceTextBox.setEditable(false);
       playerResourceCaptionPanel.add(playerPersonalResourceTextBox);
       playerCommonResourceLabel = newLabel(" + Common:");
       playerResourceCaptionPanel.add(playerCommonResourceLabel);
       playerCommonResourceLabel.setSize(10, playerCommonResourceLabel.getSize().height);
-      playerCommonResourceTextBox = new TextField(10);
+      playerCommonResourceTextBox = newTextField(10);
       playerCommonResourceTextBox.setEditable(false);
       playerResourceCaptionPanel.add(playerCommonResourceTextBox);
       playerChatCaptionPanel = new JPanel();
-      playerChatCaptionPanel.setBorder(BorderFactory.createTitledBorder("Chat"));
+      playerChatCaptionPanel.setBorder(BorderFactory.createTitledBorder("Player chat"));
       playerChatCaptionPanel.setLayout(new BoxLayout(playerChatCaptionPanel, BoxLayout.Y_AXIS));       
       homePanel.add(playerChatCaptionPanel);
-      playerChatTextArea = new TextArea(10, 50);     
+      playerChatTextArea = newTextArea(5, 40);     
       playerChatTextArea.setEditable(false);
       playerChatTextArea.setText("Note: prepend <player name>/ to send to specific player\n");
-      playerChatCaptionPanel.add(playerChatTextArea);
+      playerChatScrollPane = new JScrollPane(playerChatTextArea);
+      playerChatCaptionPanel.add(playerChatScrollPane);
       playerChatClearPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       playerChatCaptionPanel.add(playerChatClearPanel);
-      playerChatClearButton = new Button("Clear");
+      playerChatClearButton = newButton("Clear");
       playerChatClearButton.addActionListener(this);
       playerChatClearPanel.add(playerChatClearButton);      
-      playerChatTextBox = new TextField(50);
+      playerChatTextBox = newTextField(40);
       playerChatCaptionPanel.add(playerChatTextBox);
       playerChatSendPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       playerChatCaptionPanel.add(playerChatSendPanel);      
-      playerChatSendButton = new Button("Send");
+      playerChatSendButton = newButton("Send");
       playerChatSendButton.addActionListener(this);
       playerChatSendPanel.add(playerChatSendButton);      
       transactionHistoryCaptionPanel = new JPanel();
-      transactionHistoryCaptionPanel.setLayout(new BoxLayout(transactionHistoryCaptionPanel, BoxLayout.Y_AXIS));            
+      transactionHistoryCaptionPanel.setLayout(new GridLayout(1, 1));            
       transactionHistoryCaptionPanel.setBorder(BorderFactory.createTitledBorder("Transaction history"));            
       homePanel.add(transactionHistoryCaptionPanel);
-      transactionHistoryTextArea = new TextArea(5, 50);   
+      transactionHistoryTextArea = newTextArea(5, 40);   
       transactionHistoryTextArea.setEditable(false);
-      transactionHistoryCaptionPanel.add(transactionHistoryTextArea);
+      transactionHistoryScrollPane = new JScrollPane(transactionHistoryTextArea);     
+      transactionHistoryCaptionPanel.add(transactionHistoryScrollPane, 0, 0);
 
       // Transaction tab.
       transactionPanel = new JPanel();
@@ -361,18 +363,18 @@ public class Host extends JFrame implements ActionListener, ItemListener
       transactionParticipantsPanel.add(transactionParticipantsClaimantCaptionPanel);
       transactionParticipantsClaimantPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       transactionParticipantsClaimantCaptionPanel.add(transactionParticipantsClaimantPanel);
-      transactionParticipantsClaimantCandidateListBox = new JComboBox<String>();
+      transactionParticipantsClaimantCandidateListBox = newComboBox();
       transactionParticipantsClaimantCandidateListBox.setOpaque(true);
       transactionParticipantsClaimantCandidateListBox.addItem("<player name>");
       transactionParticipantsClaimantCandidateListBox.addItemListener(this);
       transactionParticipantsClaimantPanel.add(transactionParticipantsClaimantCandidateListBox);
       transactionParticipantsClaimantLabel = newLabel("select->");
       transactionParticipantsClaimantPanel.add(transactionParticipantsClaimantLabel);
-      transactionParticipantsClaimantTextBox = new TextField(30);
+      transactionParticipantsClaimantTextBox = newTextField(30);
       transactionParticipantsClaimantTextBox.setText("<player name>");
       transactionParticipantsClaimantTextBox.setEditable(false);
       transactionParticipantsClaimantPanel.add(transactionParticipantsClaimantTextBox);
-      transactionParticipantsClaimantResetButton = new Button("Reset");
+      transactionParticipantsClaimantResetButton = newButton("Reset");
       transactionParticipantsClaimantPanel.add(transactionParticipantsClaimantResetButton);
       transactionParticipantsClaimantResetButton.addActionListener(this);       
       transactionParticipantsAuditorCaptionPanel = new JPanel();
@@ -381,24 +383,24 @@ public class Host extends JFrame implements ActionListener, ItemListener
       transactionParticipantsPanel.add(transactionParticipantsAuditorCaptionPanel);
       transactionParticipantsAuditorPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       transactionParticipantsAuditorCaptionPanel.add(transactionParticipantsAuditorPanel);
-      transactionParticipantsAuditorCandidateListBox = new JComboBox<String>();
+      transactionParticipantsAuditorCandidateListBox = newComboBox();
       transactionParticipantsAuditorCandidateListBox.setOpaque(true);
       transactionParticipantsAuditorCandidateListBox.addItem("<player name>");      
       transactionParticipantsAuditorCandidateListBox.addItemListener(this);
       transactionParticipantsAuditorPanel.add(transactionParticipantsAuditorCandidateListBox);
       transactionParticipantsAuditorLabel = newLabel("select->");
       transactionParticipantsAuditorPanel.add(transactionParticipantsAuditorLabel);
-      transactionParticipantsAuditorListBox = new JComboBox<String>();
+      transactionParticipantsAuditorListBox = newComboBox();
       transactionParticipantsAuditorListBox.setOpaque(true);
       transactionParticipantsAuditorListBox.addItem("<player name>"); 
       transactionParticipantsAuditorListBox.addItemListener(this);
       transactionParticipantsAuditorPanel.add(transactionParticipantsAuditorListBox);
-      transactionParticipantsAuditorsResetButton = new Button("Reset");
+      transactionParticipantsAuditorsResetButton = newButton("Reset");
       transactionParticipantsAuditorPanel.add(transactionParticipantsAuditorsResetButton);
       transactionParticipantsAuditorsResetButton.addActionListener(this);      
       transactionParticipantsSetButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       transactionParticipantsPanel.add(transactionParticipantsSetButtonPanel);      
-      transactionParticipantsSetButton = new Button("Set");
+      transactionParticipantsSetButton = newButton("Set");
       transactionParticipantsSetButtonPanel.add(transactionParticipantsSetButton);
       transactionParticipantsSetButton.addActionListener(this);         
       transactionClaimCaptionPanel = new JPanel();
@@ -419,51 +421,51 @@ public class Host extends JFrame implements ActionListener, ItemListener
       transactionClaimDistributionCaptionPanel.add(transactionClaimDistributionPanel);      
       transactionClaimDistributionMeanLabel = newLabel("Mean:");
       transactionClaimDistributionPanel.add(transactionClaimDistributionMeanLabel);
-      transactionClaimDistributionMeanTextBox = new TextField(10);
+      transactionClaimDistributionMeanTextBox = newTextField(10);
       mean = NormalDistribution.DEFAULT_MEAN;
       transactionClaimDistributionMeanTextBox.setText(mean + "");
       transactionClaimDistributionPanel.add(transactionClaimDistributionMeanTextBox);
       transactionClaimDistributionSigmaLabel = newLabel("Sigma:");
       transactionClaimDistributionPanel.add(transactionClaimDistributionSigmaLabel);
-      transactionClaimDistributionSigmaTextBox = new TextField(10);
+      transactionClaimDistributionSigmaTextBox = newTextField(10);
       sigma = NormalDistribution.DEFAULT_SIGMA;
       transactionClaimDistributionSigmaTextBox.setText(sigma + "");
       transactionClaimDistributionPanel.add(transactionClaimDistributionSigmaTextBox);
-      transactionClaimDistributionParameterTestButton = new Button("Test");
+      transactionClaimDistributionParameterTestButton = newButton("Test");
       transactionClaimDistributionPanel.add(transactionClaimDistributionParameterTestButton);
       transactionClaimDistributionParameterTestButton.addActionListener(this); 
-      transactionClaimDistributionParameterSetButton = new Button("Set");
+      transactionClaimDistributionParameterSetButton = newButton("Set");
       transactionClaimDistributionPanel.add(transactionClaimDistributionParameterSetButton);
       transactionClaimDistributionParameterSetButton.addActionListener(this);      
       transactionClaimDistributionTestPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       transactionClaimDistributionCaptionPanel.add(transactionClaimDistributionTestPanel);        
       transactionClaimDistributionTestValueLabel = newLabel("Test value:");      
       transactionClaimDistributionTestPanel.add(transactionClaimDistributionTestValueLabel);
-      transactionClaimDistributionTestValueTextBox = new TextField(10);
+      transactionClaimDistributionTestValueTextBox = newTextField(10);
       transactionClaimDistributionTestPanel.add(transactionClaimDistributionTestValueTextBox);
-      transactionClaimDistributionTestButton = new Button("Probability:");
+      transactionClaimDistributionTestButton = newButton("Probability:");
       transactionClaimDistributionTestPanel.add(transactionClaimDistributionTestButton);
       transactionClaimDistributionTestButton.addActionListener(this);
-      transactionClaimDistributionTestProbabilityTextBox = new TextField(10);
+      transactionClaimDistributionTestProbabilityTextBox = newTextField(10);
       transactionClaimDistributionTestProbabilityTextBox.setEditable(false);
       transactionClaimDistributionTestPanel.add(transactionClaimDistributionTestProbabilityTextBox);
       transactionClaimEntitlementPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       transactionClaimPanel.add(transactionClaimEntitlementPanel); 
       transactionClaimEntitlementLabel = newLabel("Entitlement:");
       transactionClaimEntitlementPanel.add(transactionClaimEntitlementLabel);
-      transactionClaimEntitlementTextBox = new TextField(10);
+      transactionClaimEntitlementTextBox = newTextField(10);
       transactionClaimEntitlementPanel.add(transactionClaimEntitlementTextBox);
-      transactionClaimEntitlementGenerateButton = new Button("Generate");
+      transactionClaimEntitlementGenerateButton = newButton("Generate");
       transactionClaimEntitlementGenerateButton.addActionListener(this);
       transactionClaimEntitlementPanel.add(transactionClaimEntitlementGenerateButton);
-      transactionClaimEntitlementSetButton = new Button("Set");
+      transactionClaimEntitlementSetButton = newButton("Set");
       transactionClaimEntitlementSetButton.addActionListener(this);
       transactionClaimEntitlementPanel.add(transactionClaimEntitlementSetButton);      
       transactionClaimAmountPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       transactionClaimPanel.add(transactionClaimAmountPanel);       
       transactionClaimAmountLabel = newLabel("Claim:      ");
       transactionClaimAmountPanel.add(transactionClaimAmountLabel);
-      transactionClaimAmountTextBox = new TextField(10);
+      transactionClaimAmountTextBox = newTextField(10);
       transactionClaimAmountTextBox.setEditable(false);
       transactionClaimAmountPanel.add(transactionClaimAmountTextBox);      
       transactionGrantCaptionPanel = new JPanel();
@@ -476,27 +478,27 @@ public class Host extends JFrame implements ActionListener, ItemListener
       transactionGrantPanel.add(transactionGrantAuditorPanel);
       transactionGrantAuditorWorkingLabel = newLabel("Auditing:");
       transactionGrantAuditorPanel.add(transactionGrantAuditorWorkingLabel);
-      transactionGrantAuditorWorkingListBox = new JComboBox<String>();
+      transactionGrantAuditorWorkingListBox = newComboBox();
       transactionGrantAuditorWorkingListBox.setOpaque(true);
       transactionGrantAuditorWorkingListBox.addItem("<player name>");      
       transactionGrantAuditorPanel.add(transactionGrantAuditorWorkingListBox);
       transactionGrantAuditorCompletedLabel = newLabel("Completed:");
       transactionGrantAuditorPanel.add(transactionGrantAuditorCompletedLabel);
-      transactionGrantAuditorCompletedListBox = new JComboBox<String>();
+      transactionGrantAuditorCompletedListBox = newComboBox();
       transactionGrantAuditorCompletedListBox.setOpaque(true);
       transactionGrantAuditorCompletedListBox.addItem("<player name>");        
       transactionGrantAuditorCompletedListBox.addItemListener(this);
       transactionGrantAuditorPanel.add(transactionGrantAuditorCompletedListBox);
       transactionGrantAuditorAmountLabel = newLabel("amount->");
       transactionGrantAuditorPanel.add(transactionGrantAuditorAmountLabel);
-      transactionGrantAuditorAmountTextBox = new TextField(10);
+      transactionGrantAuditorAmountTextBox = newTextField(10);
       transactionGrantAuditorAmountTextBox.setEditable(false);
       transactionGrantAuditorPanel.add(transactionGrantAuditorAmountTextBox);
       transactionGrantClaimantPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));      
       transactionGrantPanel.add(transactionGrantClaimantPanel);      
       transactionGrantClaimantLabel = newLabel("Claimant:");
       transactionGrantClaimantPanel.add(transactionGrantClaimantLabel);
-      transactionGrantClaimantTextBox = new TextField(10);
+      transactionGrantClaimantTextBox = newTextField(10);
       transactionGrantClaimantTextBox.setEditable(false);
       transactionGrantClaimantPanel.add(transactionGrantClaimantTextBox);
       for (int i = 0; i < 6; i++) transactionGrantPanel.add(new JPanel());      
@@ -514,36 +516,36 @@ public class Host extends JFrame implements ActionListener, ItemListener
       transactionPenaltyParameterCaptionPanel.add(transactionPenaltyClaimantParameterPanel);
       transactionPenaltyClaimantParameterLabel = newLabel("Claimant:");
       transactionPenaltyClaimantParameterPanel.add(transactionPenaltyClaimantParameterLabel);
-      transactionPenaltyClaimantParameterTextBox = new TextField(10);
+      transactionPenaltyClaimantParameterTextBox = newTextField(10);
       claimantPenaltyParameter = DEFAULT_CLAIMANT_PENALTY_PARAMETER;
       transactionPenaltyClaimantParameterTextBox.setText(claimantPenaltyParameter + "");
       transactionPenaltyClaimantParameterPanel.add(transactionPenaltyClaimantParameterTextBox);
       transactionPenaltyAuditorParameterLabel = newLabel("Auditor:");
       transactionPenaltyClaimantParameterPanel.add(transactionPenaltyAuditorParameterLabel);
-      transactionPenaltyAuditorParameterTextBox = new TextField();
+      transactionPenaltyAuditorParameterTextBox = newTextField(10);
       auditorPenaltyParameter = DEFAULT_AUDITOR_PENALTY_PARAMETER;
       transactionPenaltyAuditorParameterTextBox.setText(auditorPenaltyParameter + "");
       transactionPenaltyClaimantParameterPanel.add(transactionPenaltyAuditorParameterTextBox);
-      transactionPenaltySetButton = new Button("Set");
+      transactionPenaltySetButton = newButton("Set");
       transactionPenaltySetButton.addActionListener(this);
       transactionPenaltyClaimantParameterPanel.add(transactionPenaltySetButton);      
       transactionPenaltyAuditorPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       transactionPenaltyPanel.add(transactionPenaltyAuditorPanel);      
       transactionPenaltyAuditorLabel = newLabel("Auditor:");
       transactionPenaltyAuditorPanel.add(transactionPenaltyAuditorLabel);
-      transactionPenaltyAuditorListBox = new JComboBox<String>();
+      transactionPenaltyAuditorListBox = newComboBox();
       transactionPenaltyAuditorListBox.setOpaque(true);
       transactionPenaltyAuditorListBox.addItem("<player name>");
       transactionPenaltyAuditorListBox.addItemListener(this);
       transactionPenaltyAuditorPanel.add(transactionPenaltyAuditorListBox);
       transactionPenaltyAuditorAmountLabel = newLabel("amount->");
       transactionPenaltyAuditorPanel.add(transactionPenaltyAuditorAmountLabel);
-      transactionPenaltyAuditorAmountTextBox = new TextField(10);
+      transactionPenaltyAuditorAmountTextBox = newTextField(10);
       transactionPenaltyAuditorAmountTextBox.setEditable(false);
       transactionPenaltyAuditorPanel.add(transactionPenaltyAuditorAmountTextBox);
       transactionPenaltyClaimantLabel = newLabel("Claimant:");
       transactionPenaltyAuditorPanel.add(transactionPenaltyClaimantLabel);
-      transactionPenaltyClaimantTextBox = new TextField(10);
+      transactionPenaltyClaimantTextBox = newTextField(10);
       transactionPenaltyClaimantTextBox.setEditable(false);
       transactionPenaltyAuditorPanel.add(transactionPenaltyClaimantTextBox);
       for (int i = 0; i < 5; i++) transactionPenaltyPanel.add(new JPanel());      
@@ -554,24 +556,25 @@ public class Host extends JFrame implements ActionListener, ItemListener
       transactionFinishCaptionPanel.add(transactionFinishPanel);
       transactionFinishPendingParticipantsLabel = newLabel("Participant:");
       transactionFinishPanel.add(transactionFinishPendingParticipantsLabel);
-      transactionFinishPendingParticipantsListBox = new JComboBox<String>();
+      transactionFinishPendingParticipantsListBox = newComboBox();
       transactionFinishPendingParticipantsListBox.setOpaque(true);
       transactionFinishPendingParticipantsListBox.addItem("<player name>");
       transactionFinishPanel.add(transactionFinishPendingParticipantsListBox);
       transactionFinishedLabel = newLabel("finished->");
       transactionFinishPanel.add(transactionFinishedLabel);
-      transactionFinishedParticipantsListBox = new JComboBox<String>();
+      transactionFinishedParticipantsListBox = newComboBox();
       transactionFinishedParticipantsListBox.setOpaque(true);
       transactionFinishedParticipantsListBox.addItem("<player name>");      
       transactionFinishPanel.add(transactionFinishedParticipantsListBox);
       transactionCompletionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       transactionPanel.add(transactionCompletionPanel);
-      transactionCommitButton = new Button("Commit");
+      transactionCommitButton = newButton("Commit");
       transactionCompletionPanel.add(transactionCommitButton);
       transactionCommitButton.addActionListener(this);
-      transactionAbortButton = new Button("Abort");
+      transactionAbortButton = newButton("Abort");
       transactionCompletionPanel.add(transactionAbortButton);
       transactionAbortButton.addActionListener(this);
+      roleTabPanel.setEnabledAt(1, false);      
       roleTabPanel.setSelectedIndex(0);
       add(roleTabPanel);
       for (int i = 0; i <= FINISH_TAB; i++) transactionTabPanel.setEnabledAt(i, false);                  
@@ -615,17 +618,48 @@ public class Host extends JFrame implements ActionListener, ItemListener
       setVisible(true);
    }
 
-   
    // Make label with font.
-   private Label newLabel(String text)
+   private JLabel newLabel(String text)
    {
-	   Label label = new Label(text);
-	   label.setFont(labelFont);
+	   JLabel label = new JLabel(text);
+	   label.setFont(textFont);
 	   return label;
    }
    
+   // Make text field with font.
+   private JTextField newTextField(int size)
+   {
+	   JTextField textField = new JTextField(size);
+	   textField.setFont(textFont);
+	   return textField;
+   }
+   
+   // Make text area with font.
+   private JTextArea newTextArea(int rows, int cols)
+   {
+	   JTextArea area = new JTextArea(rows, cols);
+	   area.setFont(textFont);
+	   return area;
+   }
+      
+   // Make button with font.
+   private JButton newButton(String text)
+   {
+	   JButton button = new JButton(text);
+	   button.setFont(textFont);
+	   return button;
+   }
+   
+   // Make combo box with font.
+   private JComboBox<String> newComboBox()
+   {
+	   JComboBox<String> box = new JComboBox<String>();
+	   box.setFont(textFont);
+	   return box;
+   }
+   
    // Animate wait text box.
-   private void animateWaitTextBox(TextField textBox)
+   private void animateWaitTextBox(JTextField textBox)
    {
       String text = textBox.getText();
 
@@ -706,7 +740,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	   			   byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
 	   			   if (response != null && Shared.isOK(new String(response, StandardCharsets.UTF_8)))
 	   			   {
-	                   gameCreateDeleteButton.setLabel("Delete");	                   
+	                   gameCreateDeleteButton.setText("Delete");	                   
 	                   gameState = Shared.PENDING;
                        gameStateListBox.removeItemListener(this);
                        gameStateListBox.setSelectedIndex(Shared.PENDING);
@@ -751,7 +785,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	   			   byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
 	   			   if (response != null && Shared.isOK(new String(response, StandardCharsets.UTF_8)))
 	   			   {
-                       gameCreateDeleteButton.setLabel("Create");
+                       gameCreateDeleteButton.setText("Create");
                        gameState = 0;
                        gameStateListBox.removeItemListener(this);
                        gameStateListBox.setSelectedIndex(0);
@@ -764,6 +798,8 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	                   playersListBox.addItemListener(this);
                        clearPlayerResources();
                        resetTransaction();
+                       roleTabPanel.setEnabledAt(1, false);
+                       roleTabPanel.setSelectedIndex(0);
                        JOptionPane.showMessageDialog(this, "Game deleted");
 	   			   } else {
 	   				   if (response != null)
@@ -1271,12 +1307,8 @@ public class Host extends JFrame implements ActionListener, ItemListener
             } catch (Exception e)
             {
          	   JOptionPane.showMessageDialog(this, "Error setting penalties: " + e.getMessage());	   					     	               
-            }
-            playersListBox.removeItemListener(this);
-            playersListBox.setSelectedIndex(0);
-            playersListBox.addItemListener(this);            
-            enableUI();             
-            updatePlayerResources();               
+            }          
+            enableUI();            
          }
 
          // Commit transaction.
@@ -1347,6 +1379,12 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	   				   } else {
 	   					   JOptionPane.showMessageDialog(this, "Error finishing transaction");	   					   
 	   				   }	   				   
+	   			} else {
+	 	           roleTabPanel.setSelectedIndex(0);
+		           playersListBox.removeItemListener(this);
+		           playersListBox.setSelectedIndex(0);
+		           playersListBox.addItemListener(this);              
+		           updatePlayerResources();   	    
 	   			}
             } catch (Exception e)
             {
@@ -1447,7 +1485,13 @@ public class Host extends JFrame implements ActionListener, ItemListener
 			   if (response != null && Shared.isOK(new String(response, StandardCharsets.UTF_8)))
 			   {
                    gameState = nextState;
-                   resetTransaction();		   
+                   resetTransaction();
+                   if (gameState == Shared.RUNNING)
+                   {
+                	   roleTabPanel.setEnabledAt(1, true);
+                   } else {
+                	   roleTabPanel.setEnabledAt(1, false);
+                   }
 			   } else {
 				   if (response != null)
 				   {
@@ -1751,7 +1795,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
       {
          gameCodeTextBox.setEditable(false);
          gameResourcesTextBox.setEditable(true);
-         gameCreateDeleteButton.setLabel("Create");
+         gameCreateDeleteButton.setText("Create");
          gameStateListBox.setEnabled(false);
          playersListBox.setEnabled(false);
          playerRemoveButton.setEnabled(false);
@@ -1784,7 +1828,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
       else
       {
          gameResourcesTextBox.setEditable(false);    	  
-    	 gameCreateDeleteButton.setLabel("Delete");
+    	 gameCreateDeleteButton.setText("Delete");
          gameStateListBox.setEnabled(true);
          playersListBox.setEnabled(true);
          playerRemoveButton.setEnabled(true);
@@ -1815,7 +1859,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
             transactionFinishPendingParticipantsListBox.setEnabled(false);
             transactionFinishedParticipantsListBox.setEnabled(false);
             transactionCommitButton.setEnabled(false);
-            transactionAbortButton.setEnabled(true);
+            transactionAbortButton.setEnabled(false);
             break;
 
          case INACTIVE:
@@ -1841,7 +1885,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
             transactionFinishPendingParticipantsListBox.setEnabled(false);
             transactionFinishedParticipantsListBox.setEnabled(false);
             transactionCommitButton.setEnabled(false);
-            transactionAbortButton.setEnabled(true);
+            transactionAbortButton.setEnabled(false);
             break;
 
          case CLAIM_DISTRIBUTION:
@@ -2089,7 +2133,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
    	   			}
    	   			gameStateListBox.removeItemListener(this);
    	   			gameStateListBox.setSelectedIndex(gameState);
-   	   			gameStateListBox.addItemListener(this);
+   	   			gameStateListBox.addItemListener(this);  	   			
    	   			if (gameState != 0)
    	   			{
    	   				int i = 2;
@@ -2111,6 +2155,16 @@ public class Host extends JFrame implements ActionListener, ItemListener
                     playersListBox.addItemListener(this); 
                     // TODO: process transaction.
                     resetTransaction();
+                    if (gameState == Shared.RUNNING)
+                    {
+      	   				roleTabPanel.setEnabledAt(1, true);                   	
+                    } else {
+                		roleTabPanel.setEnabledAt(1, false); 
+       	   				roleTabPanel.setSelectedIndex(0);
+                    }
+   	   			} else {
+   	   				roleTabPanel.setEnabledAt(1, false); 
+   	   				roleTabPanel.setSelectedIndex(0);
    	   			}
    	   		}
    		}
@@ -2409,10 +2463,9 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	        if (transactionFinishPendingParticipantsListBox.getItemCount() == 1)
 	        {
 	           // Finish transaction.
-	           transactionState = TRANSACTION_STATE.FINISHED;
-	           enableUI();
+	           transactionState = TRANSACTION_STATE.FINISHED;              
 	        }
-	     }
+	     }	     
 	  }
   }
 }

@@ -2,13 +2,11 @@
 
 package com.dialectek.conformative.hyperledger.client;
 
-import java.awt.Button;
 import java.awt.Canvas;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.Label;
-import java.awt.TextArea;
-import java.awt.TextField;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.nio.charset.StandardCharsets;
@@ -18,11 +16,19 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Pattern;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
+
+import javax.swing.JTextField;
+
 import com.dialectek.conformative.hyperledger.shared.DelimitedString;
 import com.dialectek.conformative.hyperledger.shared.Shared;
 
@@ -34,112 +40,116 @@ public class Player extends JFrame implements ActionListener
    private JTabbedPane        roleTabPanel;
    private JPanel             homePanel;
    private JPanel             playerPanel;   
-   private Label              playerNameLabel;
-   private TextField          playerNameTextBox;
-   private Button             playerJoinQuitButton;
+   private JLabel              playerNameLabel;
+   private JTextField          playerNameTextBox;
+   private JButton             playerJoinQuitButton;
    private JPanel             gameCodePanel;
-   private Label              gameCodeLabel;
-   private TextField          gameCodeTextBox;
+   private JLabel              gameCodeLabel;
+   private JTextField          gameCodeTextBox;
    private JPanel             homeResourcesCaptionPanel;
    private JPanel             homeResourcesTopPanel;
-   private Label              homeResourcesActualLabel;
-   private TextField          homeResourcesActualTextBox;
-   private Label              homeResourcesPersonalLabel;
-   private TextField          homeResourcesPersonalTextBox;
-   private Label              homeResourcesCommonLabel;
-   private TextField          homeResourcesCommonTextBox;
+   private JLabel              homeResourcesActualLabel;
+   private JTextField          homeResourcesActualTextBox;
+   private JLabel              homeResourcesPersonalLabel;
+   private JTextField          homeResourcesPersonalTextBox;
+   private JLabel              homeResourcesCommonLabel;
+   private JTextField          homeResourcesCommonTextBox;
    private JPanel             homeResourcesBottomPanel;
-   private Label              homeResourcesEntitledLabel;
-   private TextField          homeResourcesEntitledTextBox;
+   private JLabel              homeResourcesEntitledLabel;
+   private JTextField          homeResourcesEntitledTextBox;
    private JPanel             hostChatCaptionPanel;
-   private TextArea           hostChatTextArea;
+   private JTextArea           hostChatTextArea;
+   private JScrollPane         hostChatScrollPane;
    private JPanel             hostChatClearPanel;
-   private Button             hostChatClearButton;
-   private TextField          hostChatTextBox;
+   private JButton             hostChatClearButton;
+   private JTextField          hostChatTextBox;
    private JPanel             hostChatSendPanel;   
-   private Button             hostChatSendButton;
+   private JButton             hostChatSendButton;
    private JPanel             claimHistoryCaptionPanel;
-   private TextArea           claimHistoryTextArea;
+   private JTextArea           claimHistoryTextArea;
+   private JScrollPane         claimHistoryScrollPane;
    private JPanel             auditHistoryCaptionPanel;
-   private TextArea           auditHistoryTextArea;
+   private JTextArea           auditHistoryTextArea;
+   private JScrollPane         auditHistoryScrollPane;
    private JPanel             claimPanel;
    private JPanel             claimDistributionCaptionPanel;
    private Canvas             claimDistributionCanvas;
    private NormalDistribution claimDistribution;
    private JPanel             claimDistributionTestPanel;
-   private Label              claimDistributionTestValueLabel;
-   private TextField          claimDistributionTestValueTextBox;
-   private Button             claimDistributionTestButton;
-   private TextField          claimDistributionTestProbabilityTextBox;
+   private JLabel              claimDistributionTestValueLabel;
+   private JTextField          claimDistributionTestValueTextBox;
+   private JButton             claimDistributionTestButton;
+   private JTextField          claimDistributionTestProbabilityTextBox;
    private JPanel             claimResourcesCaptionPanel;
    private JPanel             claimResourcesEntitledPanel;   
-   private Label              claimResourcesEntitledLabel;
-   private TextField          claimResourcesEntitledTextBox;
-   private Label              claimResourcesEntitledEqualsLabel;
-   private TextField          claimResourcesEntitledPerPlayerTextBox;
-   private Label              claimResourcesEntitledTimesLabel;
-   private TextField          claimResourcesEntitledNumPlayersTextBox;
-   private Label              claimResourcesEntitledPlayersLabel;
+   private JLabel              claimResourcesEntitledLabel;
+   private JTextField          claimResourcesEntitledTextBox;
+   private JLabel              claimResourcesEntitledEqualsLabel;
+   private JTextField          claimResourcesEntitledPerPlayerTextBox;
+   private JLabel              claimResourcesEntitledTimesLabel;
+   private JTextField          claimResourcesEntitledNumPlayersTextBox;
+   private JLabel              claimResourcesEntitledPlayersLabel;
    private JPanel             claimResourcesClaimPanel;   
-   private Label              claimResourcesClaimLabel;
-   private TextField          claimResourcesClaimTextBox;
-   private Button             claimResourcesSetButton;
+   private JLabel              claimResourcesClaimLabel;
+   private JTextField          claimResourcesClaimTextBox;
+   private JButton             claimResourcesSetButton;
    private JPanel             claimResourcesGrantPanel;   
-   private Label              claimResourcesGrantLabel;
-   private TextField          claimResourcesGrantTextBox;
+   private JLabel              claimResourcesGrantLabel;
+   private JTextField          claimResourcesGrantTextBox;
    private JPanel             claimResourcesPenaltyPanel;   
-   private Label              claimResourcesPenaltyLabel;
-   private TextField          claimResourcesPenaltyTextBox;
+   private JLabel              claimResourcesPenaltyLabel;
+   private JTextField          claimResourcesPenaltyTextBox;
    private JPanel             claimResourcesDonatePanel;   
-   private Label              claimResourcesDonateLabel;
-   private TextField          claimResourcesDonateTextBox;
-   private Label              claimResourcesDonateBeneficiaryLabel;
-   private TextField          claimResourcesDonateBeneficiaryTextBox;
-   private Button             claimResourcesDonateButton;
-   private JPanel             claimFinishPanel;
-   private Button             claimFinishButton;
+   private JLabel              claimResourcesDonateLabel;
+   private JTextField          claimResourcesDonateTextBox;
+   private JLabel              claimResourcesDonateBeneficiaryLabel;
+   private JTextField          claimResourcesDonateBeneficiaryTextBox;
+   private JButton             claimResourcesDonateButton;
+   private JPanel             claimResourcesFinishPanel;
+   private JButton             claimResourcesFinishButton;
    private JPanel             auditorChatCaptionPanel;
-   private TextArea           auditorChatTextArea;
-   private TextField          auditorChatTextBox;
+   private JTextArea           auditorChatTextArea;
+   private JTextField          auditorChatTextBox;
    private JPanel             auditorChatSendPanel;
-   private Button             auditorChatSendButton;
+   private JButton             auditorChatSendButton;
    private JPanel             auditPanel;
    private JPanel             claimantNamePanel;
-   private Label              claimantNameLabel;
-   private TextField          claimantNameTextBox;
+   private JLabel              claimantNameLabel;
+   private JTextField          claimantNameTextBox;
    private JPanel             auditDistributionCaptionPanel;
    private Canvas             auditDistributionCanvas;
    private NormalDistribution auditDistribution;
    private JPanel             auditDistributionTestPanel;
-   private Label              auditDistributionTestValueLabel;
-   private TextField          auditDistributionTestValueTextBox;
-   private Button             auditDistributionTestButton;
-   private TextField          auditDistributionTestProbabilityTextBox;
+   private JLabel              auditDistributionTestValueLabel;
+   private JTextField          auditDistributionTestValueTextBox;
+   private JButton             auditDistributionTestButton;
+   private JTextField          auditDistributionTestProbabilityTextBox;
    private JPanel             auditResourcesCaptionPanel;
    private JPanel             auditResourcesClaimPanel;
-   private Label              auditResourcesClaimLabel;
-   private TextField          auditResourcesClaimTextBox;
-   private Label              auditResourcesClaimEqualsLabel;
-   private TextField          auditResourcesClaimPerPlayerTextBox;
-   private Label              auditResourcesClaimTimesLabel;
-   private TextField          auditResourcesClaimNumPlayersTextBox;
-   private Label              auditResourcesClaimPlayersLabel;
+   private JLabel              auditResourcesClaimLabel;
+   private JTextField          auditResourcesClaimTextBox;
+   private JLabel              auditResourcesClaimEqualsLabel;
+   private JTextField          auditResourcesClaimPerPlayerTextBox;
+   private JLabel              auditResourcesClaimTimesLabel;
+   private JTextField          auditResourcesClaimNumPlayersTextBox;
+   private JLabel              auditResourcesClaimPlayersLabel;
    private JPanel             auditResourcesGrantPanel;
-   private Label              auditResourcesGrantLabel;
-   private TextField          auditResourcesGrantTextBox;
-   private Button             auditResourcesGrantSetButton;
-   private Label              auditResourcesGrantConsensusLabel;
-   private TextField          auditResourcesConsensusTextBox;
+   private JLabel              auditResourcesGrantLabel;
+   private JTextField          auditResourcesGrantTextBox;
+   private JButton             auditResourcesGrantSetButton;
+   private JLabel              auditResourcesGrantConsensusLabel;
+   private JTextField          auditResourcesConsensusTextBox;
    private JPanel             auditResourcesPenaltyPanel;
-   private Label              auditResourcesPenaltyLabel;
-   private TextField          auditResourcesPenaltyTextBox;
-   private Button             auditFinishButton;
+   private JLabel              auditResourcesPenaltyLabel;
+   private JTextField          auditResourcesPenaltyTextBox;
+   private JPanel             auditResourcesFinishPanel;
+   private JButton             auditResourcesFinishButton;
    private JPanel             claimantChatCaptionPanel;
    private JPanel             claimantChatPanel;
-   private TextArea           claimantChatTextArea;
-   private TextField          claimantChatTextBox;
-   private Button             claimantChatSendButton;
-   private Font               labelFont;
+   private JTextArea           claimantChatTextArea;
+   private JTextField          claimantChatTextBox;
+   private JButton             claimantChatSendButton;
+   private Font               textFont;
    private boolean UIlocked = true;
    
    private static final int HOME_TAB  = 0;
@@ -162,7 +172,7 @@ public class Player extends JFrame implements ActionListener
       INACTIVE,
       PENDING,
       WAITING,
-      FINISHED
+      FINISH
    }
 
    // Claim transaction state.
@@ -181,7 +191,7 @@ public class Player extends JFrame implements ActionListener
    private int syncCounter = 0;
    
    // Constructor.
-   public Player(String gameCode, String playerName, int transactionNumber) throws Exception
+   public Player(String gameCode, String playerName) throws Exception
    {
 	  this.gameCode = gameCode;
 	  if (Shared.isVoid(gameCode))
@@ -208,18 +218,13 @@ public class Player extends JFrame implements ActionListener
 	        JOptionPane.showMessageDialog(this, "Invalid player name: " + playerName);
 	        throw new Exception("Invalid player name");
 	  } catch (NumberFormatException e) {}	  
-	  this.transactionNumber = transactionNumber;
-	  if (transactionNumber < -1)
-	  {
-          JOptionPane.showMessageDialog(this, "Invalid transaction number: " + transactionNumber);
-          throw new Exception("Invalid transaction number");
-	  }
+	  transactionNumber = -1;
 	  
       // Title.
-      setTitle("Conformative Game Player");
+      setTitle("Conformative Game Player: " + playerName);
       
-      // Set fixed-width font for labels.
- 	  labelFont = new Font(Font.MONOSPACED, Font.PLAIN, 12);      
+      // Set fixed-width font for text.
+ 	  textFont = new Font(Font.MONOSPACED, Font.PLAIN, 12);      
 
       // Role tabs.
       roleTabPanel = new JTabbedPane();
@@ -232,18 +237,18 @@ public class Player extends JFrame implements ActionListener
       homePanel.add(playerPanel);
       playerNameLabel = newLabel("Player name:");      
       playerPanel.add(playerNameLabel);
-      playerNameTextBox = new TextField(30);
+      playerNameTextBox = newTextField(30);
       playerNameTextBox.setEditable(false);
       playerNameTextBox.setText(playerName);
       playerPanel.add(playerNameTextBox);
-      playerJoinQuitButton = new Button("Join");
+      playerJoinQuitButton = newButton("Join");
       playerJoinQuitButton.addActionListener(this);
       playerPanel.add(playerJoinQuitButton);
       gameCodePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       homePanel.add(gameCodePanel);
       gameCodeLabel = newLabel("Game code:  ");
       gameCodePanel.add(gameCodeLabel);
-      gameCodeTextBox = new TextField(30);
+      gameCodeTextBox = newTextField(30);
       gameCodeTextBox.setEditable(false);
       gameCodeTextBox.setText(gameCode);
       gameCodePanel.add(gameCodeTextBox);
@@ -255,59 +260,63 @@ public class Player extends JFrame implements ActionListener
       homeResourcesCaptionPanel.add(homeResourcesTopPanel);
       homeResourcesActualLabel = newLabel("Actual:  ");
       homeResourcesTopPanel.add(homeResourcesActualLabel);
-      homeResourcesActualTextBox = new TextField(10);
+      homeResourcesActualTextBox = newTextField(10);
       homeResourcesActualTextBox.setEditable(false);
       homeResourcesTopPanel.add(homeResourcesActualTextBox);
       homeResourcesPersonalLabel = newLabel(" = Personal:");
       homeResourcesTopPanel.add(homeResourcesPersonalLabel);
-      homeResourcesPersonalTextBox = new TextField(10);
+      homeResourcesPersonalTextBox = newTextField(10);
       homeResourcesPersonalTextBox.setEditable(false);
       homeResourcesTopPanel.add(homeResourcesPersonalTextBox);
       homeResourcesCommonLabel = newLabel(" + Common:");
       homeResourcesTopPanel.add(homeResourcesCommonLabel);
-      homeResourcesCommonTextBox = new TextField(10);
+      homeResourcesCommonTextBox = newTextField(10);
       homeResourcesCommonTextBox.setEditable(false);
       homeResourcesTopPanel.add(homeResourcesCommonTextBox);
       homeResourcesBottomPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       homeResourcesCaptionPanel.add(homeResourcesBottomPanel);
       homeResourcesEntitledLabel = newLabel("Entitled:");
       homeResourcesBottomPanel.add(homeResourcesEntitledLabel);
-      homeResourcesEntitledTextBox = new TextField(10);
+      homeResourcesEntitledTextBox = newTextField(10);
       homeResourcesEntitledTextBox.setEditable(false);
       homeResourcesBottomPanel.add(homeResourcesEntitledTextBox);
       hostChatCaptionPanel = new JPanel();
       hostChatCaptionPanel.setBorder(BorderFactory.createTitledBorder("Host chat"));
       hostChatCaptionPanel.setLayout(new BoxLayout(hostChatCaptionPanel, BoxLayout.Y_AXIS));      
       homePanel.add(hostChatCaptionPanel);
-      hostChatTextArea = new TextArea(10, 50);     
-      hostChatTextArea.setEditable(false);     
-      hostChatCaptionPanel.add(hostChatTextArea);
+      hostChatTextArea = newTextArea(5, 40);     
+      hostChatTextArea.setEditable(false); 
+      hostChatScrollPane = new JScrollPane(hostChatTextArea);
+      hostChatCaptionPanel.add(hostChatScrollPane);
       hostChatClearPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       hostChatCaptionPanel.add(hostChatClearPanel);
-      hostChatClearButton = new Button("Clear");
+      hostChatClearButton = newButton("Clear");
       hostChatClearButton.addActionListener(this);
       hostChatClearPanel.add(hostChatClearButton);
-      hostChatTextBox = new TextField(50);
+      hostChatTextBox = newTextField(40);
+      hostChatTextBox.setMaximumSize(new Dimension(Integer.MAX_VALUE, hostChatTextBox.getPreferredSize().height));
       hostChatCaptionPanel.add(hostChatTextBox);      
       hostChatSendPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       hostChatCaptionPanel.add(hostChatSendPanel);
-      hostChatSendButton = new Button("Send");
+      hostChatSendButton = newButton("Send");
       hostChatSendButton.addActionListener(this);
       hostChatSendPanel.add(hostChatSendButton);
       claimHistoryCaptionPanel = new JPanel();
       claimHistoryCaptionPanel.setBorder(BorderFactory.createTitledBorder("Claim history"));
-      claimHistoryCaptionPanel.setLayout(new BoxLayout(claimHistoryCaptionPanel, BoxLayout.Y_AXIS));      
+      claimHistoryCaptionPanel.setLayout(new GridLayout(1, 1));      
       homePanel.add(claimHistoryCaptionPanel);
-      claimHistoryTextArea = new TextArea(5, 50);
+      claimHistoryTextArea = newTextArea(5, 40);
       claimHistoryTextArea.setEditable(false);
-      claimHistoryCaptionPanel.add(claimHistoryTextArea);
+      claimHistoryScrollPane = new JScrollPane(claimHistoryTextArea);
+      claimHistoryCaptionPanel.add(claimHistoryScrollPane, 0, 0);
       auditHistoryCaptionPanel = new JPanel();
       auditHistoryCaptionPanel.setBorder(BorderFactory.createTitledBorder("Audit history"));
-      auditHistoryCaptionPanel.setLayout(new BoxLayout(auditHistoryCaptionPanel, BoxLayout.Y_AXIS));      
+      auditHistoryCaptionPanel.setLayout(new GridLayout(1, 1));      
       homePanel.add(auditHistoryCaptionPanel);
-      auditHistoryTextArea = new TextArea(5, 50);
+      auditHistoryTextArea = newTextArea(5, 40);
       auditHistoryTextArea.setEditable(false);
-      auditHistoryCaptionPanel.add(auditHistoryTextArea);
+      auditHistoryScrollPane = new JScrollPane(auditHistoryTextArea);
+      auditHistoryCaptionPanel.add(auditHistoryScrollPane, 0, 0);
 
       // Claim tab.
       claimPanel = new JPanel();
@@ -325,12 +334,12 @@ public class Player extends JFrame implements ActionListener
       claimDistributionCaptionPanel.add(claimDistributionTestPanel);
       claimDistributionTestValueLabel = newLabel("Test value:");
       claimDistributionTestPanel.add(claimDistributionTestValueLabel);
-      claimDistributionTestValueTextBox = new TextField(10);
+      claimDistributionTestValueTextBox = newTextField(10);
       claimDistributionTestPanel.add(claimDistributionTestValueTextBox);
-      claimDistributionTestButton = new Button("Probability:");
+      claimDistributionTestButton = newButton("Probability:");
       claimDistributionTestPanel.add(claimDistributionTestButton);
       claimDistributionTestButton.addActionListener(this);
-      claimDistributionTestProbabilityTextBox = new TextField(10);
+      claimDistributionTestProbabilityTextBox = newTextField(10);
       claimDistributionTestProbabilityTextBox.setEditable(false);
       claimDistributionTestPanel.add(claimDistributionTestProbabilityTextBox);
       claimResourcesCaptionPanel = new JPanel();
@@ -341,17 +350,17 @@ public class Player extends JFrame implements ActionListener
       claimResourcesCaptionPanel.add(claimResourcesEntitledPanel);
       claimResourcesEntitledLabel = newLabel("Entitled:");
       claimResourcesEntitledPanel.add(claimResourcesEntitledLabel);
-      claimResourcesEntitledTextBox = new TextField(10);
+      claimResourcesEntitledTextBox = newTextField(10);
       claimResourcesEntitledTextBox.setEditable(false);
       claimResourcesEntitledPanel.add(claimResourcesEntitledTextBox);
       claimResourcesEntitledEqualsLabel = newLabel("=");
       claimResourcesEntitledPanel.add(claimResourcesEntitledEqualsLabel);
-      claimResourcesEntitledPerPlayerTextBox = new TextField(10);
+      claimResourcesEntitledPerPlayerTextBox = newTextField(10);
       claimResourcesEntitledPerPlayerTextBox.setEditable(false);
       claimResourcesEntitledPanel.add(claimResourcesEntitledPerPlayerTextBox);
       claimResourcesEntitledTimesLabel = newLabel("X");
       claimResourcesEntitledPanel.add(claimResourcesEntitledTimesLabel);
-      claimResourcesEntitledNumPlayersTextBox = new TextField(10);
+      claimResourcesEntitledNumPlayersTextBox = newTextField(10);
       claimResourcesEntitledNumPlayersTextBox.setEditable(false);
       claimResourcesEntitledPanel.add(claimResourcesEntitledNumPlayersTextBox);
       claimResourcesEntitledPlayersLabel = newLabel("players");
@@ -360,68 +369,68 @@ public class Player extends JFrame implements ActionListener
       claimResourcesCaptionPanel.add(claimResourcesClaimPanel);     
       claimResourcesClaimLabel = newLabel("Claim:   ");
       claimResourcesClaimPanel.add(claimResourcesClaimLabel);
-      claimResourcesClaimTextBox = new TextField(10);
+      claimResourcesClaimTextBox = newTextField(10);
       claimResourcesClaimPanel.add(claimResourcesClaimTextBox);
-      claimResourcesSetButton = new Button("Set");
+      claimResourcesSetButton = newButton("Set");
       claimResourcesClaimPanel.add(claimResourcesSetButton);
       claimResourcesSetButton.addActionListener(this);     
       claimResourcesGrantPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       claimResourcesCaptionPanel.add(claimResourcesGrantPanel);       
       claimResourcesGrantLabel = newLabel("Grant:   ");
       claimResourcesGrantPanel.add(claimResourcesGrantLabel);
-      claimResourcesGrantTextBox = new TextField(10);
+      claimResourcesGrantTextBox = newTextField(10);
       claimResourcesGrantTextBox.setEditable(false);
       claimResourcesGrantPanel.add(claimResourcesGrantTextBox);
       claimResourcesPenaltyPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       claimResourcesCaptionPanel.add(claimResourcesPenaltyPanel); 
       claimResourcesPenaltyLabel = newLabel("Penalty: ");
       claimResourcesPenaltyPanel.add(claimResourcesPenaltyLabel);
-      claimResourcesPenaltyTextBox = new TextField(10);
+      claimResourcesPenaltyTextBox = newTextField(10);
       claimResourcesPenaltyTextBox.setEditable(false);
       claimResourcesPenaltyPanel.add(claimResourcesPenaltyTextBox);
       claimResourcesDonatePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       claimResourcesCaptionPanel.add(claimResourcesDonatePanel);
       claimResourcesDonateLabel = newLabel("Donate:  ");
       claimResourcesDonatePanel.add(claimResourcesDonateLabel);
-      claimResourcesDonateTextBox = new TextField(10);
+      claimResourcesDonateTextBox = newTextField(10);
       claimResourcesDonatePanel.add(claimResourcesDonateTextBox);
       claimResourcesDonateBeneficiaryLabel = newLabel("To:");
       claimResourcesDonatePanel.add(claimResourcesDonateBeneficiaryLabel);
-      claimResourcesDonateBeneficiaryTextBox = new TextField(10);
+      claimResourcesDonateBeneficiaryTextBox = newTextField(10);
       claimResourcesDonatePanel.add(claimResourcesDonateBeneficiaryTextBox);
-      claimResourcesDonateButton = new Button("Send");
-      claimResourcesDonateButton.setLabel("Go");
+      claimResourcesDonateButton = newButton("Send");
+      claimResourcesDonateButton.setText("Go");
       claimResourcesDonateButton.addActionListener(this);
       claimResourcesDonatePanel.add(claimResourcesDonateButton);
-      claimFinishPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-      claimResourcesCaptionPanel.add(claimFinishPanel);           
-      claimFinishButton = new Button("Finish");
-      claimFinishButton.addActionListener(this);
-      claimFinishPanel.add(claimFinishButton);
+      claimResourcesFinishPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+      claimResourcesCaptionPanel.add(claimResourcesFinishPanel);           
+      claimResourcesFinishButton = newButton("Finish");
+      claimResourcesFinishButton.addActionListener(this);
+      claimResourcesFinishPanel.add(claimResourcesFinishButton);      
       auditorChatCaptionPanel = new JPanel();
       auditorChatCaptionPanel.setBorder(BorderFactory.createTitledBorder("Auditor chat"));
       auditorChatCaptionPanel.setLayout(new BoxLayout(auditorChatCaptionPanel, BoxLayout.Y_AXIS));      
       claimPanel.add(auditorChatCaptionPanel);
-      auditorChatTextArea = new TextArea(5, 50);
+      auditorChatTextArea = newTextArea(5, 40);
       auditorChatTextArea.setEditable(false);
       auditorChatCaptionPanel.add(auditorChatTextArea);
-      auditorChatTextBox = new TextField(50);
+      auditorChatTextBox = newTextField(40);
       auditorChatCaptionPanel.add(auditorChatTextBox);
       auditorChatSendPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       auditorChatCaptionPanel.add(auditorChatSendPanel);       
-      auditorChatSendButton = new Button("Send");
+      auditorChatSendButton = newButton("Send");
       auditorChatSendPanel.add(auditorChatSendButton);
       auditorChatSendButton.addActionListener(this);
-
+      
       // Audit tab.
       auditPanel = new JPanel();
-      auditPanel.setLayout(new BoxLayout(auditPanel, BoxLayout.Y_AXIS));       
+      auditPanel.setLayout(new BoxLayout(auditPanel, BoxLayout.Y_AXIS));
       roleTabPanel.add(auditPanel, "Audit");
       claimantNamePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       auditPanel.add(claimantNamePanel);
       claimantNameLabel = newLabel("Claimant:");
       claimantNamePanel.add(claimantNameLabel);
-      claimantNameTextBox = new TextField(30);
+      claimantNameTextBox = newTextField(30);
       claimantNameTextBox.setEditable(false);
       claimantNamePanel.add(claimantNameTextBox);
       auditDistributionCaptionPanel = new JPanel();
@@ -436,12 +445,12 @@ public class Player extends JFrame implements ActionListener
       auditDistributionCaptionPanel.add(auditDistributionTestPanel);
       auditDistributionTestValueLabel = newLabel("Test value:");
       auditDistributionTestPanel.add(auditDistributionTestValueLabel);
-      auditDistributionTestValueTextBox = new TextField(10);
+      auditDistributionTestValueTextBox = newTextField(10);
       auditDistributionTestPanel.add(auditDistributionTestValueTextBox);
-      auditDistributionTestButton = new Button("Probability:");
+      auditDistributionTestButton = newButton("Probability:");
       auditDistributionTestPanel.add(auditDistributionTestButton);
       auditDistributionTestButton.addActionListener(this);
-      auditDistributionTestProbabilityTextBox = new TextField(10);
+      auditDistributionTestProbabilityTextBox = newTextField(10);
       auditDistributionTestProbabilityTextBox.setEditable(false);
       auditDistributionTestPanel.add(auditDistributionTestProbabilityTextBox);
       auditResourcesCaptionPanel = new JPanel();
@@ -452,17 +461,17 @@ public class Player extends JFrame implements ActionListener
       auditResourcesCaptionPanel.add(auditResourcesClaimPanel);
       auditResourcesClaimLabel = newLabel("Claim:  ");
       auditResourcesClaimPanel.add(auditResourcesClaimLabel);
-      auditResourcesClaimTextBox = new TextField(10);
+      auditResourcesClaimTextBox = newTextField(10);
       auditResourcesClaimTextBox.setEditable(false);
       auditResourcesClaimPanel.add(auditResourcesClaimTextBox);
       auditResourcesClaimEqualsLabel = newLabel("=");
       auditResourcesClaimPanel.add(auditResourcesClaimEqualsLabel);
-      auditResourcesClaimPerPlayerTextBox = new TextField(10);
+      auditResourcesClaimPerPlayerTextBox = newTextField(10);
       auditResourcesClaimPerPlayerTextBox.setEditable(false);
       auditResourcesClaimPanel.add(auditResourcesClaimPerPlayerTextBox);
       auditResourcesClaimTimesLabel = newLabel("X");
       auditResourcesClaimPanel.add(auditResourcesClaimTimesLabel);
-      auditResourcesClaimNumPlayersTextBox = new TextField(10);
+      auditResourcesClaimNumPlayersTextBox = newTextField(10);
       auditResourcesClaimNumPlayersTextBox.setEditable(false);
       auditResourcesClaimPanel.add(auditResourcesClaimNumPlayersTextBox);
       auditResourcesClaimPlayersLabel = newLabel("players");
@@ -471,41 +480,43 @@ public class Player extends JFrame implements ActionListener
       auditResourcesCaptionPanel.add(auditResourcesGrantPanel);
       auditResourcesGrantLabel = newLabel("Grant:  ");
       auditResourcesGrantPanel.add(auditResourcesGrantLabel);
-      auditResourcesGrantTextBox = new TextField(10);
+      auditResourcesGrantTextBox = newTextField(10);
       auditResourcesGrantPanel.add(auditResourcesGrantTextBox);
-      auditResourcesGrantSetButton = new Button("Set");
+      auditResourcesGrantSetButton = newButton("Set");
       auditResourcesGrantSetButton.addActionListener(this);
       auditResourcesGrantPanel.add(auditResourcesGrantSetButton);
       auditResourcesGrantConsensusLabel = newLabel("Consensus:");
       auditResourcesGrantPanel.add(auditResourcesGrantConsensusLabel);
-      auditResourcesConsensusTextBox = new TextField(10);
+      auditResourcesConsensusTextBox = newTextField(10);
       auditResourcesConsensusTextBox.setEditable(false);
       auditResourcesGrantPanel.add(auditResourcesConsensusTextBox);
       auditResourcesPenaltyPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       auditResourcesCaptionPanel.add(auditResourcesPenaltyPanel);
       auditResourcesPenaltyLabel = newLabel("Penalty:");
       auditResourcesPenaltyPanel.add(auditResourcesPenaltyLabel);
-      auditResourcesPenaltyTextBox = new TextField(10);
+      auditResourcesPenaltyTextBox = newTextField(10);
       auditResourcesPenaltyTextBox.setEditable(false);
       auditResourcesPenaltyPanel.add(auditResourcesPenaltyTextBox);
-      auditFinishButton = new Button("Finish");
-      auditFinishButton.addActionListener(this);
-      auditResourcesPenaltyPanel.add(auditFinishButton);
+      auditResourcesFinishPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+      auditResourcesCaptionPanel.add(auditResourcesFinishPanel);           
+      auditResourcesFinishButton = newButton("Finish");
+      auditResourcesFinishButton.addActionListener(this);
+      auditResourcesFinishPanel.add(auditResourcesFinishButton);         
       claimantChatCaptionPanel = new JPanel();
       claimantChatCaptionPanel.setBorder(BorderFactory.createTitledBorder("Claimant chat"));
       claimantChatCaptionPanel.setLayout(new BoxLayout(claimantChatCaptionPanel, BoxLayout.Y_AXIS));        
       auditPanel.add(claimantChatCaptionPanel);
-      claimantChatTextArea = new TextArea(5, 50);
+      claimantChatTextArea = newTextArea(5, 40);
       claimantChatTextArea.setEditable(false);
       claimantChatCaptionPanel.add(claimantChatTextArea);
-      claimantChatTextBox = new TextField(50);
+      claimantChatTextBox = newTextField(40);
       claimantChatCaptionPanel.add(claimantChatTextBox);
       claimantChatPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       claimantChatCaptionPanel.add(claimantChatPanel);
-      claimantChatSendButton = new Button("Send");
+      claimantChatSendButton = newButton("Send");
       claimantChatSendButton.addActionListener(this);
       claimantChatPanel.add(claimantChatSendButton);
-
+      
       add(roleTabPanel);
       roleTabPanel.setEnabledAt(CLAIM_TAB, false);
       roleTabPanel.setEnabledAt(AUDIT_TAB, false);      
@@ -517,7 +528,6 @@ public class Player extends JFrame implements ActionListener
       playerState       = false;
       claimState        = TRANSACTION_STATE.INACTIVE;
       auditState        = TRANSACTION_STATE.INACTIVE;
-      transactionNumber = -1;
 
       // Synchronize player with network.
       syncPlayer();
@@ -554,15 +564,38 @@ public class Player extends JFrame implements ActionListener
    }
    
    // Make label with font.
-   private Label newLabel(String text)
+   private JLabel newLabel(String text)
    {
-	   Label label = new Label(text);
-	   label.setFont(labelFont);
+	   JLabel label = new JLabel(text);
+	   label.setFont(textFont);
 	   return label;
    }
-
+   
+   // Make text field with font.
+   private JTextField newTextField(int size)
+   {
+	   JTextField textField = new JTextField(size);
+	   textField.setFont(textFont);
+	   return textField;
+   }
+   
+   // Make text area with font.
+   private JTextArea newTextArea(int rows, int cols)
+   {
+	   JTextArea area = new JTextArea(rows, cols);
+	   area.setFont(textFont);
+	   return area;
+   }
+   
+   // Make button with font.
+   private JButton newButton(String text)
+   {
+	   JButton button = new JButton(text);
+	   button.setFont(textFont);
+	   return button;
+   }  
    // Animate wait text box.
-   private void animateWaitTextBox(TextField textBox)
+   private void animateWaitTextBox(JTextField textBox)
    {
       String text = textBox.getText();
 
@@ -610,7 +643,7 @@ public class Player extends JFrame implements ActionListener
 	   			   if (response != null && Shared.isOK(new String(response, StandardCharsets.UTF_8)))
 	   			   {
 	   				   playerState = true;
-	                   playerJoinQuitButton.setLabel("Quit");
+	                   playerJoinQuitButton.setText("Quit");
 	                   JOptionPane.showMessageDialog(this, "Welcome!");
 	   			   } else {
 	   				   if (response != null)
@@ -637,7 +670,7 @@ public class Player extends JFrame implements ActionListener
 	   			   if (response != null && Shared.isOK(new String(response, StandardCharsets.UTF_8)))
 	   			   {
 	   				   playerState = false;
-	                   playerJoinQuitButton.setLabel("Join");
+	                   playerJoinQuitButton.setText("Join");
                        clearHomeResources();
                        roleTabPanel.setSelectedIndex(HOME_TAB);
                        roleTabPanel.setEnabledAt(CLAIM_TAB, false);
@@ -1042,9 +1075,9 @@ public class Player extends JFrame implements ActionListener
         }         
 	    enableUI();            
      }
-     else if ((event.getSource() == claimFinishButton) || (event.getSource() == auditFinishButton))
+     else if ((event.getSource() == claimResourcesFinishButton) || (event.getSource() == auditResourcesFinishButton))
      {
-        if (event.getSource() == claimFinishButton)
+        if (event.getSource() == claimResourcesFinishButton)
         {
            claimState = TRANSACTION_STATE.WAITING;
         }
@@ -1113,12 +1146,12 @@ public class Player extends JFrame implements ActionListener
       claimResourcesDonateTextBox.setEditable(false);
       claimResourcesDonateBeneficiaryTextBox.setEditable(false);
       claimResourcesDonateButton.setEnabled(false);
-      claimFinishButton.setEnabled(false);
+      claimResourcesFinishButton.setEnabled(false);
       auditorChatTextBox.setEditable(false);
       auditorChatSendButton.setEnabled(false);
       auditResourcesGrantTextBox.setEditable(false);
       auditResourcesGrantSetButton.setEnabled(false);
-      auditFinishButton.setEnabled(false);
+      auditResourcesFinishButton.setEnabled(false);
       claimantChatTextBox.setEditable(false);
       claimantChatSendButton.setEnabled(false);
    }
@@ -1131,7 +1164,7 @@ public class Player extends JFrame implements ActionListener
       playerJoinQuitButton.setEnabled(true);
       if (gameState == 0 || !playerState)
       {
-          playerJoinQuitButton.setLabel("Join");
+          playerJoinQuitButton.setText("Join");
           clearHomeResources();
           roleTabPanel.setSelectedIndex(HOME_TAB);
           roleTabPanel.setEnabledAt(CLAIM_TAB, false);
@@ -1145,18 +1178,18 @@ public class Player extends JFrame implements ActionListener
          claimResourcesDonateTextBox.setEditable(false);
          claimResourcesDonateBeneficiaryTextBox.setEditable(false);
          claimResourcesDonateButton.setEnabled(false);
-         claimFinishButton.setEnabled(false);
+         claimResourcesFinishButton.setEnabled(false);
          auditorChatTextBox.setEditable(false);
          auditorChatSendButton.setEnabled(false);
          auditResourcesGrantTextBox.setEditable(false);
          auditResourcesGrantSetButton.setEnabled(false);
-         auditFinishButton.setEnabled(false);
+         auditResourcesFinishButton.setEnabled(false);
          claimantChatTextBox.setEditable(false);
          claimantChatSendButton.setEnabled(false);
       }
       else
       {
-         playerJoinQuitButton.setLabel("Quit");	  
+         playerJoinQuitButton.setText("Quit");	  
          hostChatTextBox.setEditable(true);
          hostChatSendButton.setEnabled(true);
          switch (claimState)
@@ -1167,7 +1200,7 @@ public class Player extends JFrame implements ActionListener
             claimResourcesDonateTextBox.setEditable(false);
             claimResourcesDonateBeneficiaryTextBox.setEditable(false);
             claimResourcesDonateButton.setEnabled(false);
-            claimFinishButton.setEnabled(false);
+            claimResourcesFinishButton.setEnabled(false);
             auditorChatTextBox.setEditable(false);
             auditorChatSendButton.setEnabled(false);
             break;
@@ -1178,7 +1211,7 @@ public class Player extends JFrame implements ActionListener
             claimResourcesDonateTextBox.setEditable(false);
             claimResourcesDonateBeneficiaryTextBox.setEditable(false);
             claimResourcesDonateButton.setEnabled(false);
-            claimFinishButton.setEnabled(false);
+            claimResourcesFinishButton.setEnabled(false);
             auditorChatTextBox.setEditable(false);
             auditorChatSendButton.setEnabled(false);
             break;
@@ -1189,18 +1222,18 @@ public class Player extends JFrame implements ActionListener
             claimResourcesDonateTextBox.setEditable(false);
             claimResourcesDonateBeneficiaryTextBox.setEditable(false);
             claimResourcesDonateButton.setEnabled(false);
-            claimFinishButton.setEnabled(false);
+            claimResourcesFinishButton.setEnabled(false);
             auditorChatTextBox.setEditable(true);
             auditorChatSendButton.setEnabled(true);
             break;
 
-         case FINISHED:
+         case FINISH:
             claimResourcesClaimTextBox.setEditable(false);
             claimResourcesSetButton.setEnabled(false);
             claimResourcesDonateTextBox.setEditable(true);
             claimResourcesDonateBeneficiaryTextBox.setEditable(true);
             claimResourcesDonateButton.setEnabled(true);
-            claimFinishButton.setEnabled(true);
+            claimResourcesFinishButton.setEnabled(true);
             auditorChatTextBox.setEditable(true);
             auditorChatSendButton.setEnabled(true);
             break;
@@ -1210,7 +1243,7 @@ public class Player extends JFrame implements ActionListener
          case INACTIVE:
             auditResourcesGrantTextBox.setEditable(false);
             auditResourcesGrantSetButton.setEnabled(false);
-            auditFinishButton.setEnabled(false);
+            auditResourcesFinishButton.setEnabled(false);
             claimantChatTextBox.setEditable(false);
             claimantChatSendButton.setEnabled(false);
             break;
@@ -1218,7 +1251,7 @@ public class Player extends JFrame implements ActionListener
          case PENDING:
             auditResourcesGrantTextBox.setEditable(true);
             auditResourcesGrantSetButton.setEnabled(true);
-            auditFinishButton.setEnabled(false);
+            auditResourcesFinishButton.setEnabled(false);
             claimantChatTextBox.setEditable(true);
             claimantChatSendButton.setEnabled(true);
             break;
@@ -1226,15 +1259,15 @@ public class Player extends JFrame implements ActionListener
          case WAITING:
             auditResourcesGrantTextBox.setEditable(false);
             auditResourcesGrantSetButton.setEnabled(false);
-            auditFinishButton.setEnabled(false);
+            auditResourcesFinishButton.setEnabled(false);
             claimantChatTextBox.setEditable(true);
             claimantChatSendButton.setEnabled(true);
             break;
 
-         case FINISHED:
+         case FINISH:
             auditResourcesGrantTextBox.setEditable(false);
             auditResourcesGrantSetButton.setEnabled(false);
-            auditFinishButton.setEnabled(true);
+            auditResourcesFinishButton.setEnabled(true);
             claimantChatTextBox.setEditable(true);
             claimantChatSendButton.setEnabled(true);
             break;
@@ -1416,20 +1449,32 @@ public class Player extends JFrame implements ActionListener
             // Chat from auditor.
         	String transactionNumber = args[1];
             String chatText = args[2];
-            claimantChatTextArea.setText(
-               claimantChatTextArea.getText() + "auditor (" + transactionNumber + "): " + chatText + "\n");
+            auditorChatTextArea.setText(
+               auditorChatTextArea.getText() + "auditor (" + transactionNumber + "): " + chatText + "\n");
          }
          else if (operation.equals(Shared.CLAIMANT_CHAT_MESSAGE) && (args.length == 3))
          {
             // Chat from claimant.
         	String transactionNumber = args[1];
             String chatText = args[2];
-            auditorChatTextArea.setText(
-               auditorChatTextArea.getText() + "claimant (" + transactionNumber + "): " + chatText + "\n");
+            claimantChatTextArea.setText(
+               claimantChatTextArea.getText() + "claimant (" + transactionNumber + "): " + chatText + "\n");
          }
          else if (operation.equals(Shared.START_CLAIM) && (args.length == 6))
          {
             // Start a claim.
+        	claimDistributionTestValueTextBox.setText("");
+        	claimDistributionTestProbabilityTextBox.setText("");
+            claimResourcesEntitledTextBox.setText("");
+        	claimResourcesEntitledPerPlayerTextBox.setText("");
+            claimResourcesEntitledNumPlayersTextBox.setText("");
+        	claimResourcesClaimTextBox.setText("");
+        	claimResourcesGrantTextBox.setText("");
+        	claimResourcesPenaltyTextBox.setText("");
+        	claimResourcesDonateTextBox.setText("");
+        	claimResourcesDonateBeneficiaryTextBox.setText("");
+        	auditorChatTextArea.setText("");
+        	auditorChatTextBox.setText("");      	
             transactionNumber = Integer.parseInt(args[1]);
             double mean  = Double.parseDouble(args[2]);
             double sigma = Double.parseDouble(args[3]);
@@ -1456,6 +1501,17 @@ public class Player extends JFrame implements ActionListener
          else if (operation.equals(Shared.START_AUDIT) && (args.length == 7))
          {
             // Start audit.
+        	claimantNameTextBox.setText("");
+        	auditDistributionTestValueTextBox.setText("");
+        	auditDistributionTestProbabilityTextBox.setText("");
+        	auditResourcesClaimTextBox.setText("");
+        	auditResourcesClaimPerPlayerTextBox.setText("");
+        	auditResourcesClaimNumPlayersTextBox.setText("");
+        	auditResourcesGrantTextBox.setText("");
+        	auditResourcesConsensusTextBox.setText("");
+        	auditResourcesPenaltyTextBox.setText("");
+        	claimantChatTextArea.setText("");
+        	claimantChatTextBox.setText("");        	 
             transactionNumber = Integer.parseInt(args[1]);
             claimantNameTextBox.setText(args[2]);
             double mean  = Double.parseDouble(args[3]);
@@ -1502,22 +1558,23 @@ public class Player extends JFrame implements ActionListener
             transactionNumber = Integer.parseInt(args[1]);
             if (claimState == TRANSACTION_STATE.WAITING)
             {
-               claimState = TRANSACTION_STATE.FINISHED;
+               claimState = TRANSACTION_STATE.FINISH;           	
                claimResourcesPenaltyTextBox.setText(args[2]);
             }
             else
             {
-               auditState = TRANSACTION_STATE.FINISHED;
+               auditState = TRANSACTION_STATE.FINISH;            	
                auditResourcesPenaltyTextBox.setText(args[2]);
             }
             enableUI();
          }
-         else if (operation.equals(Shared.FINISH_TRANSACTION) && (args.length == 5))
+         else if (operation.equals(Shared.FINISH_TRANSACTION) && (args.length == 2))
          {
             String transactionText = new Date().toString() + ":";
             transactionText += "transaction number=" + transactionNumber;
             if (claimState == TRANSACTION_STATE.WAITING)
             {
+               claimState = TRANSACTION_STATE.INACTIVE;
                transactionText += ";mean=" + claimDistribution.getMean();
                transactionText += ";sigma=" + claimDistribution.getSigma();
                transactionText += ";entitlement=" + claimResourcesEntitledTextBox.getText();
@@ -1529,6 +1586,7 @@ public class Player extends JFrame implements ActionListener
             }
             if (auditState == TRANSACTION_STATE.WAITING)
             {
+               auditState = TRANSACTION_STATE.INACTIVE;            	
                transactionText += ";mean=" + auditDistribution.getMean();
                transactionText += ";sigma=" + auditDistribution.getSigma();
                transactionText += ";claim=" + auditResourcesClaimTextBox.getText();
@@ -1578,10 +1636,6 @@ public class Player extends JFrame implements ActionListener
                roleTabPanel.setEnabledAt(AUDIT_TAB, false);
                auditState = TRANSACTION_STATE.INACTIVE;
             }
-            double personalResources = Double.parseDouble(args[2]);
-            double commonResources   = Double.parseDouble(args[3]);
-            double entitledResources = Double.parseDouble(args[4]);
-            showHomeResources(personalResources, commonResources, entitledResources);
             enableUI();
          }
          else if (operation.equals(Shared.ABORT_TRANSACTION) && (args.length == 2))

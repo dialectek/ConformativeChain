@@ -775,6 +775,8 @@ public final class GameService implements ContractInterface
                if (game != null)
                {
          	      int number = game.newTransactionNumber();
+                  String gameJson = genson.serialize(game);
+                  stub.putStringState(gameCode, gameJson);          	      
         	      com.dialectek.conformative.hyperledger.chaincode.Transaction transaction = 
         	    		  new com.dialectek.conformative.hyperledger.chaincode.Transaction(number, gameCode);
                   String      claimantName    = args[2];

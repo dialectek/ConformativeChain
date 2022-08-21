@@ -47,12 +47,12 @@ public class ConformativeGame extends JFrame implements ActionListener
       rootPanel             = new JPanel();
       rootPanel.setLayout(new FlowLayout());
       add(rootPanel);
+      hostButton = new Button("Host");
+      hostButton.addActionListener(this);
+      rootPanel.add(hostButton);       
       playerButton = new Button("Player");
       playerButton.addActionListener(this);
       rootPanel.add(playerButton);
-      hostButton = new Button("Host");
-      hostButton.addActionListener(this);
-      rootPanel.add(hostButton); 
       
       // Show.      
       pack(); 
@@ -67,10 +67,8 @@ public class ConformativeGame extends JFrame implements ActionListener
      if (event.getSource() == hostButton)
      {
         JTextField gameCodeText = new JTextField();
-        JTextField transactionNumberText = new JTextField();
         Object[] message = {
-            "Game code:", gameCodeText,
-            "Transaction number (optional):", transactionNumberText
+            "Game code:", gameCodeText
         };
         int option = JOptionPane.showConfirmDialog(this, message, "Enter host information", JOptionPane.OK_CANCEL_OPTION);
         if (option == JOptionPane.OK_OPTION) 
@@ -81,28 +79,11 @@ public class ConformativeGame extends JFrame implements ActionListener
         		JOptionPane.showMessageDialog(this, "Invalid game code");
         		return;
         	}
-        	String transactionNumber = transactionNumberText.getText();
-        	int t = -1;
-        	if (!Shared.isVoid(transactionNumber))
-        	{
-        		try
-        		{
-        			if ((t = Integer.parseInt(transactionNumber)) < 0)
-        			{
-                		JOptionPane.showMessageDialog(this, "Invalid transaction number: " + transactionNumber);
-                		return;         				
-        			}
-        		} catch (NumberFormatException e)
-        		{
-            		JOptionPane.showMessageDialog(this, "Invalid transaction number: " + transactionNumber);
-            		return;        			
-        		}
-        	}
         	
         	// Run host.
         	try 
         	{
-				new Host(gameCode, t);
+				new Host(gameCode);
 			} catch (Exception e) {}
         }        
         return;
@@ -112,11 +93,9 @@ public class ConformativeGame extends JFrame implements ActionListener
      {
          JTextField gameCodeText = new JTextField();
          JTextField playerNameText = new JTextField();
-         JTextField transactionNumberText = new JTextField();
          Object[] message = {
              "Game code:", gameCodeText,
-             "Player name:", playerNameText,
-             "Transaction number (optional):", transactionNumberText
+             "Player name:", playerNameText
          };
          int option = JOptionPane.showConfirmDialog(this, message, "Enter player information", JOptionPane.OK_CANCEL_OPTION);
          if (option == JOptionPane.OK_OPTION) 
@@ -135,23 +114,6 @@ public class ConformativeGame extends JFrame implements ActionListener
          		JOptionPane.showMessageDialog(this, "Invalid player name");
          		return;
          	}         	
-         	String transactionNumber = transactionNumberText.getText();
-         	int n = -1;
-         	if (!Shared.isVoid(transactionNumber))
-         	{
-         		try
-         		{
-         			if ((n = Integer.parseInt(transactionNumber)) < 0)
-         			{
-                 		JOptionPane.showMessageDialog(this, "Invalid transaction number: " + transactionNumber);
-                 		return;         				
-         			}
-         		} catch (NumberFormatException e)
-         		{
-             		JOptionPane.showMessageDialog(this, "Invalid transaction number: " + transactionNumber);
-             		return;        			
-         		}
-         	}
          	
          	// Register user.
          	try 
@@ -165,7 +127,7 @@ public class ConformativeGame extends JFrame implements ActionListener
          	// Run player client.
          	try 
          	{
-				new Player(gameCode, playerName, n);
+				new Player(gameCode, playerName);
 			} catch (Exception e) {} 
          }
          return;
