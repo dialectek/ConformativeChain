@@ -79,6 +79,7 @@ public class Player extends JFrame implements ActionListener
    private JLabel              claimDistributionTestValueLabel;
    private JTextField          claimDistributionTestValueTextBox;
    private JButton             claimDistributionTestButton;
+   private JLabel              claimDistributionTestLabel;   
    private JTextField          claimDistributionTestProbabilityTextBox;
    private JPanel             claimResourcesCaptionPanel;
    private JPanel             claimResourcesEntitledPanel;   
@@ -123,6 +124,7 @@ public class Player extends JFrame implements ActionListener
    private JLabel              auditDistributionTestValueLabel;
    private JTextField          auditDistributionTestValueTextBox;
    private JButton             auditDistributionTestButton;
+   private JLabel              auditDistributionTestLabel;
    private JTextField          auditDistributionTestProbabilityTextBox;
    private JPanel             auditResourcesCaptionPanel;
    private JPanel             auditResourcesClaimPanel;
@@ -335,10 +337,12 @@ public class Player extends JFrame implements ActionListener
       claimDistributionTestValueLabel = newLabel("Test value:");
       claimDistributionTestPanel.add(claimDistributionTestValueLabel);
       claimDistributionTestValueTextBox = newTextField(10);
-      claimDistributionTestPanel.add(claimDistributionTestValueTextBox);
-      claimDistributionTestButton = newButton("Probability:");
+      claimDistributionTestPanel.add(claimDistributionTestValueTextBox);      
+      claimDistributionTestButton = newButton("Test");
       claimDistributionTestPanel.add(claimDistributionTestButton);
       claimDistributionTestButton.addActionListener(this);
+      claimDistributionTestLabel = newLabel("Probability density:");
+      claimDistributionTestPanel.add(claimDistributionTestLabel);         
       claimDistributionTestProbabilityTextBox = newTextField(10);
       claimDistributionTestProbabilityTextBox.setEditable(false);
       claimDistributionTestPanel.add(claimDistributionTestProbabilityTextBox);
@@ -446,10 +450,12 @@ public class Player extends JFrame implements ActionListener
       auditDistributionTestValueLabel = newLabel("Test value:");
       auditDistributionTestPanel.add(auditDistributionTestValueLabel);
       auditDistributionTestValueTextBox = newTextField(10);
-      auditDistributionTestPanel.add(auditDistributionTestValueTextBox);
-      auditDistributionTestButton = newButton("Probability:");
+      auditDistributionTestPanel.add(auditDistributionTestValueTextBox);      
+      auditDistributionTestButton = newButton("Test");
       auditDistributionTestPanel.add(auditDistributionTestButton);
       auditDistributionTestButton.addActionListener(this);
+      auditDistributionTestLabel = newLabel("Probability density:");
+      auditDistributionTestPanel.add(auditDistributionTestLabel);         
       auditDistributionTestProbabilityTextBox = newTextField(10);
       auditDistributionTestProbabilityTextBox.setEditable(false);
       auditDistributionTestPanel.add(auditDistributionTestProbabilityTextBox);

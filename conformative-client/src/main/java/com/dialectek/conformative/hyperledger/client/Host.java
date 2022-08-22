@@ -106,6 +106,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
    private JPanel             transactionClaimDistributionTestPanel;   
    private JLabel              transactionClaimDistributionTestValueLabel;
    private JTextField          transactionClaimDistributionTestValueTextBox;
+   private JLabel              transactionClaimDistributionTestLabel;
    private JButton             transactionClaimDistributionTestButton;
    private JTextField          transactionClaimDistributionTestProbabilityTextBox;
    private JPanel             transactionClaimEntitlementPanel;   
@@ -443,9 +444,11 @@ public class Host extends JFrame implements ActionListener, ItemListener
       transactionClaimDistributionTestPanel.add(transactionClaimDistributionTestValueLabel);
       transactionClaimDistributionTestValueTextBox = newTextField(10);
       transactionClaimDistributionTestPanel.add(transactionClaimDistributionTestValueTextBox);
-      transactionClaimDistributionTestButton = newButton("Probability:");
+      transactionClaimDistributionTestButton = newButton("Test");
       transactionClaimDistributionTestPanel.add(transactionClaimDistributionTestButton);
       transactionClaimDistributionTestButton.addActionListener(this);
+      transactionClaimDistributionTestLabel = newLabel("Probability density:");
+      transactionClaimDistributionTestPanel.add(transactionClaimDistributionTestLabel);      
       transactionClaimDistributionTestProbabilityTextBox = newTextField(10);
       transactionClaimDistributionTestProbabilityTextBox.setEditable(false);
       transactionClaimDistributionTestPanel.add(transactionClaimDistributionTestProbabilityTextBox);
@@ -606,7 +609,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
         		  syncMessages();
         	  }
               animateWaitTextBox(transactionClaimAmountTextBox);
-              animateWaitTextBox(transactionGrantClaimantTextBox);
+              animateWaitTextBox(transactionGrantClaimantTextBox);	  
               transactionClaimDistribution.draw();
           }
       };
@@ -1081,14 +1084,16 @@ public class Host extends JFrame implements ActionListener, ItemListener
                JOptionPane.showMessageDialog(this, "Invalid sigma");
                return;
             }
+            this.mean = mean;
+            this.sigma = sigma;
             transactionClaimDistribution.setMean(mean);
             transactionClaimDistribution.setSigma(sigma);
             transactionClaimDistribution.draw();
             if (event.getSource() == transactionClaimDistributionParameterSetButton)
             {
                transactionState = TRANSACTION_STATE.CLAIM_ENTITLEMENT;
-            }  
-            enableUI();
+               enableUI();
+            }
          }
 
          // Test a probability distribution value.
@@ -1109,52 +1114,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
                return;
             }
             double probability = transactionClaimDistribution.phi(value);
-            transactionClaimDistributionTestProbabilityTextBox.setText(doubleToString(probability));
-         
-            
-            
-            
-            String meanText = transactionClaimDistributionMeanTextBox.getText().trim();
-            if (Shared.isVoid(meanText))
-            {
-               JOptionPane.showMessageDialog(this, "Please enter mean");
-               return;
-            }
-            String sigmaText = transactionClaimDistributionSigmaTextBox.getText().trim();
-            if (Shared.isVoid(sigmaText))
-            {
-               JOptionPane.showMessageDialog(this, "Please enter sigma");
-               return;
-            }
-            double mean;
-            try {
-               mean = Double.parseDouble(meanText);
-            }
-            catch (NumberFormatException e) {
-               JOptionPane.showMessageDialog(this, "Invalid mean");
-               return;
-            }
-            if (mean <= 0.0)
-            {
-               JOptionPane.showMessageDialog(this, "Invalid mean");
-               return;
-            }
-            double sigma;
-            try {
-               sigma = Double.parseDouble(sigmaText);
-            }
-            catch (NumberFormatException e) {
-               JOptionPane.showMessageDialog(this, "Invalid sigma");
-               return;
-            }
-            if (sigma <= 0.0)
-            {
-               JOptionPane.showMessageDialog(this, "Invalid sigma");
-               return;
-            }            
-            Normal n = new Normal(mean, sigma, new Random());
-            System.out.println("cdf=" + n.cdf(value));
-            System.out.println("pdf=" + n.pdf(value));            
+            transactionClaimDistributionTestProbabilityTextBox.setText(doubleToString(probability));         
          }
 
          // Generate a value from the entitlement probability distribution.
