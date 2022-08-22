@@ -7,6 +7,10 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -18,12 +22,18 @@ public class ConformativeGame extends JFrame implements ActionListener
 {
    private static final long serialVersionUID = 1L;
 	
-   JPanel          rootPanel;
+   private JPanel          rootPanel;
    private Button          hostButton;
    private Button          playerButton;
+   
+   private ArrayList<Host> hosts;
+   private ArrayList<Player> players;
 
    public ConformativeGame()
    {
+	  hosts = new ArrayList<Host>();
+	  players = new ArrayList<Player>();
+	  
 	  // Connect to network.
 	  try
 	  {
@@ -38,7 +48,23 @@ public class ConformativeGame extends JFrame implements ActionListener
 	  
       // Set title.
       setTitle("Conformative Game Roles");
-      setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+      setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+      addWindowListener(new WindowAdapter() 
+      {
+          @Override
+          public void windowClosing(WindowEvent e) 
+          {
+        	  for (Host host : hosts)
+        	  {
+        		  host.terminate();
+        	  }
+        	  for (Player player : players)
+        	  {
+        		  player.terminate();
+        	  }       	  
+        	  System.exit(0);        	  
+          }
+      });      
       
       // Set fixed-width font.
       setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
@@ -83,7 +109,7 @@ public class ConformativeGame extends JFrame implements ActionListener
         	// Run host.
         	try 
         	{
-				new Host(gameCode);
+				hosts.add(new Host(gameCode));
 			} catch (Exception e) {}
         }        
         return;
@@ -127,7 +153,7 @@ public class ConformativeGame extends JFrame implements ActionListener
          	// Run player client.
          	try 
          	{
-				new Player(gameCode, playerName);
+				players.add(new Player(gameCode, playerName));
 			} catch (Exception e) {} 
          }
          return;

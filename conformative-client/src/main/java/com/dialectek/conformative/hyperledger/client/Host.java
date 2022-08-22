@@ -14,7 +14,6 @@ import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import javax.swing.BorderFactory;
@@ -1398,7 +1397,8 @@ public class Host extends JFrame implements ActionListener, ItemListener
          	   JOptionPane.showMessageDialog(this, "Error aborting transaction: " + e.getMessage());	   					     	               
             } 
             resetTransaction();
-            transactionTabPanel.setSelectedIndex(PARTICIPANTS_TAB);            
+            transactionTabPanel.setSelectedIndex(PARTICIPANTS_TAB); 
+            enableUI();
          }
    }
 
@@ -2068,10 +2068,6 @@ public class Host extends JFrame implements ActionListener, ItemListener
    		{
    	       	DelimitedString request = new DelimitedString(Shared.SYNC_GAME);
    	        request.add(gameCode);
-   			if (transactionNumber != -1)
-   			{
-   				request.add(transactionNumber);
-   			}
    			byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
    	   		if (response == null || !Shared.isOK(new String(response, StandardCharsets.UTF_8)))
    	   		{
@@ -2113,7 +2109,6 @@ public class Host extends JFrame implements ActionListener, ItemListener
                     }
                     playersListBox.setSelectedIndex(0);
                     playersListBox.addItemListener(this); 
-                    // TODO: process transaction.
                     resetTransaction();
                     if (gameState == Shared.RUNNING)
                     {
@@ -2427,5 +2422,41 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	        }
 	     }	     
 	  }
+  }
+  
+  // Terminate: abort transaction.
+  public void terminate()
+  {
+	  if (transactionState == TRANSACTION_STATE.UNAVAILABLE || 
+			  transactionState == TRANSACTION_STATE.INACTIVE) return;
+
+	  disableUI();
+	  try
+	  {   	
+		   DelimitedString request = new DelimitedString(Shared.ABORT_TRANSACTION);
+		   request.add(gameCode);
+		   request.add(transactionNumber);
+		   request.add(transactionParticipantsClaimantTextBox.getText());
+           for (int i = 1; i < transactionParticipantsAuditorListBox.getItemCount(); i++)
+           {
+              request.add(transactionParticipantsAuditorListBox.getItemAt(i));
+           } 	               
+		   byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
+		   if (response == null || !Shared.isOK(new String(response, StandardCharsets.UTF_8)))
+		   {
+			   if (response != null)
+			   {
+				   JOptionPane.showMessageDialog(this, "Error aborting transaction: " + new String(response, StandardCharsets.UTF_8));
+			   } else {
+				   JOptionPane.showMessageDialog(this, "Error aborting transaction");	   					   
+			   }	   				   
+		   }
+	  } catch (Exception e)
+	  {
+		   JOptionPane.showMessageDialog(this, "Error aborting transaction: " + e.getMessage());	   					     	               
+	  } 
+	  resetTransaction();
+      transactionTabPanel.setSelectedIndex(PARTICIPANTS_TAB); 	  
+	  enableUI();
   }
 }

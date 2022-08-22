@@ -3631,3 +3631,9 @@ Caused by: java.net.ConnectException: Connection refused (Connection refused)
 	at org.apache.http.conn.ssl.SSLSocketFactory.connectSocket(SSLSocketFactory.java:543)
 	at org.apache.http.impl.conn.DefaultHttpClientConnectionOperator.connect(DefaultHttpClientConnectionOperator.java:142)
 	... 15 more
+ERROR	2022-08-21 22:47:57,027	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Alice","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Alice' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-21 22:47:57,028	1	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@1fd12435
+ERROR	2022-08-21 22:49:09,114	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	POST request to https://localhost:7054 failed request body {"id":"Alice","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Alice' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-21 22:49:09,114	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-EventQueue-1]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@7d5e7bdb

@@ -16,7 +16,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Pattern;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -29,6 +28,7 @@ import javax.swing.JTextArea;
 
 import javax.swing.JTextField;
 
+import com.dialectek.conformative.hyperledger.client.Host.TRANSACTION_STATE;
 import com.dialectek.conformative.hyperledger.shared.DelimitedString;
 import com.dialectek.conformative.hyperledger.shared.Shared;
 
@@ -1692,4 +1692,9 @@ public class Player extends JFrame implements ActionListener
          }
       }
    }
+  
+   // Terminate: save state.
+   public void terminate()
+   {
+   }  
 }
