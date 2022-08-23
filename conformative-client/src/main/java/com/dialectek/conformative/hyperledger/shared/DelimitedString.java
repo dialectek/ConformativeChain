@@ -35,7 +35,7 @@ public class DelimitedString
 
    public String[] parse()
    {
-      String[] args = str.split(DELIMITER);
+      String[] args = str.split(DELIMITER, -1);
       for (int i = 0; i < args.length; i++)
       {
          args[i] = args[i].trim();

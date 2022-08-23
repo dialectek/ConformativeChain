@@ -223,14 +223,16 @@ public class Player extends JFrame implements ActionListener
 	  
       // Title.
       setTitle("Conformative Game Player: " + playerName);
+      
+      // Termination.
       setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);      
-      JFrame frame = this;
       addWindowListener(new WindowAdapter() 
       {
           @Override
           public void windowClosing(WindowEvent e) 
           { 
-        	  JOptionPane.showMessageDialog(frame, "Please exit using the Conformative Game Roles window");
+        	  terminate();
+        	  System.exit(0);
           }
       });      
       
@@ -1180,6 +1182,8 @@ public class Player extends JFrame implements ActionListener
       if (gameState == 0 || !playerState)
       {
           playerJoinQuitButton.setText("Join");
+          playerNameTextBox.setEditable(false);
+          gameCodeTextBox.setEditable(false);          
           clearHomeResources();
           roleTabPanel.setSelectedIndex(HOME_TAB);
           roleTabPanel.setEnabledAt(CLAIM_TAB, false);
@@ -1204,7 +1208,9 @@ public class Player extends JFrame implements ActionListener
       }
       else
       {
-         playerJoinQuitButton.setText("Quit");	  
+         playerJoinQuitButton.setText("Quit");
+         playerNameTextBox.setEditable(false);
+         gameCodeTextBox.setEditable(false);           
          hostChatTextBox.setEditable(true);
          hostChatSendButton.setEnabled(true);
          switch (claimState)
@@ -1392,7 +1398,7 @@ public class Player extends JFrame implements ActionListener
    	   		if (response != null)
    	   		{
    	   			String messages = new String(response, StandardCharsets.UTF_8);
-   	   			System.out.println("player " + playerName + " messages: " + messages); // flibber
+   	   			System.out.println("player " + playerName + " messages: " + messages); 
    	   			if (Shared.isOK(messages))
    	   			{
    	   				String[] args = new DelimitedString(messages).parse();   	   				
@@ -1446,7 +1452,7 @@ public class Player extends JFrame implements ActionListener
     	 playerState = false;
     	 return;
      }    
-     String[] fields = messages.split(DelimitedString.DELIMITER);
+     String[] fields = messages.split(DelimitedString.DELIMITER, -1);
      if (fields == null || fields.length <= 3)
      {
         return;
@@ -1732,6 +1738,7 @@ public class Player extends JFrame implements ActionListener
    // Terminate: save state.
    public void terminate()
    {
+	   if (Shared.isVoid(gameCode) || Shared.isVoid(playerName)) return;	   
 	   disableUI();
        try
        {	        	
@@ -1773,5 +1780,62 @@ public class Player extends JFrame implements ActionListener
     	   JOptionPane.showMessageDialog(this, "Error saving player: " + e.getMessage());	   					     	               
        }       			   
        enableUI();
-   }  
+   } 
+   
+   // Main.
+   public static void main(String[] args)
+   {
+ 	  // Get game code and player name.
+      JTextField gameCodeText = new JTextField();
+      JTextField playerNameText = new JTextField();
+      Object[] message = {
+          "Game code:", gameCodeText,
+          "Player name:", playerNameText
+      };
+      int option = JOptionPane.showConfirmDialog(null, message, "Enter player information", JOptionPane.OK_CANCEL_OPTION);
+      if (option == JOptionPane.OK_OPTION) 
+      {
+      	String gameCode = gameCodeText.getText();
+      	if (Shared.isVoid(gameCode) || gameCode.contains(DelimitedString.DELIMITER))
+      	{
+      		JOptionPane.showMessageDialog(null, "Invalid game code");
+      		return;
+      	}
+      	String playerName = playerNameText.getText();
+      	if (Shared.isVoid(playerName) || 
+      			playerName.contains(DelimitedString.DELIMITER) ||
+      			playerName.equals(Shared.ALL_PLAYERS))
+      	{
+      		JOptionPane.showMessageDialog(null, "Invalid player name");
+      		return;
+      	} 
+      	
+	   	  // Connect to network.
+	   	  try
+	   	  {
+	   		  if (!NetworkClient.init())
+	   		  {
+	   	  		  JOptionPane.showMessageDialog(null, "Cannot connect to network");			  
+	   		  }
+	   	  } catch (Exception e)
+	   	  {
+	     		  JOptionPane.showMessageDialog(null, "Cannot connect to network");
+	   	  }
+   	        	
+      	// Register user.
+      	try 
+      	{
+				NetworkClient.registerUser(playerName);
+      	} catch (Exception e) 
+      	{
+      		JOptionPane.showMessageDialog(null, "Cannot register player as network user: " + e.getMessage());
+		}
+
+      	// Run player client.
+      	try 
+      	{
+			new Player(gameCode, playerName);
+		} catch (Exception e) {} 
+      }    
+   }   
 }

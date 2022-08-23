@@ -230,14 +230,16 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	  
       // Title.
       setTitle("Conformative Game Host");
+      
+      // Termination.
       setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);      
-      JFrame frame = this;
       addWindowListener(new WindowAdapter() 
       {
           @Override
           public void windowClosing(WindowEvent e) 
           { 
-        	  JOptionPane.showMessageDialog(frame, "Please exit using the Conformative Game Roles window");
+        	  terminate();
+        	  System.exit(0);
           }
       });      
       
@@ -1172,7 +1174,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
 	   			   {
 	   				   try
 	   				   {
-	   					   String[] parts = new String(response, StandardCharsets.UTF_8).split(DelimitedString.DELIMITER);
+	   					   String[] parts = new String(response, StandardCharsets.UTF_8).split(DelimitedString.DELIMITER, -1);
 	   					   transactionNumber = Integer.parseInt(parts[1]);
 	   				   } catch (Exception e)
 	   				   {
@@ -1798,6 +1800,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
       }
       else
       {
+         gameCodeTextBox.setEditable(false);    	  
          gameResourcesTextBox.setEditable(false);    	  
     	 gameCreateDeleteButton.setText("Delete");
          gameStateListBox.setEnabled(true);
@@ -2153,7 +2156,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
    	   		if (response != null)
    	   		{
    	   			String messages = new String(response, StandardCharsets.UTF_8);
-   	   			System.out.println("host messages: " + messages); // flibber
+   	   			System.out.println("host messages: " + messages); 
    	   			if (Shared.isOK(messages))
    	   			{
    	   				String[] args = new DelimitedString(messages).parse();   	   				
@@ -2204,7 +2207,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
     	 gameState = 0;
     	 return;
      }    
-     String[] fields = messages.split(DelimitedString.DELIMITER);
+     String[] fields = messages.split(DelimitedString.DELIMITER, -1);
      if (fields == null || fields.length == 1)
      {
         return;
@@ -2470,4 +2473,42 @@ public class Host extends JFrame implements ActionListener, ItemListener
       transactionTabPanel.setSelectedIndex(PARTICIPANTS_TAB); 	  
 	  enableUI();
   }
+  
+  // Main.
+  public static void main(String[] args)
+  {
+	  // Get game code.
+       JTextField gameCodeText = new JTextField();
+       Object[] message = {
+           "Game code:", gameCodeText
+       };
+       int option = JOptionPane.showConfirmDialog(null, message, "Enter host information", JOptionPane.OK_CANCEL_OPTION);
+       if (option == JOptionPane.OK_OPTION) 
+       {
+	       	String gameCode = gameCodeText.getText();
+	       	if (Shared.isVoid(gameCode) || gameCode.contains(DelimitedString.DELIMITER))
+	       	{
+	       		JOptionPane.showMessageDialog(null, "Invalid game code");
+	       		return;
+	       	}
+	       	
+	  	  // Connect to network.
+	  	  try
+	  	  {
+	  		  if (!NetworkClient.init())
+	  		  {
+	  	  		  JOptionPane.showMessageDialog(null, "Cannot connect to network");			  
+	  		  }
+	  	  } catch (Exception e)
+	  	  {
+	    		  JOptionPane.showMessageDialog(null, "Cannot connect to network");
+	  	  }
+	  	  	       	
+	       	// Run host.
+	       	try 
+	       	{
+				new Host(gameCode);
+			} catch (Exception e) {}
+       }        
+    }
 }
