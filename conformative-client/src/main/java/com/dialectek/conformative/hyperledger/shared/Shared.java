@@ -14,7 +14,8 @@ public class Shared
    public static final String CREATE_GAME          = "create_game";
    public static final String UPDATE_GAME          = "update_game";
    public static final String DELETE_GAME          = "delete_game";
-   public static final String SYNC_PLAYER          = "sync_player";   
+   public static final String SYNC_PLAYER          = "sync_player";
+   public static final String SAVE_PLAYER          = "save_player";   
    public static final String JOIN_GAME            = "join_game";
    public static final String QUIT_GAME            = "quit_game";
    public static final String REMOVE_PLAYER        = "remove_player";

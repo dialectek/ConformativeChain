@@ -46,7 +46,7 @@ public class DelimitedString
 
    public String add(String arg)
    {
-      if (!Shared.isVoid(arg))
+      if (arg != null)
       {
          if (Shared.isVoid(str))
          {

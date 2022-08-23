@@ -86,6 +86,7 @@ public final class GameService implements ContractInterface
          }
          
          if ((request.equals(Shared.SYNC_PLAYER) ||
+           	  request.equals(Shared.SAVE_PLAYER) ||         		 
         	  request.equals(Shared.JOIN_GAME) || 
               request.equals(Shared.QUIT_GAME) ||
               request.equals(Shared.PLAYER_SYNC_MESSAGES) ||
@@ -104,75 +105,40 @@ public final class GameService implements ContractInterface
 	               player = null;
 	            }
             }
-            if (request.equals(Shared.SYNC_PLAYER) && (args.length == 3 || args.length == 4))
+            if (request.equals(Shared.SYNC_PLAYER) && args.length == 3)
             {
             	// Synchronize player.
             	if (game != null)
             	{
 	        		if (player != null)
 	        		{
-	                    DelimitedString response = new DelimitedString(Shared.OK);
-	                    response.add(game.getState());
-	                    response.add(1);
-	                    response.add(player.getPersonalResources());
-	                    response.add(game.getCommonResources() / (double)players.size());
-	                    response.add(player.getEntitledResources());                     
-	                    if (args.length == 4)
-	                    {
-	                          int number;
-		               		  try 
-		               		  {
-		               			  number = Integer.parseInt(args[3]);
-		               		  } catch (NumberFormatException e) {
-		                             return(Shared.error("invalid transaction number: " + args[3])); 
-		               		  }                  
-		               	      String transactionJSON = stub.getStringState(gameCode + DelimitedString.DELIMITER + number);
-		               	      if (Shared.isVoid(transactionJSON)) 
-		               	      {
-		               		      return Shared.error("transaction number not found: " + number); 
-		               	      } 
-		               	      com.dialectek.conformative.hyperledger.chaincode.Transaction transaction = 
-		               	    		  genson.deserialize(transactionJSON, com.dialectek.conformative.hyperledger.chaincode.Transaction.class);
-		               	      response.add(transaction.getClaimantName());
-		               	      response.add(transaction.getMean());
-		               	      response.add(transaction.getSigma());	
-		               	      response.add(transaction.getEntitlement());
-		               	      response.add(transaction.getClaim());	 
-		               	      response.add(transaction.getClaimantName());
-		               	      ArrayList<String> auditorNames = transaction.getAuditorNames();
-		               	      response.add(auditorNames.size());
-		               	      for (String name : auditorNames)
-		               	      {
-		               	    	  response.add(name);
-		               	      }
-		               	      ArrayList<Double> auditorGrants = transaction.getAuditorGrants();
-		               	      response.add(auditorGrants.size());
-		               	      for (Double grant : auditorGrants)
-		               	      {
-		               	    	  response.add(grant);
-		               	      }
-		               	      response.add(transaction.getClaimantGrant());
-		               	      ArrayList<Double> auditorPenalties = transaction.getAuditorPenalties();
-		               	      response.add(auditorPenalties.size());
-		               	      for (Double penalty : auditorPenalties)
-		               	      {
-		               	    	  response.add(penalty);
-		               	      }
-		               	      response.add(transaction.getClaimantPenalty());
-		               	      ArrayList<String> beneficiaries = transaction.getBeneficiaries();
-		               	      response.add(beneficiaries.size());
-		               	      for (String name : beneficiaries)
-		               	      {
-		               	    	  response.add(name);
-		               	      }
-		               	      ArrayList<Double> donations = transaction.getDonations();
-		               	      response.add(donations.size());
-		               	      for (Double donation : donations)
-		               	      {
-		               	    	  response.add(donation);
-		               	      }	               	      
-	                    }
-	                    return(response.toString());
+	                   DelimitedString response = new DelimitedString(Shared.OK);
+	                   response.add(game.getState());
+	                   response.add(1);
+	                   response.add(player.getPersonalResources());
+	                   response.add(game.getCommonResources() / (double)players.size());
+	                   response.add(player.getEntitledResources());                     
+	                   response.add(player.transactionNumber);
+	                   response.add(player.claimState);
+	                   response.add(player.claimDistributionMean);
+	                   response.add(player.claimDistributionSigma);
+	                   response.add(player.claimResourcesEntitled);
+	                   response.add(player.claimResourcesEntitledPerPlayer);
+	                   response.add(player.claimResourcesEntitledNumPlayers);
+	                   response.add(player.claimResourcesClaim);
+	                   response.add(player.claimResourcesGrant);
+	                   response.add(player.claimResourcesPenalty);  	   
+	                   response.add(player.auditState);
+	                   response.add(player.claimantName);
+	                   response.add(player.auditDistributionMean);
+	                   response.add(player.auditDistributionSigma);
+	                   response.add(player.auditResourcesClaim);
+	                   response.add(player.auditResourcesClaimPerPlayer);
+	                   response.add(player.auditResourcesClaimNumPlayers);
+	                   response.add(player.auditResourcesGrant);
+	                   response.add(player.auditResourcesConsensus);
+	                   response.add(player.auditResourcesPenalty);  
+	                   return(response.toString());
 	        		} else {
 	                    DelimitedString response = new DelimitedString(Shared.OK);
 	                    response.add(game.getState());
@@ -185,6 +151,36 @@ public final class GameService implements ContractInterface
                     return(response.toString());            		
             	}
             }
+            if (request.equals(Shared.SAVE_PLAYER) && args.length == 23)
+            {
+            	// Save player.
+        		if (player != null)
+        		{
+                   player.transactionNumber = Integer.parseInt(args[3]);
+                   player.claimState = Integer.parseInt(args[4]);
+                   player.claimDistributionMean = args[5];
+                   player.claimDistributionSigma = args[6];
+                   player.claimResourcesEntitled = args[7];
+                   player.claimResourcesEntitledPerPlayer = args[8];
+                   player.claimResourcesEntitledNumPlayers = args[9];
+                   player.claimResourcesClaim = args[10];
+                   player.claimResourcesGrant = args[11];
+                   player.claimResourcesPenalty = args[12];  	   
+                   player.auditState = Integer.parseInt(args[13]);
+                   player.claimantName = args[14];
+                   player.auditDistributionMean = args[15];
+                   player.auditDistributionSigma = args[16];
+                   player.auditResourcesClaim = args[17];
+                   player.auditResourcesClaimPerPlayer = args[18];
+                   player.auditResourcesClaimNumPlayers = args[19];
+                   player.auditResourcesGrant = args[20];
+                   player.auditResourcesConsensus = args[21];
+                   player.auditResourcesPenalty = args[22];
+	               String playerJson = genson.serialize(player);
+	               stub.putStringState(gameCode + DelimitedString.DELIMITER + playerName, playerJson);
+        		}
+                return(Shared.OK);
+            }            
             else if (request.equals(Shared.PLAYER_SYNC_MESSAGES) && (args.length == 3))
             {
                // Get status and messages.

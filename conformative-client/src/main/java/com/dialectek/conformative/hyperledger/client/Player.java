@@ -9,6 +9,8 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.Date;
@@ -25,10 +27,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
-
 import javax.swing.JTextField;
-
-import com.dialectek.conformative.hyperledger.client.Host.TRANSACTION_STATE;
 import com.dialectek.conformative.hyperledger.shared.DelimitedString;
 import com.dialectek.conformative.hyperledger.shared.Shared;
 
@@ -169,19 +168,19 @@ public class Player extends JFrame implements ActionListener
    private boolean playerState;
    
    // Transaction state.
-   public enum TRANSACTION_STATE
+   public static class TRANSACTION_STATE
    {
-      INACTIVE,
-      PENDING,
-      WAITING,
-      FINISH
+      public static final int INACTIVE = 0;
+      public static final int PENDING = 1;
+      public static final int WAITING = 2;
+      public static final int FINISH = 3;
    }
 
    // Claim transaction state.
-   private TRANSACTION_STATE claimState;
+   private int claimState;
 
    // Audit transaction state.
-   private TRANSACTION_STATE auditState;
+   private int auditState;
 
    // Transaction number.
    private int transactionNumber;
@@ -224,6 +223,16 @@ public class Player extends JFrame implements ActionListener
 	  
       // Title.
       setTitle("Conformative Game Player: " + playerName);
+      setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);      
+      JFrame frame = this;
+      addWindowListener(new WindowAdapter() 
+      {
+          @Override
+          public void windowClosing(WindowEvent e) 
+          { 
+        	  JOptionPane.showMessageDialog(frame, "Please exit using the Conformative Game Roles window");
+          }
+      });      
       
       // Set fixed-width font for text.
  	  textFont = new Font(Font.MONOSPACED, Font.PLAIN, 12);      
@@ -403,7 +412,7 @@ public class Player extends JFrame implements ActionListener
       claimResourcesDonateBeneficiaryTextBox = newTextField(10);
       claimResourcesDonatePanel.add(claimResourcesDonateBeneficiaryTextBox);
       claimResourcesDonateButton = newButton("Send");
-      claimResourcesDonateButton.setText("Go");
+      claimResourcesDonateButton.setText("Donate");
       claimResourcesDonateButton.addActionListener(this);
       claimResourcesDonatePanel.add(claimResourcesDonateButton);
       claimResourcesFinishPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -1200,7 +1209,7 @@ public class Player extends JFrame implements ActionListener
          hostChatSendButton.setEnabled(true);
          switch (claimState)
          {
-         case INACTIVE:
+         case TRANSACTION_STATE.INACTIVE:
             claimResourcesClaimTextBox.setEditable(false);
             claimResourcesSetButton.setEnabled(false);
             claimResourcesDonateTextBox.setEditable(false);
@@ -1211,7 +1220,7 @@ public class Player extends JFrame implements ActionListener
             auditorChatSendButton.setEnabled(false);
             break;
 
-         case PENDING:
+         case TRANSACTION_STATE.PENDING:
             claimResourcesClaimTextBox.setEditable(true);
             claimResourcesSetButton.setEnabled(true);
             claimResourcesDonateTextBox.setEditable(false);
@@ -1222,7 +1231,7 @@ public class Player extends JFrame implements ActionListener
             auditorChatSendButton.setEnabled(false);
             break;
 
-         case WAITING:
+         case TRANSACTION_STATE.WAITING:
             claimResourcesClaimTextBox.setEditable(false);
             claimResourcesSetButton.setEnabled(false);
             claimResourcesDonateTextBox.setEditable(false);
@@ -1233,7 +1242,7 @@ public class Player extends JFrame implements ActionListener
             auditorChatSendButton.setEnabled(true);
             break;
 
-         case FINISH:
+         case TRANSACTION_STATE.FINISH:
             claimResourcesClaimTextBox.setEditable(false);
             claimResourcesSetButton.setEnabled(false);
             claimResourcesDonateTextBox.setEditable(true);
@@ -1246,7 +1255,7 @@ public class Player extends JFrame implements ActionListener
          }
          switch (auditState)
          {
-         case INACTIVE:
+         case TRANSACTION_STATE.INACTIVE:
             auditResourcesGrantTextBox.setEditable(false);
             auditResourcesGrantSetButton.setEnabled(false);
             auditResourcesFinishButton.setEnabled(false);
@@ -1254,7 +1263,7 @@ public class Player extends JFrame implements ActionListener
             claimantChatSendButton.setEnabled(false);
             break;
 
-         case PENDING:
+         case TRANSACTION_STATE.PENDING:
             auditResourcesGrantTextBox.setEditable(true);
             auditResourcesGrantSetButton.setEnabled(true);
             auditResourcesFinishButton.setEnabled(false);
@@ -1262,7 +1271,7 @@ public class Player extends JFrame implements ActionListener
             claimantChatSendButton.setEnabled(true);
             break;
 
-         case WAITING:
+         case TRANSACTION_STATE.WAITING:
             auditResourcesGrantTextBox.setEditable(false);
             auditResourcesGrantSetButton.setEnabled(false);
             auditResourcesFinishButton.setEnabled(false);
@@ -1270,7 +1279,7 @@ public class Player extends JFrame implements ActionListener
             claimantChatSendButton.setEnabled(true);
             break;
 
-         case FINISH:
+         case TRANSACTION_STATE.FINISH:
             auditResourcesGrantTextBox.setEditable(false);
             auditResourcesGrantSetButton.setEnabled(false);
             auditResourcesFinishButton.setEnabled(true);
@@ -1292,10 +1301,6 @@ public class Player extends JFrame implements ActionListener
    	       	DelimitedString request = new DelimitedString(Shared.SYNC_PLAYER);
    	        request.add(gameCode);
    	        request.add(playerName);
-   			if (transactionNumber != -1)
-   			{
-   				request.add(transactionNumber);
-   			}
    			byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
    	   		if (response == null || !Shared.isOK(new String(response, StandardCharsets.UTF_8)))
    	   		{
@@ -1330,8 +1335,39 @@ public class Player extends JFrame implements ActionListener
 	   	   	            double personalResources = Double.parseDouble(args[3]);
 	   	   	            double commonResources   = Double.parseDouble(args[4]);
 	   	   	            double entitledResources = Double.parseDouble(args[5]);
-	   	   	            showHomeResources(personalResources, commonResources, entitledResources);   	   					
-	                    // TODO: process transaction.
+	   	   	            showHomeResources(personalResources, commonResources, entitledResources); 
+	   	   	            
+	   	   	            // Set transaction state.
+	   	   	            transactionNumber = Integer.parseInt(args[6]);
+	   	   	            claimState = Integer.parseInt(args[7]);
+	   	   	            if (claimState != TRANSACTION_STATE.INACTIVE) 
+	   	   	            {
+		   	   	            claimDistribution.setMean(Double.parseDouble(args[8]));
+		   	   	            claimDistribution.setSigma(Double.parseDouble(args[9]));
+		   	   	            claimResourcesEntitledTextBox.setText(args[10]);
+		   	   	            claimResourcesEntitledPerPlayerTextBox.setText(args[11]);
+		   	   	            claimResourcesEntitledNumPlayersTextBox.setText(args[12]);
+		   	   	            claimResourcesClaimTextBox.setText(args[13]);
+		   	   	            claimResourcesGrantTextBox.setText(args[14]);
+		   	   	            claimResourcesPenaltyTextBox.setText(args[15]); 
+	   	   	            	roleTabPanel.setEnabledAt(CLAIM_TAB, true);
+	   	   	            	roleTabPanel.setSelectedIndex(CLAIM_TAB);		   	   	            
+	   	   	            }
+	   	   	            auditState = Integer.parseInt(args[16]);
+	   	   	            if (auditState != TRANSACTION_STATE.INACTIVE) 
+	   	   	            {
+		   	   	            claimantNameTextBox.setText(args[17]);
+		   	   	            auditDistribution.setMean(Double.parseDouble(args[18]));
+		   	   	            auditDistribution.setSigma(Double.parseDouble(args[19]));
+		   	   	            auditResourcesClaimTextBox.setText(args[20]);
+		   	   	            auditResourcesClaimPerPlayerTextBox.setText(args[21]);
+		   	   	            auditResourcesClaimNumPlayersTextBox.setText(args[22]);
+		   	   	            auditResourcesGrantTextBox.setText(args[23]);
+		   	   	            auditResourcesConsensusTextBox.setText(args[24]);
+		   	   	            auditResourcesPenaltyTextBox.setText(args[25]);
+	   	   	            	roleTabPanel.setEnabledAt(AUDIT_TAB, true);
+	   	   	            	roleTabPanel.setSelectedIndex(AUDIT_TAB);		   	   	            
+	   	   	            }	   	            
    	   				}
    	   			}
    	   		}
@@ -1696,5 +1732,46 @@ public class Player extends JFrame implements ActionListener
    // Terminate: save state.
    public void terminate()
    {
+	   disableUI();
+       try
+       {	        	
+           DelimitedString request = new DelimitedString(Shared.SAVE_PLAYER);
+           request.add(gameCode);
+           request.add(playerName);
+           request.add(transactionNumber);
+    	   request.add(claimState);
+    	   request.add(claimDistribution.getMean());
+    	   request.add(claimDistribution.getSigma());
+    	   request.add(claimResourcesEntitledTextBox.getText());
+    	   request.add(claimResourcesEntitledPerPlayerTextBox.getText());
+    	   request.add(claimResourcesEntitledNumPlayersTextBox.getText());
+    	   request.add(claimResourcesClaimTextBox.getText());
+    	   request.add(claimResourcesGrantTextBox.getText());
+    	   request.add(claimResourcesPenaltyTextBox.getText());  	   
+    	   request.add(auditState);
+           request.add(claimantNameTextBox.getText());
+    	   request.add(auditDistribution.getMean());
+    	   request.add(auditDistribution.getSigma());
+    	   request.add(auditResourcesClaimTextBox.getText());
+    	   request.add(auditResourcesClaimPerPlayerTextBox.getText());
+    	   request.add(auditResourcesClaimNumPlayersTextBox.getText());
+    	   request.add(auditResourcesGrantTextBox.getText());
+    	   request.add(auditResourcesConsensusTextBox.getText());
+    	   request.add(auditResourcesPenaltyTextBox.getText()); 
+		   byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
+		   if (response == null || !Shared.isOK(new String(response, StandardCharsets.UTF_8)))
+		   {
+			   if (response != null)
+			   {
+				   JOptionPane.showMessageDialog(this, "Error saving player: " + new String(response, StandardCharsets.UTF_8));
+			   } else {
+				   JOptionPane.showMessageDialog(this, "Error saving player");	   					   
+			   }	   				   
+		   }
+       } catch (Exception e)
+       {
+    	   JOptionPane.showMessageDialog(this, "Error saving player: " + e.getMessage());	   					     	               
+       }       			   
+       enableUI();
    }  
 }

@@ -26,6 +26,66 @@ public class Player
    @Property()   
    public String[] messages;
 
+   @Property()   
+   public int transactionNumber;
+   
+   @Property()   
+   public int claimState;
+   
+   @Property()   
+   public String claimDistributionMean;
+   
+   @Property()   
+   public String claimDistributionSigma;
+
+   @Property()   
+   public String claimResourcesEntitled;
+
+   @Property()   
+   public String claimResourcesEntitledPerPlayer;
+
+   @Property()   
+   public String claimResourcesEntitledNumPlayers;
+
+   @Property()   
+   public String claimResourcesClaim;
+
+   @Property()   
+   public String claimResourcesGrant;
+
+   @Property()   
+   public String claimResourcesPenalty;  	   
+
+   @Property()   
+   public int auditState;
+
+   @Property()   
+   public String claimantName;
+
+   @Property()   
+   public String auditDistributionMean;
+
+   @Property()   
+   public String auditDistributionSigma;
+
+   @Property()   
+   public String auditResourcesClaim;
+
+   @Property()   
+   public String auditResourcesClaimPerPlayer;
+
+   @Property()   
+   public String auditResourcesClaimNumPlayers;
+
+   @Property()   
+   public String auditResourcesGrant;
+
+   @Property()   
+   public String auditResourcesConsensus;
+
+   @Property()   
+   public String auditResourcesPenalty;
+
    public Player(@JsonProperty("name") final String name,
            @JsonProperty("gameCode") final String gameCode) 
    {
