@@ -13,7 +13,7 @@ public class Transaction
 {
    @Property()
    public final int number;
-   
+
    @Property()
    public final String gameCode;
 
@@ -52,12 +52,12 @@ public class Transaction
 
    @Property()
    public double[] donations;
-   
-   public Transaction(@JsonProperty("number") final int number, 
-		   @JsonProperty("gameCode") final String gameCode)
+
+   public Transaction(@JsonProperty("number") final int      number,
+                      @JsonProperty("gameCode") final String gameCode)
    {
       this.number      = number;
-      this.gameCode    = gameCode;      
+      this.gameCode    = gameCode;
       claimantName     = null;
       mean             = sigma = 0.0;
       entitlement      = 0.0;
@@ -143,35 +143,37 @@ public class Transaction
       this.claim = claim;
    }
 
+
    public ArrayList<String> getAuditorNames()
    {
-	  ArrayList<String> results = new ArrayList<String>();
-	  for (String name: auditorNames)
-	  {
-		  results.add(name);
-	  }
-      return results;
+      ArrayList<String> results = new ArrayList<String>();
+      for (String name : auditorNames)
+      {
+         results.add(name);
+      }
+      return(results);
    }
+
 
    public void addAuditorName(String auditorName)
    {
-	  auditorNames = Arrays.copyOf(auditorNames, auditorNames.length + 1);
-	  auditorNames[auditorNames.length - 1] = auditorName;
-	  auditorGrants = Arrays.copyOf(auditorGrants, auditorGrants.length + 1);
-	  auditorGrants[auditorGrants.length - 1] = 0.0;	  
-	  auditorPenalties = Arrays.copyOf(auditorPenalties, auditorPenalties.length + 1);
-	  auditorPenalties[auditorPenalties.length - 1] = 0.0;	
+      auditorNames = Arrays.copyOf(auditorNames, auditorNames.length + 1);
+      auditorNames[auditorNames.length - 1] = auditorName;
+      auditorGrants = Arrays.copyOf(auditorGrants, auditorGrants.length + 1);
+      auditorGrants[auditorGrants.length - 1] = 0.0;
+      auditorPenalties = Arrays.copyOf(auditorPenalties, auditorPenalties.length + 1);
+      auditorPenalties[auditorPenalties.length - 1] = 0.0;
    }
 
 
    public ArrayList<Double> getAuditorGrants()
    {
-	  ArrayList<Double> results = new ArrayList<Double>();
-	  for (Double grant: auditorGrants)
-	  {
-		  results.add(grant);
-	  }
-      return results;	   
+      ArrayList<Double> results = new ArrayList<Double>();
+      for (Double grant : auditorGrants)
+      {
+         results.add(grant);
+      }
+      return(results);
    }
 
 
@@ -202,12 +204,12 @@ public class Transaction
 
    public ArrayList<Double> getAuditorPenalties()
    {
-	  ArrayList<Double> results = new ArrayList<Double>();
-	  for (Double penalty: auditorPenalties)
-	  {
-		  results.add(penalty);
-	  }
-      return results;	   	   
+      ArrayList<Double> results = new ArrayList<Double>();
+      for (Double penalty : auditorPenalties)
+      {
+         results.add(penalty);
+      }
+      return(results);
    }
 
 
@@ -238,23 +240,23 @@ public class Transaction
 
    public ArrayList<String> getBeneficiaries()
    {
-	  ArrayList<String> results = new ArrayList<String>();
-	  for (String name: beneficiaries)
-	  {
-		  results.add(name);
-	  }
-      return results;	   
+      ArrayList<String> results = new ArrayList<String>();
+      for (String name : beneficiaries)
+      {
+         results.add(name);
+      }
+      return(results);
    }
 
 
    public ArrayList<Double> getDonations()
    {
-	  ArrayList<Double> results = new ArrayList<Double>();
-	  for (Double donation: donations)
-	  {
-		  results.add(donation);
-	  }
-      return results;	   
+      ArrayList<Double> results = new ArrayList<Double>();
+      for (Double donation : donations)
+      {
+         results.add(donation);
+      }
+      return(results);
    }
 
 
@@ -263,6 +265,6 @@ public class Transaction
       beneficiaries = Arrays.copyOf(beneficiaries, beneficiaries.length + 1);
       beneficiaries[beneficiaries.length - 1] = beneficiary;
       donations = Arrays.copyOf(donations, donations.length + 1);
-      donations[donations.length - 1] = donation;	      
+      donations[donations.length - 1] = donation;
    }
 }

@@ -11,31 +11,31 @@ import java.util.Random;
 
 public class NormalDistribution
 {
-   public static final int      CANVAS_WIDTH       = 300;
-   public static final int      CANVAS_HEIGHT      = 200;
-   public static final int      CANVAS_BORDER      = 30;
-   public static final Color    GRAPH_LINE_COLOR  = Color.BLUE;   
-   public static final Color    GRAPH_POINT_COLOR  = Color.RED;
-   public static final int      GRAPH_POINT_WIDTH  = 4;
-   public static final int      NUM_PLOT_INTERVALS = 20;
-   public static final int      X_NUM_FREQUENCY    = 5;
-   public static final int      Y_NUM_FREQUENCY    = 5;
-   public static final int      NUM_SIGMAS         = 3;
-   public static final double   DEFAULT_MEAN       = 10.0;
-   public static final double   DEFAULT_SIGMA      = 2.0;
-   private Canvas               canvas;
-   private double               mean;
-   private double               sigma;
-   private Random               random;
-   private Graphics2D graphics;
-   
+   public static final int    CANVAS_WIDTH       = 300;
+   public static final int    CANVAS_HEIGHT      = 200;
+   public static final int    CANVAS_BORDER      = 30;
+   public static final Color  GRAPH_LINE_COLOR   = Color.BLUE;
+   public static final Color  GRAPH_POINT_COLOR  = Color.RED;
+   public static final int    GRAPH_POINT_WIDTH  = 4;
+   public static final int    NUM_PLOT_INTERVALS = 20;
+   public static final int    X_NUM_FREQUENCY    = 5;
+   public static final int    Y_NUM_FREQUENCY    = 5;
+   public static final int    NUM_SIGMAS         = 3;
+   public static final double DEFAULT_MEAN       = 10.0;
+   public static final double DEFAULT_SIGMA      = 2.0;
+   private Canvas             canvas;
+   private double             mean;
+   private double             sigma;
+   private Random             random;
+   private Graphics2D         graphics;
+
    // Constructors.
    public NormalDistribution(Canvas canvas, double mean, double sigma)
    {
       this.canvas = canvas;
       this.mean   = mean;
       this.sigma  = sigma;
-      random      = new Random();   
+      random      = new Random();
    }
 
 
@@ -44,7 +44,7 @@ public class NormalDistribution
       this.canvas = canvas;
       mean        = DEFAULT_MEAN;
       sigma       = DEFAULT_SIGMA;
-      random      = new Random();      
+      random      = new Random();
    }
 
 
@@ -56,14 +56,14 @@ public class NormalDistribution
 
    public void setMean(double mean)
    {
-	  if (this.mean != mean)
-	  {
-		  if (graphics != null)
-		  {
-			  graphics.setColor(Color.WHITE);
-			  graphics.clearRect(0,  0, CANVAS_WIDTH, CANVAS_HEIGHT);		  
-		  }
-	  }
+      if (this.mean != mean)
+      {
+         if (graphics != null)
+         {
+            graphics.setColor(Color.WHITE);
+            graphics.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+         }
+      }
       this.mean = mean;
    }
 
@@ -76,14 +76,14 @@ public class NormalDistribution
 
    public void setSigma(double sigma)
    {
-	  if (this.sigma != sigma)
-	  {
-		  if (graphics != null)
-		  {
-			  graphics.setColor(Color.WHITE);
-			  graphics.clearRect(0,  0, CANVAS_WIDTH, CANVAS_HEIGHT);		  
-		  }
-	  }	   	   
+      if (this.sigma != sigma)
+      {
+         if (graphics != null)
+         {
+            graphics.setColor(Color.WHITE);
+            graphics.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+         }
+      }
       this.sigma = sigma;
    }
 
@@ -117,7 +117,7 @@ public class NormalDistribution
 
       if (canvas == null) { return; }
       canvas.setSize(CANVAS_WIDTH, CANVAS_HEIGHT);
-      
+
       double xLow = mean - ((double)NUM_SIGMAS * sigma);
       if (xLow < 0.0)
       {
@@ -134,14 +134,14 @@ public class NormalDistribution
       double[] graphXcoords = new double[NUM_PLOT_INTERVALS + 1];
       int[] graphXpoints    = new int[NUM_PLOT_INTERVALS + 1];
       int[] graphYpoints    = new int[NUM_PLOT_INTERVALS + 1];
-      
+
       if (graphics == null)
       {
-    	  if ((graphics = (Graphics2D)canvas.getGraphics()) == null) return;   	  
+         if ((graphics = (Graphics2D)canvas.getGraphics()) == null) { return; }
       }
       FontMetrics fontMetrics = graphics.getFontMetrics();
-      int charWidth = fontMetrics.charWidth('0');
-      
+      int         charWidth   = fontMetrics.charWidth('0');
+
       for (int i = 0; i <= NUM_PLOT_INTERVALS; i++)
       {
          double x = xLow + ((double)i * xInterval);
@@ -157,13 +157,13 @@ public class NormalDistribution
       graphics.setColor(GRAPH_LINE_COLOR);
       graphics.drawLine(CANVAS_BORDER, CANVAS_HEIGHT - CANVAS_BORDER, CANVAS_BORDER, CANVAS_BORDER);
       graphics.drawLine(CANVAS_BORDER, CANVAS_HEIGHT - CANVAS_BORDER, CANVAS_WIDTH - CANVAS_BORDER, CANVAS_HEIGHT - CANVAS_BORDER);
-      
+
       // Draw intervals for y axis.
       DecimalFormat decimalFormat = new DecimalFormat(".##");
-      int          borderGap34   = (3 * CANVAS_BORDER) / 4;
+      int           borderGap34   = (3 * CANVAS_BORDER) / 4;
       x0 = CANVAS_BORDER;
       x1 = GRAPH_POINT_WIDTH + CANVAS_BORDER;
-      
+
       int offset = (int)((float)charWidth / 2.0f);
       for (int i = 0; i <= NUM_PLOT_INTERVALS; i++)
       {
@@ -187,8 +187,8 @@ public class NormalDistribution
          graphics.drawLine(x0, y0, x1, y1);
          if ((i % X_NUM_FREQUENCY) == 0)
          {
-            String      n       = decimalFormat.format(graphXcoords[i]);
-            int width = fontMetrics.stringWidth(n);
+            String n     = decimalFormat.format(graphXcoords[i]);
+            int    width = fontMetrics.stringWidth(n);
             graphics.drawString(n, x0 - (int)((float)width / 2.0f), y0 + borderGap2);
          }
       }
@@ -205,7 +205,7 @@ public class NormalDistribution
 
       // Draw points.
       graphics.setColor(GRAPH_POINT_COLOR);
-      int dim = 5;
+      int dim  = 5;
       int dim2 = dim / 2;
       for (int i = 0; i <= NUM_PLOT_INTERVALS; i++)
       {

@@ -10,7 +10,7 @@ import com.owlike.genson.annotation.JsonProperty;
 
 @DataType()
 public class Player
-{  
+{
    @Property()
    public final String name;
 
@@ -22,79 +22,100 @@ public class Player
 
    @Property()
    public double entitledResources;
-   
-   @Property()   
+
+   @Property()
    public String[] messages;
 
-   @Property()   
+   @Property()
    public int transactionNumber;
-   
-   @Property()   
+
+   @Property()
    public int claimState;
-   
-   @Property()   
+
+   @Property()
    public String claimDistributionMean;
-   
-   @Property()   
+
+   @Property()
    public String claimDistributionSigma;
 
-   @Property()   
+   @Property()
    public String claimResourcesEntitled;
 
-   @Property()   
+   @Property()
    public String claimResourcesEntitledPerPlayer;
 
-   @Property()   
+   @Property()
    public String claimResourcesEntitledNumPlayers;
 
-   @Property()   
+   @Property()
    public String claimResourcesClaim;
 
-   @Property()   
+   @Property()
    public String claimResourcesGrant;
 
-   @Property()   
-   public String claimResourcesPenalty;  	   
+   @Property()
+   public String claimResourcesPenalty;
 
-   @Property()   
+   @Property()
    public int auditState;
 
-   @Property()   
+   @Property()
    public String claimantName;
 
-   @Property()   
+   @Property()
    public String auditDistributionMean;
 
-   @Property()   
+   @Property()
    public String auditDistributionSigma;
 
-   @Property()   
+   @Property()
    public String auditResourcesClaim;
 
-   @Property()   
+   @Property()
    public String auditResourcesClaimPerPlayer;
 
-   @Property()   
+   @Property()
    public String auditResourcesClaimNumPlayers;
 
-   @Property()   
+   @Property()
    public String auditResourcesGrant;
 
-   @Property()   
+   @Property()
    public String auditResourcesConsensus;
 
-   @Property()   
+   @Property()
    public String auditResourcesPenalty;
 
-   public Player(@JsonProperty("name") final String name,
-           @JsonProperty("gameCode") final String gameCode) 
+   public Player(@JsonProperty("name") final String     name,
+                 @JsonProperty("gameCode") final String gameCode)
    {
-      this.name         = name;
-      this.gameCode     = gameCode;
-      personalResources = 0.0;
-      entitledResources = 0.0;
-      messages = new String[0];
+      this.name                        = name;
+      this.gameCode                    = gameCode;
+      personalResources                = 0.0;
+      entitledResources                = 0.0;
+      messages                         = new String[0];
+      transactionNumber                = -1;
+      claimState                       = 0;
+      claimDistributionMean            = "";
+      claimDistributionSigma           = "";
+      claimResourcesEntitled           = "";
+      claimResourcesEntitledPerPlayer  = "";
+      claimResourcesEntitledNumPlayers = "";
+      claimResourcesClaim              = "";
+      claimResourcesGrant              = "";
+      claimResourcesPenalty            = "";
+      auditState                       = 0;
+      claimantName                     = "";
+      auditDistributionMean            = "";
+      auditDistributionSigma           = "";
+      auditResourcesClaim              = "";
+      auditResourcesClaimPerPlayer     = "";
+      auditResourcesClaimNumPlayers    = "";
+      auditResourcesGrant              = "";
+      auditResourcesConsensus          = "";
+      auditResourcesPenalty            = "";
    }
+
 
    public String getName()
    {
@@ -130,31 +151,35 @@ public class Player
    {
       this.entitledResources = entitledResources;
    }
-   
+
+
    public void addMessage(String message)
    {
-	  int n = messages.length;
-	  String[] tmp = new String[n + 1];
-	  for (int i = 0; i < n; i++)
-	  {
-		  tmp[i] = messages[i];
-	  }
-	  tmp[n] = message;
+      int n = messages.length;
+
+      String[] tmp = new String[n + 1];
+      for (int i = 0; i < n; i++)
+      {
+         tmp[i] = messages[i];
+      }
+      tmp[n]   = message;
       messages = tmp;
    }
 
+
    public ArrayList<String> getMessages()
    {
-	  ArrayList<String> results = new ArrayList<String>();
-	  for (String message: messages)
-	  {
-		  results.add(message);
-	  }
-      return results;
+      ArrayList<String> results = new ArrayList<String>();
+      for (String message : messages)
+      {
+         results.add(message);
+      }
+      return(results);
    }
-   
+
+
    public void clearMessages()
    {
       messages = new String[0];
-   }           
+   }
 }
