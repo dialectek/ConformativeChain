@@ -15,3 +15,9 @@ using autonomous software agents and lays out the design for future experiments.
 
 Reference: tom.portegys.com/research.html#conformative
 
+Eclipse projects:
+
+conformative-chaincode: smart contract. To build: gradle build
+
+conformative-client: host and player clients. To run: runhost.sh, runplayer.sh
+
