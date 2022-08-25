@@ -1868,163 +1868,171 @@ public class Player extends JFrame implements ActionListener
       enableUI();
    }
 
+
    // Usage.
    public static final String Usage =
       "Usage:\n" +
-      "    java com.dialectek.conformative.hyperledger.client.Host\n" +
+      "    java com.dialectek.conformative.hyperledger.client.Player\n" +
       "      [-gameCode <code>]\n" +
-      "      [-playerName <name>]\n" +      
-      "      [-blockchainAddress <network address>]";     
+      "      [-playerName <name>]\n" +
+      "      [-blockchainAddress <network address>]";
 
    // Main.
    public static void main(String[] args)
    {
-	      // Get options.
-	      String  gameCode             = null;
-	      String playerName = null;
-	      String  blockchainAddress    = null;
-	      for (int i = 0; i < args.length; i++)
-	      {
-	         if (args[i].equals("-gameCode"))
-	         {
-	            i++;
-	            if (i >= args.length)
-	            {
-	               System.err.println("Invalid gameCode option");
-	               System.err.println(Usage);
-	               System.exit(1);
-	            }
-	            gameCode = args[i];
-	            if (Shared.isVoid(gameCode) || gameCode.contains(DelimitedString.DELIMITER))
-	            {
-	               JOptionPane.showMessageDialog(null, "Invalid gameCode option");
-	               System.err.println(Usage);               
-	               System.exit(1);
-	            }            
-	            continue;
-	         }
-	         if (args[i].equals("-playerName"))
-	         {
-	            i++;
-	            if (i >= args.length)
-	            {
-	               System.err.println("Invalid playerName option");
-	               System.err.println(Usage);
-	               System.exit(1);
-	            }
-	            playerName = args[i];
-	            if (Shared.isVoid(playerName) || 
-	            		playerName.contains(DelimitedString.DELIMITER) ||
-	            	             playerName.equals(Shared.ALL_PLAYERS))
-	            {
-	               JOptionPane.showMessageDialog(null, "Invalid playerName option");
-	               System.err.println(Usage);               
-	               System.exit(1);
-	            }            
-	            continue;
-	         }	         
-	         if (args[i].equals("-blockchainAddress"))
-	         {
-	            i++;
-	            if (i >= args.length)
-	            {
-	               System.err.println("Invalid blockchainAddress option");
-	               System.err.println(Usage);
-	               System.exit(1);
-	            }
-	            blockchainAddress = args[i];
-	            if (Shared.isVoid(blockchainAddress))
-	            {
-	               JOptionPane.showMessageDialog(null, "Invalid blockchainAddress option");
-	               System.err.println(Usage);               
-	               System.exit(1);
-	            }            
-	            continue;
-	         }        
-	         System.err.println("Invalid option: " + args[i]);
-	         System.err.println(Usage);
-	         System.exit(1);
-	      }
-	      
-	      if (gameCode == null || playerName == null)
-	      {
-	      
-      // Get game code and player name.
-      JTextField gameCodeText   = new JTextField();
-      if (gameCode != null) gameCodeText.setText(gameCode);
-      JTextField playerNameText = new JTextField();
-      if (playerName != null) playerNameText.setText(playerName);
-      JTextField blockchainAddressText = new JTextField();
-      blockchainAddressText.setText("localhost");
-      
-      Object[] message =
+      // Get options.
+      String gameCode          = null;
+      String playerName        = null;
+      String blockchainAddress = null;
+
+      for (int i = 0; i < args.length; i++)
       {
-         "Game code:",   gameCodeText,
-         "Player name:", playerNameText,
-         "Blockchain address:", blockchainAddressText        
-      };
-      int option = JOptionPane.showConfirmDialog(null, message, "Enter player information", JOptionPane.OK_CANCEL_OPTION);
-      if (option == JOptionPane.OK_OPTION)
-      {
-         gameCode = gameCodeText.getText();
-         if (Shared.isVoid(gameCode) || gameCode.contains(DelimitedString.DELIMITER))
+         if (args[i].equals("-gameCode"))
          {
-            JOptionPane.showMessageDialog(null, "Invalid game code");
-            return;
+            i++;
+            if (i >= args.length)
+            {
+               System.err.println("Invalid gameCode option");
+               System.err.println(Usage);
+               System.exit(1);
+            }
+            gameCode = args[i];
+            if (Shared.isVoid(gameCode) || gameCode.contains(DelimitedString.DELIMITER))
+            {
+               JOptionPane.showMessageDialog(null, "Invalid gameCode option");
+               System.err.println(Usage);
+               System.exit(1);
+            }
+            continue;
          }
-         playerName = playerNameText.getText();
-         if (Shared.isVoid(playerName) ||
-             playerName.contains(DelimitedString.DELIMITER) ||
-             playerName.equals(Shared.ALL_PLAYERS))
+         if (args[i].equals("-playerName"))
          {
-            JOptionPane.showMessageDialog(null, "Invalid player name");
-            return;
+            i++;
+            if (i >= args.length)
+            {
+               System.err.println("Invalid playerName option");
+               System.err.println(Usage);
+               System.exit(1);
+            }
+            playerName = args[i];
+            if (Shared.isVoid(playerName) ||
+                playerName.contains(DelimitedString.DELIMITER) ||
+                playerName.equals(Shared.ALL_PLAYERS))
+            {
+               JOptionPane.showMessageDialog(null, "Invalid playerName option");
+               System.err.println(Usage);
+               System.exit(1);
+            }
+            continue;
          }
-      blockchainAddress = blockchainAddressText.getText();
-      if (Shared.isVoid(blockchainAddress))
-      {
-         JOptionPane.showMessageDialog(null, "Invalid blockchain address");
-         return;
+         if (args[i].equals("-blockchainAddress"))
+         {
+            i++;
+            if (i >= args.length)
+            {
+               System.err.println("Invalid blockchainAddress option");
+               System.err.println(Usage);
+               System.exit(1);
+            }
+            blockchainAddress = args[i];
+            if (Shared.isVoid(blockchainAddress))
+            {
+               JOptionPane.showMessageDialog(null, "Invalid blockchainAddress option");
+               System.err.println(Usage);
+               System.exit(1);
+            }
+            continue;
+         }
+         if (args[i].equals("-help") || args[i].equals("-?"))
+         {
+            System.out.println(Usage);
+            System.exit(0);
+         }
+         System.err.println("Invalid option: " + args[i]);
+         System.err.println(Usage);
+         System.exit(1);
       }
+
+      if ((gameCode == null) || (playerName == null))
+      {
+         // Get game code and player name.
+         JTextField gameCodeText = new JTextField();
+         if (gameCode != null) { gameCodeText.setText(gameCode); }
+         JTextField playerNameText = new JTextField();
+         if (playerName != null) { playerNameText.setText(playerName); }
+         JTextField blockchainAddressText = new JTextField();
+         blockchainAddressText.setText("localhost");
+
+         Object[] message =
+         {
+            "Game code:",          gameCodeText,
+            "Player name:",        playerNameText,
+            "Blockchain address:", blockchainAddressText
+         };
+         int option = JOptionPane.showConfirmDialog(null, message, "Enter player information", JOptionPane.OK_CANCEL_OPTION);
+         if (option == JOptionPane.OK_OPTION)
+         {
+            gameCode = gameCodeText.getText();
+            if (Shared.isVoid(gameCode) || gameCode.contains(DelimitedString.DELIMITER))
+            {
+               JOptionPane.showMessageDialog(null, "Invalid game code");
+               return;
+            }
+            playerName = playerNameText.getText();
+            if (Shared.isVoid(playerName) ||
+                playerName.contains(DelimitedString.DELIMITER) ||
+                playerName.equals(Shared.ALL_PLAYERS))
+            {
+               JOptionPane.showMessageDialog(null, "Invalid player name");
+               return;
+            }
+            blockchainAddress = blockchainAddressText.getText();
+            if (Shared.isVoid(blockchainAddress))
+            {
+               JOptionPane.showMessageDialog(null, "Invalid blockchain address");
+               return;
+            }
+         }
       }
-	      }
 
-         // Connect to network.
-         try
+      // Connect to network.
+      try
+      {
+         if (blockchainAddress == null)
          {
-       	  if (blockchainAddress == null)
-       	  {
-   		    if (!NetworkClient.init())
-   		    {
-   		       JOptionPane.showMessageDialog(null, "Cannot connect to network");
-   		    }
-       	  } else {
-     		    if (!NetworkClient.init(blockchainAddress))
-     		    {
-     		       JOptionPane.showMessageDialog(null, "Cannot connect to network");
-     		    }    		  
-       	  }
+            if (!NetworkClient.init())
+            {
+               JOptionPane.showMessageDialog(null, "Cannot connect to network");
+            }
          }
-         catch (Exception e)
+         else
          {
-            JOptionPane.showMessageDialog(null, "Cannot connect to network");
+            if (!NetworkClient.init(blockchainAddress))
+            {
+               JOptionPane.showMessageDialog(null, "Cannot connect to network");
+            }
          }
+      }
+      catch (Exception e)
+      {
+         JOptionPane.showMessageDialog(null, "Cannot connect to network");
+      }
 
-         // Register user.
-         try
-         {
-            NetworkClient.registerUser(playerName);
-         }
-         catch (Exception e)
-         {
-            JOptionPane.showMessageDialog(null, "Cannot register player as network user: " + e.getMessage());
-         }
+      // Register user.
+      try
+      {
+         NetworkClient.registerUser(playerName);
+      }
+      catch (Exception e)
+      {
+         JOptionPane.showMessageDialog(null, "Cannot register player as network user: " + e.getMessage());
+      }
 
-         // Run player client.
-         try
-         {
-            new Player(gameCode, playerName);
-         }
-         catch (Exception e) {}
+      // Run player client.
+      try
+      {
+         new Player(gameCode, playerName);
+      }
+      catch (Exception e) {}
    }
 }

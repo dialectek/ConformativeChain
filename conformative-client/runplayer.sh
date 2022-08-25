@@ -1,1 +1,1 @@
-java -cp bin/conformative-client.jar com.dialectek.conformative.hyperledger.client.Player
+java -cp bin/conformative-client.jar com.dialectek.conformative.hyperledger.client.Player $*

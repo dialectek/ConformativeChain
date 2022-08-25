@@ -2566,19 +2566,21 @@ public class Host extends JFrame implements ActionListener, ItemListener
       enableUI();
    }
 
+
    // Usage.
    public static final String Usage =
       "Usage:\n" +
       "    java com.dialectek.conformative.hyperledger.client.Host\n" +
       "      [-gameCode <code>]\n" +
-      "      [-blockchainAddress <network address>]";     
+      "      [-blockchainAddress <network address>]";
 
    // Main.
    public static void main(String[] args)
    {
       // Get options.
-      String  gameCode             = null;
-      String  blockchainAddress    = null;
+      String gameCode          = null;
+      String blockchainAddress = null;
+
       for (int i = 0; i < args.length; i++)
       {
          if (args[i].equals("-gameCode"))
@@ -2594,9 +2596,9 @@ public class Host extends JFrame implements ActionListener, ItemListener
             if (Shared.isVoid(gameCode) || gameCode.contains(DelimitedString.DELIMITER))
             {
                JOptionPane.showMessageDialog(null, "Invalid gameCode option");
-               System.err.println(Usage);               
+               System.err.println(Usage);
                System.exit(1);
-            }            
+            }
             continue;
          }
          if (args[i].equals("-blockchainAddress"))
@@ -2612,72 +2614,79 @@ public class Host extends JFrame implements ActionListener, ItemListener
             if (Shared.isVoid(blockchainAddress))
             {
                JOptionPane.showMessageDialog(null, "Invalid blockchainAddress option");
-               System.err.println(Usage);               
+               System.err.println(Usage);
                System.exit(1);
-            }            
+            }
             continue;
-         }        
+         }
+         if (args[i].equals("-help") || args[i].equals("-?"))
+         {
+            System.out.println(Usage);
+            System.exit(0);
+         }
          System.err.println("Invalid option: " + args[i]);
          System.err.println(Usage);
          System.exit(1);
       }
-	  
+
       if (gameCode == null)
       {
-	      // Get game code.
-	      JTextField gameCodeText = new JTextField();
-	      JTextField blockchainAddressText = new JTextField();
-	      blockchainAddressText.setText("localhost");
-	      
-	      Object[] message =
-	      {
-	         "Game code:",   gameCodeText,
-	         "Blockchain address:", blockchainAddressText        
-	      };
-	      int option = JOptionPane.showConfirmDialog(null, message, "Enter player information", JOptionPane.OK_CANCEL_OPTION);
-	      if (option == JOptionPane.OK_OPTION)
-	      {
-	         gameCode = gameCodeText.getText();
-	         if (Shared.isVoid(gameCode) || gameCode.contains(DelimitedString.DELIMITER))
-	         {
-	            JOptionPane.showMessageDialog(null, "Invalid game code");
-	            return;
-	         }
-	      blockchainAddress = blockchainAddressText.getText();
-	      if (Shared.isVoid(blockchainAddress))
-	      {
-	         JOptionPane.showMessageDialog(null, "Invalid blockchain address");
-	         return;
-	      } 
-	      }
+         // Get game code.
+         JTextField gameCodeText          = new JTextField();
+         JTextField blockchainAddressText = new JTextField();
+         blockchainAddressText.setText("localhost");
+
+         Object[] message =
+         {
+            "Game code:",          gameCodeText,
+            "Blockchain address:", blockchainAddressText
+         };
+         int option = JOptionPane.showConfirmDialog(null, message, "Enter player information", JOptionPane.OK_CANCEL_OPTION);
+         if (option == JOptionPane.OK_OPTION)
+         {
+            gameCode = gameCodeText.getText();
+            if (Shared.isVoid(gameCode) || gameCode.contains(DelimitedString.DELIMITER))
+            {
+               JOptionPane.showMessageDialog(null, "Invalid game code");
+               return;
+            }
+            blockchainAddress = blockchainAddressText.getText();
+            if (Shared.isVoid(blockchainAddress))
+            {
+               JOptionPane.showMessageDialog(null, "Invalid blockchain address");
+               return;
+            }
+         }
       }
 
-	  // Connect to network.
+      // Connect to network.
       try
-	  {
-    	  if (blockchainAddress == null)
-    	  {
-		    if (!NetworkClient.init())
-		    {
-		       JOptionPane.showMessageDialog(null, "Cannot connect to network");
-		    }
-    	  } else {
-  		    if (!NetworkClient.init(blockchainAddress))
-  		    {
-  		       JOptionPane.showMessageDialog(null, "Cannot connect to network");
-  		    }    		  
-    	  }
-	  }
-		 catch (Exception e)
-		 {
-		    JOptionPane.showMessageDialog(null, "Cannot connect to network");
-		 }
-		
-		 // Run host.
-		 try
-		 {
-		    new Host(gameCode);
-		 }
-		 catch (Exception e) {}
+      {
+         if (blockchainAddress == null)
+         {
+            if (!NetworkClient.init())
+            {
+               JOptionPane.showMessageDialog(null, "Cannot connect to network");
+            }
+         }
+         else
+         {
+            if (!NetworkClient.init(blockchainAddress))
+            {
+               JOptionPane.showMessageDialog(null, "Cannot connect to network");
+            }
+         }
+      }
+      catch (Exception e)
+      {
+         JOptionPane.showMessageDialog(null, "Cannot connect to network");
+      }
+
+      // Run host.
+      try
+      {
+         new Host(gameCode);
+      }
+      catch (Exception e) {}
    }
 }

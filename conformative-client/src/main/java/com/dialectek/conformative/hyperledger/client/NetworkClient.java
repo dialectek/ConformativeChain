@@ -36,9 +36,9 @@ public class NetworkClient
    {
       System.setProperty("org.hyperledger.fabric.sdk.service_discovery.as_localhost", "true");
    }
-   
+
    static public final String DEFAULT_BLOCKCHAIN_ADDRESS = "localhost";
-   static public String BLOCKCHAIN_ADDRESS = DEFAULT_BLOCKCHAIN_ADDRESS;
+   static public String       BLOCKCHAIN_ADDRESS         = DEFAULT_BLOCKCHAIN_ADDRESS;
 
    // Network and contract.
    static public Gateway  gateway;
@@ -48,13 +48,14 @@ public class NetworkClient
    // Initialize.
    public static boolean init(String blockchainAddress) throws Exception
    {
-	   BLOCKCHAIN_ADDRESS = blockchainAddress;
-	   return init();
+      BLOCKCHAIN_ADDRESS = blockchainAddress;
+      return(init());
    }
-   
+
+
    // Initialize.
    public static boolean init() throws Exception
-   {	   
+   {
       boolean result = true;
 
       // enroll admin
@@ -104,6 +105,7 @@ public class NetworkClient
       // load a CCP
       //Path networkConfigPath = Paths.get("..", "..", "..", "organizations", "peerOrganizations", "org1.example.com", "connection-org1.yaml");
       Path networkConfigPath = Paths.get("connection-org1.yaml");
+
       Gateway.Builder builder = Gateway.createBuilder();
       builder.identity(wallet, "admin").networkConfig(networkConfigPath).discovery(true);
       return(builder.connect());
