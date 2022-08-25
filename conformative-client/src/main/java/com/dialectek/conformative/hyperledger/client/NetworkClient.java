@@ -36,6 +36,9 @@ public class NetworkClient
    {
       System.setProperty("org.hyperledger.fabric.sdk.service_discovery.as_localhost", "true");
    }
+   
+   static public final String DEFAULT_BLOCKCHAIN_ADDRESS = "localhost";
+   static public String BLOCKCHAIN_ADDRESS = DEFAULT_BLOCKCHAIN_ADDRESS;
 
    // Network and contract.
    static public Gateway  gateway;
@@ -43,8 +46,15 @@ public class NetworkClient
    static public Contract contract;
 
    // Initialize.
-   public static boolean init() throws Exception
+   public static boolean init(String blockchainAddress) throws Exception
    {
+	   BLOCKCHAIN_ADDRESS = blockchainAddress;
+	   return init();
+   }
+   
+   // Initialize.
+   public static boolean init() throws Exception
+   {	   
       boolean result = true;
 
       // enroll admin
@@ -92,8 +102,8 @@ public class NetworkClient
       Wallet wallet     = Wallets.newFileSystemWallet(walletPath);
 
       // load a CCP
-      Path networkConfigPath = Paths.get("..", "..", "..", "organizations", "peerOrganizations", "org1.example.com", "connection-org1.yaml");
-
+      //Path networkConfigPath = Paths.get("..", "..", "..", "organizations", "peerOrganizations", "org1.example.com", "connection-org1.yaml");
+      Path networkConfigPath = Paths.get("connection-org1.yaml");
       Gateway.Builder builder = Gateway.createBuilder();
       builder.identity(wallet, "admin").networkConfig(networkConfigPath).discovery(true);
       return(builder.connect());
@@ -124,10 +134,10 @@ public class NetworkClient
       // Create a CA client for interacting with the CA.
       Properties props = new Properties();
 
-      props.put("pemFile",
-                "../../../organizations/peerOrganizations/org1.example.com/ca/ca.org1.example.com-cert.pem");
+      //props.put("pemFile", "../../../organizations/peerOrganizations/org1.example.com/ca/ca.org1.example.com-cert.pem");
+      props.put("pemFile", "ca.org1.example.com-cert.pem");
       props.put("allowAllHostNames", "true");
-      HFCAClient  caClient    = HFCAClient.createNewInstance("https://localhost:7054", props);
+      HFCAClient  caClient    = HFCAClient.createNewInstance("https://" + BLOCKCHAIN_ADDRESS + ":7054", props);
       CryptoSuite cryptoSuite = CryptoSuiteFactory.getDefault().getCryptoSuite();
       caClient.setCryptoSuite(cryptoSuite);
 
@@ -142,7 +152,7 @@ public class NetworkClient
 
       // Enroll the admin user, and import the new identity into the wallet.
       final EnrollmentRequest enrollmentRequestTLS = new EnrollmentRequest();
-      enrollmentRequestTLS.addHost("localhost");
+      enrollmentRequestTLS.addHost(BLOCKCHAIN_ADDRESS);
       enrollmentRequestTLS.setProfile("tls");
       Enrollment enrollment = caClient.enroll("admin", "adminpw", enrollmentRequestTLS);
       Identity   user       = Identities.newX509Identity("Org1MSP", enrollment);
@@ -156,10 +166,10 @@ public class NetworkClient
       // Create a CA client for interacting with the CA.
       Properties props = new Properties();
 
-      props.put("pemFile",
-                "../../../organizations/peerOrganizations/org1.example.com/ca/ca.org1.example.com-cert.pem");
+      //props.put("pemFile", "../../../organizations/peerOrganizations/org1.example.com/ca/ca.org1.example.com-cert.pem");
+      props.put("pemFile", "ca.org1.example.com-cert.pem");
       props.put("allowAllHostNames", "true");
-      HFCAClient  caClient    = HFCAClient.createNewInstance("https://localhost:7054", props);
+      HFCAClient  caClient    = HFCAClient.createNewInstance("https://" + BLOCKCHAIN_ADDRESS + ":7054", props);
       CryptoSuite cryptoSuite = CryptoSuiteFactory.getDefault().getCryptoSuite();
       caClient.setCryptoSuite(cryptoSuite);
 

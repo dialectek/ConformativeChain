@@ -5343,3 +5343,6 @@ ERROR	2022-08-23 12:25:07,974	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[AWT-Ev
 ERROR	2022-08-23 13:21:41,901	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[main]	POST request to https://localhost:7054 failed request body {"id":"Alice","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Alice' is already registered"}
 ],"messages":[],"success":false}
 ERROR	2022-08-23 13:21:41,910	9	org.hyperledger.fabric_ca.sdk.HFCAClient	[main]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@771158fb
+ERROR	2022-08-24 19:35:34,194	0	org.hyperledger.fabric_ca.sdk.HFCAClient	[main]	POST request to https://192.168.1.144:7054 failed request body {"id":"Alice","type":"client","affiliation":"org1.department1","attrs":[]}. Response: {"result":"","errors":[{"code":74,"message":"Identity 'Alice' is already registered"}
+],"messages":[],"success":false}
+ERROR	2022-08-24 19:35:34,195	1	org.hyperledger.fabric_ca.sdk.HFCAClient	[main]	com.dialectek.conformative.hyperledger.client.NetworkClient$1@771158fb
