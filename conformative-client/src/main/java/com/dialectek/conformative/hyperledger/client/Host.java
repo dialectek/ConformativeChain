@@ -2641,7 +2641,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
             "Game code:",          gameCodeText,
             "Blockchain address:", blockchainAddressText
          };
-         int option = JOptionPane.showConfirmDialog(null, message, "Enter player information", JOptionPane.OK_CANCEL_OPTION);
+         int option = JOptionPane.showConfirmDialog(null, message, "Enter host information", JOptionPane.OK_CANCEL_OPTION);
          if (option == JOptionPane.OK_OPTION)
          {
             gameCode = gameCodeText.getText();

@@ -33,8 +33,9 @@ import com.dialectek.conformative.hyperledger.shared.Shared;
 public class NetworkClient
 {
    static
-   {
-      System.setProperty("org.hyperledger.fabric.sdk.service_discovery.as_localhost", "true");
+   { 
+      System.setProperty("org.hyperledger.fabric.sdk.service_discovery.enabled", "true");
+      System.setProperty("org.hyperledger.fabric.sdk.service_discovery.as_localhost", "true");      
    }
 
    static public final String DEFAULT_BLOCKCHAIN_ADDRESS = "localhost";
@@ -103,8 +104,8 @@ public class NetworkClient
       Wallet wallet     = Wallets.newFileSystemWallet(walletPath);
 
       // load a CCP
-      Path networkConfigPath = Paths.get("..", "..", "..", "organizations", "peerOrganizations", "org1.example.com", "connection-org1.yaml");
-      //Path networkConfigPath = Paths.get("connection-org1.yaml");
+      //Path networkConfigPath = Paths.get("..", "..", "..", "organizations", "peerOrganizations", "org1.example.com", "connection-org1.yaml");
+      Path networkConfigPath = Paths.get("connection-org1.yaml");
 
       Gateway.Builder builder = Gateway.createBuilder();
       builder.identity(wallet, "admin").networkConfig(networkConfigPath).discovery(true);
@@ -136,8 +137,8 @@ public class NetworkClient
       // Create a CA client for interacting with the CA.
       Properties props = new Properties();
 
-      props.put("pemFile", "../../../organizations/peerOrganizations/org1.example.com/ca/ca.org1.example.com-cert.pem");
-      //props.put("pemFile", "ca.org1.example.com-cert.pem");
+      //props.put("pemFile", "../../../organizations/peerOrganizations/org1.example.com/ca/ca.org1.example.com-cert.pem");
+      props.put("pemFile", "ca.org1.example.com-cert.pem");
       props.put("allowAllHostNames", "true");
       HFCAClient  caClient    = HFCAClient.createNewInstance("https://" + BLOCKCHAIN_ADDRESS + ":7054", props);
       CryptoSuite cryptoSuite = CryptoSuiteFactory.getDefault().getCryptoSuite();
@@ -168,8 +169,8 @@ public class NetworkClient
       // Create a CA client for interacting with the CA.
       Properties props = new Properties();
 
-      props.put("pemFile", "../../../organizations/peerOrganizations/org1.example.com/ca/ca.org1.example.com-cert.pem");
-      //props.put("pemFile", "ca.org1.example.com-cert.pem");
+      //props.put("pemFile", "../../../organizations/peerOrganizations/org1.example.com/ca/ca.org1.example.com-cert.pem");
+      props.put("pemFile", "ca.org1.example.com-cert.pem");
       props.put("allowAllHostNames", "true");
       HFCAClient  caClient    = HFCAClient.createNewInstance("https://" + BLOCKCHAIN_ADDRESS + ":7054", props);
       CryptoSuite cryptoSuite = CryptoSuiteFactory.getDefault().getCryptoSuite();
