@@ -34,8 +34,7 @@ public class NetworkClient
 {
    static
    { 
-      System.setProperty("org.hyperledger.fabric.sdk.service_discovery.enabled", "true");
-      System.setProperty("org.hyperledger.fabric.sdk.service_discovery.as_localhost", "true");      
+      System.setProperty("org.hyperledger.fabric.sdk.service_discovery.as_localhost", "false");      
    }
 
    static public final String DEFAULT_BLOCKCHAIN_ADDRESS = "localhost";
@@ -109,6 +108,7 @@ public class NetworkClient
 
       Gateway.Builder builder = Gateway.createBuilder();
       builder.identity(wallet, "admin").networkConfig(networkConfigPath).discovery(true);
+      builder.discovery(true);
       return(builder.connect());
    }
 
