@@ -6,12 +6,23 @@
 
 package com.dialectek.conformative.hyperledger.client;
 
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.PrivateKey;
+
+import org.apache.commons.io.IOUtils;
 import org.hyperledger.fabric.gateway.Contract;
 import org.hyperledger.fabric.gateway.Gateway;
 import org.hyperledger.fabric.gateway.Wallet;
@@ -63,6 +74,39 @@ public class NetworkClient
       DnsCacheManipulator.setDnsCache("peer0.org1.example.com", BLOCKCHAIN_ADDRESS);
       DnsCacheManipulator.setDnsCache("peer0.org2.example.com", BLOCKCHAIN_ADDRESS);
       DnsCacheManipulator.setDnsCache("orderer.example.com", BLOCKCHAIN_ADDRESS);
+
+      // Get client credentials and createe files.
+      try
+      {
+         HttpURLConnection connection  = (HttpURLConnection) new URL("http://" + BLOCKCHAIN_ADDRESS + ":7059").openConnection();
+         InputStream       inputStream = connection.getInputStream();
+         String            text        = new BufferedReader(
+            new InputStreamReader(inputStream, StandardCharsets.UTF_8))
+                                            .lines()
+                                            .collect(Collectors.joining("\n"));
+         List<String> lines  = IOUtils.readLines(new StringReader(text));
+         PrintWriter  writer = null;
+         for (String line : lines)
+         {
+            if (line.startsWith("<<<"))
+            {
+               String filename = line.substring(3, line.indexOf(">>>"));
+               if (writer != null) { writer.close(); }
+               writer = new PrintWriter(filename);
+            }
+            else
+            {
+               writer.println(line.replace("localhost:", BLOCKCHAIN_ADDRESS + ":"));
+            }
+         }
+         if (writer != null) { writer.close(); }
+         inputStream.close();
+      }
+      catch (Exception e)
+      {
+         System.err.println("Cannot get blockchain client credentials: " + e.getMessage());
+         System.exit(1);
+      }
 
       // enroll admin
       try {
