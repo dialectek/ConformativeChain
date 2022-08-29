@@ -28,7 +28,10 @@ dependencies {
     implementation 'org.hyperledger.fabric:fabric-gateway-java:2.1.1'
     
  	// https://mvnrepository.com/artifact/colt/colt
-	implementation group: 'colt', name: 'colt', version: '1.2.0'   
+	implementation group: 'colt', name: 'colt', version: '1.2.0'
+	
+	// https://mavenlibs.com/maven/dependency/com.alibaba/dns-cache-manipulator
+	implementation 'com.alibaba:dns-cache-manipulator:1.7.2'			   
 }
 
 application {

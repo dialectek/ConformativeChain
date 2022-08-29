@@ -27,14 +27,14 @@ import org.hyperledger.fabric_ca.sdk.EnrollmentRequest;
 import org.hyperledger.fabric_ca.sdk.HFCAClient;
 import org.hyperledger.fabric.sdk.User;
 import org.hyperledger.fabric_ca.sdk.RegistrationRequest;
-
+import com.alibaba.dcm.DnsCacheManipulator;
 import com.dialectek.conformative.hyperledger.shared.Shared;
 
 public class NetworkClient
 {
    static
-   { 
-      System.setProperty("org.hyperledger.fabric.sdk.service_discovery.as_localhost", "false");      
+   {
+      System.setProperty("org.hyperledger.fabric.sdk.service_discovery.as_localhost", "false");
    }
 
    static public final String DEFAULT_BLOCKCHAIN_ADDRESS = "localhost";
@@ -57,6 +57,12 @@ public class NetworkClient
    public static boolean init() throws Exception
    {
       boolean result = true;
+
+      // Resolve blockchain addresses.
+      // https://github.com/alibaba/java-dns-cache-manipulator#-user-guide
+      DnsCacheManipulator.setDnsCache("peer0.org1.example.com", BLOCKCHAIN_ADDRESS);
+      DnsCacheManipulator.setDnsCache("peer0.org2.example.com", BLOCKCHAIN_ADDRESS);
+      DnsCacheManipulator.setDnsCache("orderer.example.com", BLOCKCHAIN_ADDRESS);
 
       // enroll admin
       try {
