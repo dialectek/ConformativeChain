@@ -25,7 +25,7 @@
             <zipfileset excludes="META-INF/*.SF" src="C:/Users/Tom Portegys/.gradle/caches/modules-2/files-2.1/io.grpc/grpc-api/1.23.0/903f250bc1d01299480e526a25cd974088699a48/grpc-api-1.23.0.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="C:/Users/Tom Portegys/.gradle/caches/modules-2/files-2.1/com.google.guava/guava/29.0-jre/801142b4c3d0f0770dd29abea50906cacfddd447/guava-29.0-jre.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="C:/Users/Tom Portegys/.gradle/caches/modules-2/files-2.1/colt/colt/1.2.0/abc984f3adc760684d49e0f11ddf167ba516d4f/colt-1.2.0.jar"/>
-            <zipfileset excludes="META-INF/*.SF" src="C:/Users/Tom Portegys/.gradle/caches/modules-2/files-2.1/dnsjava/dnsjava/2.1.7/a1ed0a251d22bf528cebfafb94c55e6f3f339cf/dnsjava-2.1.7.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="C:/Users/Tom Portegys/.gradle/caches/modules-2/files-2.1/com.alibaba/dns-cache-manipulator/1.7.2/72bbb0bfd6b603c1ed64b799d55e001f2de9ad67/dns-cache-manipulator-1.7.2.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="C:/Users/Tom Portegys/.gradle/caches/modules-2/files-2.1/com.google.guava/failureaccess/1.0.1/1dcf1de382a0bf95a3d8b0849546c88bac1292c9/failureaccess-1.0.1.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="C:/Users/Tom Portegys/.gradle/caches/modules-2/files-2.1/com.google.guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava/b421526c5f297295adef1c886e5246c39d4ac629/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="C:/Users/Tom Portegys/.gradle/caches/modules-2/files-2.1/io.perfmark/perfmark-api/0.17.0/97e81005e3a7f537366ffdf20e11e050303b58c1/perfmark-api-0.17.0.jar"/>
