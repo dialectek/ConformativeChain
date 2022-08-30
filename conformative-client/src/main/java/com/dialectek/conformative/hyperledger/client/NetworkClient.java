@@ -75,7 +75,7 @@ public class NetworkClient
       DnsCacheManipulator.setDnsCache("peer0.org2.example.com", BLOCKCHAIN_ADDRESS);
       DnsCacheManipulator.setDnsCache("orderer.example.com", BLOCKCHAIN_ADDRESS);
 
-      // Get client credentials and createe files.
+      // Get client connection files.
       try
       {
          HttpURLConnection connection  = (HttpURLConnection) new URL("http://" + BLOCKCHAIN_ADDRESS + ":7059").openConnection();

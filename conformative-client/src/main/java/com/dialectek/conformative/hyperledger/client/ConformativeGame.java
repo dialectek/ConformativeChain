@@ -1,4 +1,4 @@
-// Conformative game client.
+// Conformative game role client.
 
 package com.dialectek.conformative.hyperledger.client;
 
@@ -10,7 +10,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
-
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -29,23 +28,13 @@ public class ConformativeGame extends JFrame implements ActionListener
    private ArrayList<Host>   hosts;
    private ArrayList<Player> players;
 
+   private String gameCode          = null;
+   private String blockchainAddress = null;
+
    public ConformativeGame()
    {
       hosts   = new ArrayList<Host>();
       players = new ArrayList<Player>();
-
-      // Connect to network.
-      try
-      {
-         if (!NetworkClient.init())
-         {
-            JOptionPane.showMessageDialog(this, "Cannot connect to network");
-         }
-      }
-      catch (Exception e)
-      {
-         JOptionPane.showMessageDialog(this, "Cannot connect to network");
-      }
 
       // Set title.
       setTitle("Conformative Game Roles");
@@ -84,7 +73,7 @@ public class ConformativeGame extends JFrame implements ActionListener
 
       // Show.
       pack();
-      setSize(300, 80);
+      setSize(350, 80);
       setLocationRelativeTo(null);
       setVisible(true);
    }
@@ -95,74 +84,228 @@ public class ConformativeGame extends JFrame implements ActionListener
    {
       if (event.getSource() == hostButton)
       {
-         JTextField gameCodeText = new JTextField();
-         Object[] message =
+         // Get host information.
+         if (blockchainAddress == null)
          {
-            "Game code:", gameCodeText
-         };
-         int option = JOptionPane.showConfirmDialog(this, message, "Enter host information", JOptionPane.OK_CANCEL_OPTION);
-         if (option == JOptionPane.OK_OPTION)
-         {
-            String gameCode = gameCodeText.getText();
-            if (Shared.isVoid(gameCode) || gameCode.contains(DelimitedString.DELIMITER))
-            {
-               JOptionPane.showMessageDialog(this, "Invalid game code");
-               return;
-            }
+            JTextField gameCodeText = new JTextField();
+            if (gameCode != null) { gameCodeText.setText(gameCode); }
+            JTextField blockchainAddressText = new JTextField();
 
-            // Run host.
-            try
+            Object[] message =
             {
-               hosts.add(new Host(gameCode));
+               "Game code:",          gameCodeText,
+               "Blockchain address:", blockchainAddressText
+            };
+            int option = JOptionPane.showConfirmDialog(null, message, "Enter host information", JOptionPane.OK_CANCEL_OPTION);
+            if (option == JOptionPane.OK_OPTION)
+            {
+               gameCode = gameCodeText.getText();
+               if (Shared.isVoid(gameCode) || gameCode.contains(DelimitedString.DELIMITER))
+               {
+                  gameCode = null;
+                  JOptionPane.showMessageDialog(null, "Invalid game code");
+                  return;
+               }
+               blockchainAddress = blockchainAddressText.getText();
+               if (Shared.isVoid(blockchainAddress))
+               {
+                  blockchainAddress = null;
+                  JOptionPane.showMessageDialog(null, "Invalid blockchain address");
+                  return;
+               }
+
+               // Connect to network.
+               try
+               {
+                  if (!NetworkClient.init(blockchainAddress))
+                  {
+                     blockchainAddress = null;
+                     JOptionPane.showMessageDialog(null, "Cannot connect to network");
+                  }
+               }
+               catch (Exception e)
+               {
+                  blockchainAddress = null;
+                  JOptionPane.showMessageDialog(null, "Cannot connect to network: " + e.getMessage());
+               }
+
+               // Run host client.
+               try
+               {
+                  hosts.add(new Host(gameCode));
+               }
+               catch (Exception e)
+               {
+                  JOptionPane.showMessageDialog(this, "Error running host: " + e.getMessage());
+               }
             }
-            catch (Exception e) {}
+         }
+         else
+         {
+            JTextField gameCodeText = new JTextField();
+            Object[] message =
+            {
+               "Game code:", gameCodeText
+            };
+            int option = JOptionPane.showConfirmDialog(this, message, "Enter host information", JOptionPane.OK_CANCEL_OPTION);
+            if (option == JOptionPane.OK_OPTION)
+            {
+               gameCode = gameCodeText.getText();
+               if (Shared.isVoid(gameCode) || gameCode.contains(DelimitedString.DELIMITER))
+               {
+                  gameCode = null;
+                  JOptionPane.showMessageDialog(this, "Invalid game code");
+                  return;
+               }
+
+               // Run host client.
+               try
+               {
+                  hosts.add(new Host(gameCode));
+               }
+               catch (Exception e)
+               {
+                  JOptionPane.showMessageDialog(this, "Error running host: " + e.getMessage());
+               }
+            }
          }
          return;
       }
 
       if (event.getSource() == playerButton)
       {
-         JTextField gameCodeText   = new JTextField();
-         JTextField playerNameText = new JTextField();
-         Object[] message =
+         // Get player information.
+         if (blockchainAddress == null)
          {
-            "Game code:",   gameCodeText,
-            "Player name:", playerNameText
-         };
-         int option = JOptionPane.showConfirmDialog(this, message, "Enter player information", JOptionPane.OK_CANCEL_OPTION);
-         if (option == JOptionPane.OK_OPTION)
+            JTextField gameCodeText = new JTextField();
+            if (gameCode != null) { gameCodeText.setText(gameCode); }
+            JTextField playerNameText        = new JTextField();
+            JTextField blockchainAddressText = new JTextField();
+            Object[] message =
+            {
+               "Game code:",          gameCodeText,
+               "Player name:",        playerNameText,
+               "Blockchain address:", blockchainAddressText
+            };
+            int option = JOptionPane.showConfirmDialog(null, message, "Enter player information", JOptionPane.OK_CANCEL_OPTION);
+            if (option == JOptionPane.OK_OPTION)
+            {
+               gameCode = gameCodeText.getText();
+               if (Shared.isVoid(gameCode) || gameCode.contains(DelimitedString.DELIMITER))
+               {
+                  gameCode = null;
+                  JOptionPane.showMessageDialog(null, "Invalid game code");
+                  return;
+               }
+               String playerName = playerNameText.getText();
+               if (Shared.isVoid(playerName) ||
+                   playerName.contains(DelimitedString.DELIMITER) ||
+                   playerName.equals(Shared.ALL_PLAYERS))
+               {
+                  JOptionPane.showMessageDialog(this, "Invalid player name");
+                  return;
+               }
+               blockchainAddress = blockchainAddressText.getText();
+               if (Shared.isVoid(blockchainAddress))
+               {
+                  blockchainAddress = null;
+                  JOptionPane.showMessageDialog(null, "Invalid blockchain address");
+                  return;
+               }
+
+               // Connect to network.
+               try
+               {
+                  if (!NetworkClient.init(blockchainAddress))
+                  {
+                     blockchainAddress = null;
+                     JOptionPane.showMessageDialog(null, "Cannot connect to network");
+                  }
+               }
+               catch (Exception e)
+               {
+                  blockchainAddress = null;
+                  JOptionPane.showMessageDialog(null, "Cannot connect to network: " + e.getMessage());
+               }
+
+               // Register user.
+               try
+               {
+                  NetworkClient.registerUser(playerName);
+               }
+               catch (Exception e)
+               {
+                  String emessage = e.getMessage();
+                  if (!emessage.contains("is already registered"))
+                  {
+                     JOptionPane.showMessageDialog(this, "Cannot register player as network user: " + emessage);
+                  }
+               }
+
+               // Run player client.
+               try
+               {
+                  players.add(new Player(gameCode, playerName));
+               }
+               catch (Exception e)
+               {
+                  JOptionPane.showMessageDialog(this, "Error running player: " + e.getMessage());
+               }
+            }
+         }
+         else
          {
-            String gameCode = gameCodeText.getText();
-            if (Shared.isVoid(gameCode) || gameCode.contains(DelimitedString.DELIMITER))
+            JTextField gameCodeText = new JTextField();
+            if (gameCode != null) { gameCodeText.setText(gameCode); }
+            JTextField playerNameText = new JTextField();
+            Object[] message =
             {
-               JOptionPane.showMessageDialog(this, "Invalid game code");
-               return;
-            }
-            String playerName = playerNameText.getText();
-            if (Shared.isVoid(playerName) ||
-                playerName.contains(DelimitedString.DELIMITER) ||
-                playerName.equals(Shared.ALL_PLAYERS))
+               "Game code:",   gameCodeText,
+               "Player name:", playerNameText
+            };
+            int option = JOptionPane.showConfirmDialog(this, message, "Enter player information", JOptionPane.OK_CANCEL_OPTION);
+            if (option == JOptionPane.OK_OPTION)
             {
-               JOptionPane.showMessageDialog(this, "Invalid player name");
-               return;
-            }
+               String gameCode = gameCodeText.getText();
+               if (Shared.isVoid(gameCode) || gameCode.contains(DelimitedString.DELIMITER))
+               {
+                  gameCode = null;
+                  JOptionPane.showMessageDialog(this, "Invalid game code");
+                  return;
+               }
+               String playerName = playerNameText.getText();
+               if (Shared.isVoid(playerName) ||
+                   playerName.contains(DelimitedString.DELIMITER) ||
+                   playerName.equals(Shared.ALL_PLAYERS))
+               {
+                  JOptionPane.showMessageDialog(this, "Invalid player name");
+                  return;
+               }
 
-            // Register user.
-            try
-            {
-               NetworkClient.registerUser(playerName);
-            }
-            catch (Exception e)
-            {
-               JOptionPane.showMessageDialog(this, "Cannot register player as network user: " + e.getMessage());
-            }
+               // Register user.
+               try
+               {
+                  NetworkClient.registerUser(playerName);
+               }
+               catch (Exception e)
+               {
+                  String emessage = e.getMessage();
+                  if (!emessage.contains("is already registered"))
+                  {
+                     JOptionPane.showMessageDialog(this, "Cannot register player as network user: " + emessage);
+                  }
+               }
 
-            // Run player client.
-            try
-            {
-               players.add(new Player(gameCode, playerName));
+               // Run player client.
+               try
+               {
+                  players.add(new Player(gameCode, playerName));
+               }
+               catch (Exception e)
+               {
+                  JOptionPane.showMessageDialog(this, "Error running player: " + e.getMessage());
+               }
             }
-            catch (Exception e) {}
          }
          return;
       }

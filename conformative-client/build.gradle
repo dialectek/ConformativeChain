@@ -14,7 +14,7 @@ plugins {
     id 'application'
 }
 ext {
-   javaMainClass = "com.dialectek.conformative.hyperledger.client.Conformative"
+   javaMainClass = "com.dialectek.conformative.hyperledger.client.ConformativeGame"
 }
 
 repositories {
@@ -31,12 +31,15 @@ dependencies {
 	implementation group: 'colt', name: 'colt', version: '1.2.0'
 	
 	// https://mavenlibs.com/maven/dependency/com.alibaba/dns-cache-manipulator
-	implementation 'com.alibaba:dns-cache-manipulator:1.7.2'			   
+	implementation 'com.alibaba:dns-cache-manipulator:1.7.2'
+	
+	// log4j
+	implementation 'org.apache.logging.log4j:log4j-core:2.18.0'					   
 }
 
 application {
     // Define the main class for the application.
-    mainClassName = 'com.dialectek.conformative.hyperledger.client.Conformative'
+    mainClassName = 'com.dialectek.conformative.hyperledger.client.ConformativeGame'
 }
 
 // task for running the app after building dependencies

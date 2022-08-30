@@ -16,6 +16,7 @@ import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -28,6 +29,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import org.apache.log4j.Logger;
+import org.hyperledger.fabric.gateway.ContractException;
 import com.dialectek.conformative.hyperledger.shared.DelimitedString;
 import com.dialectek.conformative.hyperledger.shared.Shared;
 
@@ -190,6 +193,8 @@ public class Player extends JFrame implements ActionListener
    private Timer     timer;
    private final int syncFreq    = 10;
    private int       syncCounter = 0;
+
+   final static Logger logger = Logger.getLogger(Player.class );
 
    // Constructor.
    public Player(String gameCode, String playerName) throws Exception
@@ -432,6 +437,7 @@ public class Player extends JFrame implements ActionListener
       auditorChatTextArea.setEditable(false);
       auditorChatCaptionPanel.add(auditorChatTextArea);
       auditorChatTextBox = newTextField(40);
+      auditorChatTextBox.setMaximumSize(new Dimension(Integer.MAX_VALUE, auditorChatTextBox.getPreferredSize().height));
       auditorChatCaptionPanel.add(auditorChatTextBox);
       auditorChatSendPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       auditorChatCaptionPanel.add(auditorChatSendPanel);
@@ -529,6 +535,7 @@ public class Player extends JFrame implements ActionListener
       claimantChatTextArea.setEditable(false);
       claimantChatCaptionPanel.add(claimantChatTextArea);
       claimantChatTextBox = newTextField(40);
+      claimantChatTextBox.setMaximumSize(new Dimension(Integer.MAX_VALUE, claimantChatTextBox.getPreferredSize().height));
       claimantChatCaptionPanel.add(claimantChatTextBox);
       claimantChatPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
       claimantChatCaptionPanel.add(claimantChatPanel);
@@ -580,6 +587,7 @@ public class Player extends JFrame implements ActionListener
       // Show.
       pack();
       setVisible(true);
+      log("ready");
    }
 
 
@@ -669,7 +677,7 @@ public class Player extends JFrame implements ActionListener
                   DelimitedString request = new DelimitedString(Shared.JOIN_GAME);
                   request.add(gameCode);
                   request.add(playerName);
-                  byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
+                  byte[] response = sendMessage("requestService", request.toString());
                   if ((response != null) && Shared.isOK(new String(response, StandardCharsets.UTF_8)))
                   {
                      playerState = true;
@@ -701,7 +709,7 @@ public class Player extends JFrame implements ActionListener
                   DelimitedString request = new DelimitedString(Shared.QUIT_GAME);
                   request.add(gameCode);
                   request.add(playerName);
-                  byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
+                  byte[] response = sendMessage("requestService", request.toString());
                   if ((response != null) && Shared.isOK(new String(response, StandardCharsets.UTF_8)))
                   {
                      playerState = false;
@@ -794,7 +802,7 @@ public class Player extends JFrame implements ActionListener
             request.add(gameCode);
             request.add(playerName);
             request.add(chatText);
-            byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
+            byte[] response = sendMessage("requestService", request.toString());
             if ((response != null) && Shared.isOK(new String(response, StandardCharsets.UTF_8)))
             {
                hostChatTextArea.setText(hostChatTextArea.getText() +
@@ -851,7 +859,7 @@ public class Player extends JFrame implements ActionListener
             request.add(gameCode);
             request.add(transactionNumber);
             request.add(chatText);
-            byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
+            byte[] response = sendMessage("requestService", request.toString());
             if ((response != null) && Shared.isOK(new String(response, StandardCharsets.UTF_8)))
             {
                auditorChatTextArea.setText(auditorChatTextArea.getText() +
@@ -908,7 +916,7 @@ public class Player extends JFrame implements ActionListener
             request.add(gameCode);
             request.add(transactionNumber);
             request.add(chatText);
-            byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
+            byte[] response = sendMessage("requestService", request.toString());
             if ((response != null) && Shared.isOK(new String(response, StandardCharsets.UTF_8)))
             {
                claimantChatTextArea.setText(claimantChatTextArea.getText() +
@@ -1003,7 +1011,7 @@ public class Player extends JFrame implements ActionListener
             request.add(gameCode);
             request.add(transactionNumber);
             request.add(claim);
-            byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
+            byte[] response = sendMessage("requestService", request.toString());
             if ((response == null) || Shared.isError(new String(response, StandardCharsets.UTF_8)))
             {
                if (response != null)
@@ -1066,7 +1074,7 @@ public class Player extends JFrame implements ActionListener
             request.add(transactionNumber);
             request.add(grant);
             request.add(playerNameTextBox.getText());
-            byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
+            byte[] response = sendMessage("requestService", request.toString());
             if ((response == null) || Shared.isError(new String(response, StandardCharsets.UTF_8)))
             {
                if (response != null)
@@ -1125,7 +1133,7 @@ public class Player extends JFrame implements ActionListener
             request.add(transactionNumber);
             request.add(donation);
             request.add(beneficiary);
-            byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
+            byte[] response = sendMessage("requestService", request.toString());
             if ((response != null) && Shared.isOK(new String(response, StandardCharsets.UTF_8)))
             {
                claimResourcesDonateTextBox.setText("");
@@ -1166,7 +1174,7 @@ public class Player extends JFrame implements ActionListener
             request.add(gameCode);
             request.add(transactionNumber);
             request.add(playerNameTextBox.getText());
-            byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
+            byte[] response = sendMessage("requestService", request.toString());
             if ((response == null) || Shared.isError(new String(response, StandardCharsets.UTF_8)))
             {
                if (response != null)
@@ -1372,7 +1380,7 @@ public class Player extends JFrame implements ActionListener
          DelimitedString request = new DelimitedString(Shared.SYNC_PLAYER);
          request.add(gameCode);
          request.add(playerName);
-         byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
+         byte[] response = sendMessage("requestService", request.toString());
          if ((response == null) || !Shared.isOK(new String(response, StandardCharsets.UTF_8)))
          {
             if (response == null)
@@ -1471,7 +1479,6 @@ public class Player extends JFrame implements ActionListener
          if (response != null)
          {
             String messages = new String(response, StandardCharsets.UTF_8);
-            System.out.println("player " + playerName + " messages: " + messages);
             if (Shared.isOK(messages))
             {
                String[] args = new DelimitedString(messages).parse();
@@ -1491,6 +1498,7 @@ public class Player extends JFrame implements ActionListener
                   {
                      if (args.length > 3)
                      {
+                        log("receives: " + messages);
                         disableUI();
                         update(messages);
                         enableUI();
@@ -1848,7 +1856,7 @@ public class Player extends JFrame implements ActionListener
          request.add(auditResourcesGrantTextBox.getText());
          request.add(auditResourcesConsensusTextBox.getText());
          request.add(auditResourcesPenaltyTextBox.getText());
-         byte[] response = NetworkClient.contract.submitTransaction("requestService", request.toString());
+         byte[] response = sendMessage("requestService", request.toString());
          if ((response == null) || !Shared.isOK(new String(response, StandardCharsets.UTF_8)))
          {
             if (response != null)
@@ -1866,6 +1874,21 @@ public class Player extends JFrame implements ActionListener
          JOptionPane.showMessageDialog(this, "Error saving player: " + e.getMessage());
       }
       enableUI();
+   }
+
+
+   // Send message to blockchain.
+   public byte[] sendMessage(String destination, String payload) throws ContractException, TimeoutException, InterruptedException
+   {
+      log("sends: " + payload);
+      return(NetworkClient.contract.submitTransaction(destination, payload));
+   }
+
+
+   // Logging.
+   public void log(String message)
+   {
+      logger.info("player " + playerName + " " + message);
    }
 
 
@@ -1961,7 +1984,6 @@ public class Player extends JFrame implements ActionListener
          JTextField playerNameText = new JTextField();
          if (playerName != null) { playerNameText.setText(playerName); }
          JTextField blockchainAddressText = new JTextField();
-         blockchainAddressText.setText("localhost");
 
          Object[] message =
          {
@@ -1993,6 +2015,10 @@ public class Player extends JFrame implements ActionListener
                return;
             }
          }
+         else
+         {
+            System.exit(0);
+         }
       }
 
       // Connect to network.
@@ -2015,7 +2041,7 @@ public class Player extends JFrame implements ActionListener
       }
       catch (Exception e)
       {
-         JOptionPane.showMessageDialog(null, "Cannot connect to network");
+         JOptionPane.showMessageDialog(null, "Cannot connect to network: " + e.getMessage());
       }
 
       // Register user.
@@ -2025,7 +2051,11 @@ public class Player extends JFrame implements ActionListener
       }
       catch (Exception e)
       {
-         JOptionPane.showMessageDialog(null, "Cannot register player as network user: " + e.getMessage());
+         String emessage = e.getMessage();
+         if (!emessage.contains("is already registered"))
+         {
+            JOptionPane.showMessageDialog(null, "Cannot register player as network user: " + emessage);
+         }
       }
 
       // Run player client.
