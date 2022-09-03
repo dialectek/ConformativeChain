@@ -60,10 +60,10 @@ public class NetworkClient
    static public Contract contract;
 
    // Initialize.
-   public static boolean init(String blockchainAddress) throws Exception
+   public static void init(String blockchainAddress) throws Exception
    {
       if (!InetAddressUtils.isIPv4Address(blockchainAddress) &&
-    		  !InetAddressUtils.isIPv6Address(blockchainAddress))
+          !InetAddressUtils.isIPv6Address(blockchainAddress))
       {
          try
          {
@@ -72,19 +72,17 @@ public class NetworkClient
          }
          catch (UnknownHostException e)
          {
-            System.err.println("Cannot resolve internet address: " + e.getMessage());
-            System.exit(1);
+            throw new Exception("Cannot resolve internet address: " + e.getMessage());
          }
       }
-      BLOCKCHAIN_ADDRESS = blockchainAddress;     
-      return(init());
+      BLOCKCHAIN_ADDRESS = blockchainAddress;
+      init();
    }
-   
-   // Initialize.
-   public static boolean init() throws Exception
-   {
-      boolean result = true;
 
+
+   // Initialize.
+   public static void init() throws Exception
+   {
       // Resolve blockchain addresses.
       // https://github.com/alibaba/java-dns-cache-manipulator#-user-guide
       DnsCacheManipulator.setDnsCache("peer0.org1.example.com", BLOCKCHAIN_ADDRESS);
@@ -120,8 +118,7 @@ public class NetworkClient
       }
       catch (Exception e)
       {
-         System.err.println("Cannot get blockchain client credentials: " + e.getMessage());
-         System.exit(1);
+         throw new Exception("Cannot get blockchain client credentials: " + e.getMessage());
       }
 
       // enroll admin
@@ -129,8 +126,7 @@ public class NetworkClient
          enrollAdmin();
       }
       catch (Exception e) {
-         System.err.println("Error enrolling admin: " + e.getMessage());
-         result = false;
+         throw new Exception("Error enrolling admin: " + e.getMessage());
       }
 
       // connect to the network and access the smart contract
@@ -143,13 +139,14 @@ public class NetworkClient
          network  = gateway.getNetwork(Shared.CHANNEL_NAME);
          contract = network.getContract(Shared.CONTRACT_NAME);
 
-         if ((gateway == null) || (network == null) || (contract == null)) { result = false; }
+         if ((gateway == null) || (network == null) || (contract == null))
+         {
+            throw new Exception("Cannot connect to network");
+         }
       }
       catch (Exception e) {
-         System.err.println("Error connecting to network: " + e.getMessage());
-         result = false;
+         throw new Exception("Cannot connect to network: " + e.getMessage());
       }
-      return(result);
    }
 
 

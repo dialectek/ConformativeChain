@@ -117,16 +117,12 @@ public class ConformativeGame extends JFrame implements ActionListener
                // Connect to network.
                try
                {
-                  if (!NetworkClient.init(blockchainAddress))
-                  {
-                     blockchainAddress = null;
-                     JOptionPane.showMessageDialog(null, "Cannot connect to network");
-                  }
+                  NetworkClient.init(blockchainAddress);
                }
                catch (Exception e)
                {
                   blockchainAddress = null;
-                  JOptionPane.showMessageDialog(null, "Cannot connect to network: " + e.getMessage());
+                  JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
                }
 
                // Run host client.
@@ -216,16 +212,12 @@ public class ConformativeGame extends JFrame implements ActionListener
                // Connect to network.
                try
                {
-                  if (!NetworkClient.init(blockchainAddress))
-                  {
-                     blockchainAddress = null;
-                     JOptionPane.showMessageDialog(null, "Cannot connect to network");
-                  }
+                  NetworkClient.init(blockchainAddress);
                }
                catch (Exception e)
                {
                   blockchainAddress = null;
-                  JOptionPane.showMessageDialog(null, "Cannot connect to network: " + e.getMessage());
+                  JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
                }
 
                // Register user.

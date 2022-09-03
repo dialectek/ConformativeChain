@@ -2027,22 +2027,16 @@ public class Player extends JFrame implements ActionListener
       {
          if (blockchainAddress == null)
          {
-            if (!NetworkClient.init())
-            {
-               JOptionPane.showMessageDialog(null, "Cannot connect to network");
-            }
+            NetworkClient.init();
          }
          else
          {
-            if (!NetworkClient.init(blockchainAddress))
-            {
-               JOptionPane.showMessageDialog(null, "Cannot connect to network");
-            }
+            NetworkClient.init(blockchainAddress);
          }
       }
       catch (Exception e)
       {
-         JOptionPane.showMessageDialog(null, "Cannot connect to network: " + e.getMessage());
+         JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
       }
 
       // Register user.
