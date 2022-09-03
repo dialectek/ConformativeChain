@@ -125,7 +125,8 @@ public class NetworkClient
       try {
          enrollAdmin();
       }
-      catch (Exception e) {
+      catch (Exception e) 
+      {
          throw new Exception("Error enrolling admin: " + e.getMessage());
       }
 
@@ -144,7 +145,8 @@ public class NetworkClient
             throw new Exception("Cannot connect to network");
          }
       }
-      catch (Exception e) {
+      catch (Exception e) 
+      {
          throw new Exception("Cannot connect to network: " + e.getMessage());
       }
    }
@@ -185,8 +187,9 @@ public class NetworkClient
             return(new String(response, StandardCharsets.UTF_8));
          }
       }
-      catch (Exception e) {
-         System.err.println(e);
+      catch (Exception e) 
+      {
+    	  throw new Exception("Cannot initialize ledger: " + e.getMessage());
       }
       return(null);
    }
