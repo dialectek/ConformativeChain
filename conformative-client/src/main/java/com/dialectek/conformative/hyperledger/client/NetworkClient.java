@@ -16,7 +16,9 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -40,6 +42,7 @@ import org.hyperledger.fabric.sdk.User;
 import org.hyperledger.fabric_ca.sdk.RegistrationRequest;
 import com.alibaba.dcm.DnsCacheManipulator;
 import com.dialectek.conformative.hyperledger.shared.Shared;
+import org.apache.http.conn.util.InetAddressUtils;
 
 public class NetworkClient
 {
@@ -59,11 +62,24 @@ public class NetworkClient
    // Initialize.
    public static boolean init(String blockchainAddress) throws Exception
    {
-      BLOCKCHAIN_ADDRESS = blockchainAddress;
+      if (!InetAddressUtils.isIPv4Address(blockchainAddress) &&
+    		  !InetAddressUtils.isIPv6Address(blockchainAddress))
+      {
+         try
+         {
+            InetAddress address = InetAddress.getByName(blockchainAddress);
+            blockchainAddress = address.getHostAddress();
+         }
+         catch (UnknownHostException e)
+         {
+            System.err.println("Cannot resolve internet address: " + e.getMessage());
+            System.exit(1);
+         }
+      }
+      BLOCKCHAIN_ADDRESS = blockchainAddress;     
       return(init());
    }
-
-
+   
    // Initialize.
    public static boolean init() throws Exception
    {
@@ -114,7 +130,6 @@ public class NetworkClient
       }
       catch (Exception e) {
          System.err.println("Error enrolling admin: " + e.getMessage());
-         System.err.println(e);
          result = false;
       }
 
@@ -132,7 +147,6 @@ public class NetworkClient
       }
       catch (Exception e) {
          System.err.println("Error connecting to network: " + e.getMessage());
-         System.err.println(e);
          result = false;
       }
       return(result);

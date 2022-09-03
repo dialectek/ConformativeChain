@@ -1721,6 +1721,7 @@ public class Player extends JFrame implements ActionListener
                transactionText += ";penalty=" + claimResourcesPenaltyTextBox.getText();
                transactionText += "\n";
                claimHistoryTextArea.setText(claimHistoryTextArea.getText() + transactionText);
+               roleTabPanel.setSelectedIndex(HOME_TAB);
             }
             if (auditState == TRANSACTION_STATE.WAITING)
             {
