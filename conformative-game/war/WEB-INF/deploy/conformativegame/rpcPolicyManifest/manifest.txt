@@ -1,3 +1,0 @@
-# Module conformativegame
-# RPC service class, partial path of RPC policy file
-com.citrix.conformative.client.GameService, 6485ED586D71E9E9AA2314D2ABA00061.gwt.rpc
