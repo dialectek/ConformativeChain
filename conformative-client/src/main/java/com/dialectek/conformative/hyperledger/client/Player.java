@@ -1733,6 +1733,7 @@ public class Player extends JFrame implements ActionListener
                transactionText += ";penalty=" + auditResourcesPenaltyTextBox.getText();
                transactionText += "\n";
                auditHistoryTextArea.setText(auditHistoryTextArea.getText() + transactionText);
+               roleTabPanel.setSelectedIndex(HOME_TAB);               
             }
             transactionNumber = -1;
             if (claimState != TRANSACTION_STATE.INACTIVE)
