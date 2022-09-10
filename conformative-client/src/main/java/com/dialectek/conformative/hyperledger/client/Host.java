@@ -431,7 +431,7 @@ public class Host extends JFrame implements ActionListener, ItemListener
       transactionClaimPanel.setLayout(new BoxLayout(transactionClaimPanel, BoxLayout.Y_AXIS));
       transactionClaimCaptionPanel.add(transactionClaimPanel);
       transactionClaimDistributionCaptionPanel = new JPanel();
-      transactionClaimDistributionCaptionPanel.setBorder(BorderFactory.createTitledBorder("Resource entitlement probability"));
+      transactionClaimDistributionCaptionPanel.setBorder(BorderFactory.createTitledBorder("Resource entitlement distribution"));
       transactionClaimDistributionCaptionPanel.setLayout(new BoxLayout(transactionClaimDistributionCaptionPanel, BoxLayout.Y_AXIS));
       transactionClaimPanel.add(transactionClaimDistributionCaptionPanel);
       transactionClaimDistributionCanvas = new Canvas();

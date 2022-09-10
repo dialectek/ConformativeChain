@@ -343,7 +343,7 @@ public class Player extends JFrame implements ActionListener
       claimPanel.setLayout(new BoxLayout(claimPanel, BoxLayout.Y_AXIS));
       roleTabPanel.add(claimPanel, "Claim");
       claimDistributionCaptionPanel = new JPanel();
-      claimDistributionCaptionPanel.setBorder(BorderFactory.createTitledBorder("Resource entitlement probability"));
+      claimDistributionCaptionPanel.setBorder(BorderFactory.createTitledBorder("Resource entitlement distribution"));
       claimDistributionCaptionPanel.setLayout(new BoxLayout(claimDistributionCaptionPanel, BoxLayout.Y_AXIS));
       claimPanel.add(claimDistributionCaptionPanel);
       claimDistributionCanvas = new Canvas();
@@ -457,7 +457,7 @@ public class Player extends JFrame implements ActionListener
       claimantNameTextBox.setEditable(false);
       claimantNamePanel.add(claimantNameTextBox);
       auditDistributionCaptionPanel = new JPanel();
-      auditDistributionCaptionPanel.setBorder(BorderFactory.createTitledBorder("Resource entitlement probability"));
+      auditDistributionCaptionPanel.setBorder(BorderFactory.createTitledBorder("Resource entitlement distribution"));
       auditDistributionCaptionPanel.setLayout(new BoxLayout(auditDistributionCaptionPanel, BoxLayout.Y_AXIS));
       auditPanel.add(auditDistributionCaptionPanel);
       auditDistributionCanvas = new Canvas();
